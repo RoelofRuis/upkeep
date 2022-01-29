@@ -41,7 +41,10 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
 		if err != nil {
 			return nil, err
 		}
-		tags := strings.Split(row[2], ",")
+		tags := []string{}
+		if row[2] != "" {
+			tags = strings.Split(row[2], ",")
+		}
 		blocks = append(blocks, TimeBlock{
 			Start: start,
 			End:   end,
