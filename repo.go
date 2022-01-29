@@ -8,10 +8,11 @@ import (
 )
 
 type TimesheetRepository struct {
+	path string
 }
 
 func (r *TimesheetRepository) Insert(t *Timesheet) error {
-	f, err := os.Create(fmt.Sprintf("sheet_%s.csv", t.Day))
+	f, err := os.Create(fmt.Sprintf("%s/sheet_%s.csv", r.path, t.Day))
 	if err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func (r *TimesheetRepository) Insert(t *Timesheet) error {
 
 func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
 	day := t.Format("2006-01-02")
-	f, err := os.Open(fmt.Sprintf("sheet_%s.csv", day))
+	f, err := os.Open(fmt.Sprintf("%s/sheet_%s.csv", r.path, day))
 	if err != nil {
 		switch {
 		case os.IsNotExist(err):

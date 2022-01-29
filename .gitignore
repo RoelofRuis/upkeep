@@ -1,1 +1,5 @@
+# Goland IDE folder
 .idea/
+
+# executable
+ts
