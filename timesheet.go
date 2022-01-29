@@ -10,6 +10,15 @@ type Timesheet struct {
 	Blocks []TimeBlock
 }
 
+func (s *Timesheet) TagActiveBlock(tag string) error {
+	if !s.HasActiveBlock() {
+		return errors.New("no block active")
+	}
+
+	s.Blocks[len(s.Blocks)-1].AddTag(tag)
+	return nil
+}
+
 func (s *Timesheet) Start(t time.Time) error {
 	if s.HasActiveBlock() {
 		return errors.New("cannot start two blocks")

@@ -4,32 +4,12 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
 type TimesheetRepository struct {
 	path string
-}
-
-func (r *TimesheetRepository) Insert(t *Timesheet) error {
-	f, err := os.Create(fmt.Sprintf("%s/sheet_%s.csv", r.path, t.Day))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	csvWriter := csv.NewWriter(f)
-	var rows [][]string
-	for _, block := range t.Blocks {
-		rows = append(rows, []string{block.Start.String(), block.End.String()})
-	}
-
-	err = csvWriter.WriteAll(rows)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
@@ -61,9 +41,11 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
 		if err != nil {
 			return nil, err
 		}
+		tags := strings.Split(row[2], ",")
 		blocks = append(blocks, TimeBlock{
 			Start: start,
 			End:   end,
+			Tags:  tags,
 		})
 	}
 
@@ -73,4 +55,29 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
 	}
 
 	return sheet, nil
+}
+
+func (r *TimesheetRepository) Insert(t *Timesheet) error {
+	f, err := os.Create(fmt.Sprintf("%s/sheet_%s.csv", r.path, t.Day))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	csvWriter := csv.NewWriter(f)
+	var rows [][]string
+	for _, block := range t.Blocks {
+		rows = append(rows, []string{
+			block.Start.String(),
+			block.End.String(),
+			strings.Join(block.Tags, ","),
+		})
+	}
+
+	err = csvWriter.WriteAll(rows)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -27,13 +27,26 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
 	case "stop":
 		err := timesheet.Stop(time.Now())
 		if err != nil {
 			panic(err)
 		}
+
+	case "tag":
+		if len(args) < 2 {
+			fmt.Printf("tag required\n")
+			return
+		}
+		err := timesheet.TagActiveBlock(args[1])
+		if err != nil {
+			panic(err)
+		}
+
 	case "show":
 		PrettyPrint(timesheet)
+
 	default:
 		fmt.Printf("unknown command '%s'", args[0])
 	}
