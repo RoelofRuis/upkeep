@@ -42,11 +42,31 @@ func (r *TimesheetRepository) Get() (*Timesheet, error) {
 	}
 
 	csvReader := csv.NewReader(f)
-	_, err = csvReader.ReadAll()
+	rows, err := csvReader.ReadAll()
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: parse each line and load!
-	return nil, nil
+	var blocks []TimeBlock
+
+	for _, row := range rows {
+		start, err := NewMomentFromString(row[0])
+		if err != nil {
+			return nil, err
+		}
+		end, err := NewMomentFromString(row[1])
+		if err != nil {
+			return nil, err
+		}
+		blocks = append(blocks, TimeBlock{
+			Start: start,
+			End:   end,
+		})
+	}
+
+	sheet := &Timesheet{
+		Blocks: blocks,
+	}
+
+	return sheet, nil
 }
