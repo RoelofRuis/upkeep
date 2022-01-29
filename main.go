@@ -8,7 +8,7 @@ import (
 func main() {
 	tr := TimesheetRepository{}
 
-	timesheet, err := tr.Get()
+	timesheet, err := tr.GetForDay(time.Now())
 	if err != nil {
 		panic(err)
 	}

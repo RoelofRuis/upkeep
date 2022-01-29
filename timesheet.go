@@ -6,6 +6,7 @@ import (
 )
 
 type Timesheet struct {
+	Day    string
 	Blocks []TimeBlock
 }
 
