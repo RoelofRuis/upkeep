@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"time"
 )
 
@@ -10,31 +9,36 @@ type Timesheet struct {
 	Blocks []TimeBlock
 }
 
-func (s *Timesheet) TagActiveBlock(tag string) error {
+func (s *Timesheet) TagActiveBlock(tag string) {
 	if !s.HasActiveBlock() {
-		return errors.New("no block active")
+		return
 	}
 
 	s.Blocks[len(s.Blocks)-1].AddTag(tag)
-	return nil
 }
 
-func (s *Timesheet) Start(t time.Time) error {
+func (s *Timesheet) UntagActiveBlock(tag string) {
+	if !s.HasActiveBlock() {
+		return
+	}
+
+	s.Blocks[len(s.Blocks)-1].RemoveTag(tag)
+}
+
+func (s *Timesheet) Start(t time.Time) {
 	if s.HasActiveBlock() {
-		return errors.New("cannot start two blocks")
+		return
 	}
 
 	s.Blocks = append(s.Blocks, NewTimeBlock(t))
-	return nil
 }
 
-func (s *Timesheet) Stop(t time.Time) error {
+func (s *Timesheet) Stop(t time.Time) {
 	if !s.HasActiveBlock() {
-		return errors.New("no block active")
+		return
 	}
 
 	s.Blocks[len(s.Blocks)-1].Complete(t)
-	return nil
 }
 
 func (s *Timesheet) HasActiveBlock() bool {

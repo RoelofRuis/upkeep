@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -37,10 +39,7 @@ func (app *application) handleStart(args []string) error {
 		return err
 	}
 
-	err = timesheet.Start(time.Now())
-	if err != nil {
-		return err
-	}
+	timesheet.Start(time.Now())
 
 	err = app.timesheetRepository.Insert(timesheet)
 	if err != nil {
@@ -56,10 +55,7 @@ func (app *application) handleStop(args []string) error {
 		return err
 	}
 
-	err = timesheet.Stop(time.Now())
-	if err != nil {
-		return err
-	}
+	timesheet.Stop(time.Now())
 
 	err = app.timesheetRepository.Insert(timesheet)
 	if err != nil {
@@ -68,6 +64,8 @@ func (app *application) handleStop(args []string) error {
 
 	return nil
 }
+
+var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)
 
 func (app *application) handleTag(args []string) error {
 	if len(args) < 1 {
@@ -79,11 +77,15 @@ func (app *application) handleTag(args []string) error {
 		return err
 	}
 
-	// TODO: process every tag, parse them and attach or detach
-
-	err = timesheet.TagActiveBlock(args[0])
-	if err != nil {
-		return err
+	for _, tag := range args {
+		if !validTag.MatchString(tag) {
+			return fmt.Errorf("invalid tag '%s'", tag)
+		}
+		if strings.HasPrefix(tag, "-") {
+			timesheet.UntagActiveBlock(strings.TrimPrefix(tag, "-"))
+		} else {
+			timesheet.TagActiveBlock(strings.TrimPrefix(tag, "+"))
+		}
 	}
 
 	err = app.timesheetRepository.Insert(timesheet)
