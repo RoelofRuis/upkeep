@@ -38,11 +38,12 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 		return nil, errors.New("invalid timesheet file")
 	}
 
-	lastStart, err := model.NewMomentFromString(rows[0][0])
+	lastStart, err := model.NewMomentFromString(rows[0][1])
 	if err != nil {
 		return nil, err
 	}
 
+	sheet.Day = day
 	sheet.LastStart = lastStart
 
 	var blocks []model.TimeBlock
@@ -83,6 +84,7 @@ func (r *TimesheetRepository) Insert(t *model.Timesheet) error {
 	var rows [][]string
 
 	rows = append(rows, []string{
+		t.Day,
 		t.LastStart.String(),
 	})
 
