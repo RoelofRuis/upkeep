@@ -19,8 +19,8 @@ func NewTagSetFromString(s string) TagSet {
 }
 
 func (ts TagSet) Add(tag string) TagSet {
-	for _, tag := range ts.tags {
-		if tag == tag {
+	for _, t := range ts.tags {
+		if t == tag {
 			return ts
 		}
 	}

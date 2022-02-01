@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -13,5 +14,15 @@ func main() {
 		timesheetRepository: TimesheetRepository{path: "./data"},
 	}
 
-	app.handle(os.Args[1:])
+	router := router{actions: make(map[string]handler)}
+	router.register("start", app.handleStart)
+	router.register("stop", app.handleStop)
+	router.register("tag", app.handleTag)
+	router.register("show", app.handleShow)
+
+	err, msg := router.handle(os.Args[1:])
+	if err != nil {
+		fmt.Printf("error: %s", err.Error())
+	}
+	fmt.Printf("%s\n", msg)
 }
