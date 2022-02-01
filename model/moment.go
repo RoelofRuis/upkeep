@@ -1,4 +1,4 @@
-package main
+package model
 
 import "time"
 
@@ -8,24 +8,28 @@ type Moment struct {
 	t *time.Time
 }
 
-func NewMoment(t time.Time) Moment {
-	minuteRounded := t.Truncate(time.Minute)
-	return Moment{t: &minuteRounded}
+func NewMoment() Moment {
+	return Moment{}
 }
 
 func NewMomentFromString(timeString string) (Moment, error) {
 	if timeString == "" {
-		return Moment{}, nil
+		return NewMoment(), nil
 	} else {
 		t, err := time.Parse(timeLayout, timeString)
 		if err != nil {
 			return Moment{}, err
 		}
-		return NewMoment(t), nil
+		return NewMoment().Start(t), nil
 	}
 }
 
-func (m Moment) IsDefined() bool {
+func (m Moment) Start(t time.Time) Moment {
+	minuteRounded := t.Truncate(time.Minute)
+	return Moment{t: &minuteRounded}
+}
+
+func (m Moment) IsStarted() bool {
 	return m.t != nil
 }
 

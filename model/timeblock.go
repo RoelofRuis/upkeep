@@ -1,6 +1,4 @@
-package main
-
-import "time"
+package model
 
 type TimeBlock struct {
 	Start Moment
@@ -8,10 +6,10 @@ type TimeBlock struct {
 	Tags  []string
 }
 
-func NewTimeBlock(t time.Time) TimeBlock {
+func NewTimeBlock(start Moment, end Moment) TimeBlock {
 	return TimeBlock{
-		Start: NewMoment(t),
-		End:   Moment{},
+		Start: start,
+		End:   end,
 		Tags:  []string{},
 	}
 }
@@ -33,12 +31,4 @@ func (ts *TimeBlock) RemoveTag(t string) {
 			return
 		}
 	}
-}
-
-func (ts *TimeBlock) Complete(t time.Time) {
-	ts.End = NewMoment(t)
-}
-
-func (ts TimeBlock) HasEnded() bool {
-	return ts.End.IsDefined()
 }

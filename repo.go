@@ -2,42 +2,57 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"time"
+	"timesheet/model"
 )
 
 type TimesheetRepository struct {
 	path string
 }
 
-func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
+func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	day := t.Format("2006-01-02")
+	sheet := model.NewTimesheet(day)
 	f, err := os.Open(fmt.Sprintf("%s/sheet_%s.csv", r.path, day))
 	if err != nil {
 		switch {
 		case os.IsNotExist(err):
-			return &Timesheet{Day: day}, nil
+			return sheet, nil
 		default:
 			return nil, err
 		}
 	}
 
 	csvReader := csv.NewReader(f)
+	csvReader.FieldsPerRecord = -1
 	rows, err := csvReader.ReadAll()
 	if err != nil {
 		return nil, err
 	}
 
-	var blocks []TimeBlock
+	if len(rows) == 0 {
+		return nil, errors.New("invalid timesheet file")
+	}
 
-	for _, row := range rows {
-		start, err := NewMomentFromString(row[0])
+	lastStart, err := model.NewMomentFromString(rows[0][0])
+	if err != nil {
+		return nil, err
+	}
+
+	sheet.LastStart = lastStart
+
+	var blocks []model.TimeBlock
+
+	for _, row := range rows[1:] {
+		start, err := model.NewMomentFromString(row[0])
 		if err != nil {
 			return nil, err
 		}
-		end, err := NewMomentFromString(row[1])
+		end, err := model.NewMomentFromString(row[1])
 		if err != nil {
 			return nil, err
 		}
@@ -45,22 +60,19 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*Timesheet, error) {
 		if row[2] != "" {
 			tags = strings.Split(row[2], ",")
 		}
-		blocks = append(blocks, TimeBlock{
+		blocks = append(blocks, model.TimeBlock{
 			Start: start,
 			End:   end,
 			Tags:  tags,
 		})
 	}
 
-	sheet := &Timesheet{
-		Day:    day,
-		Blocks: blocks,
-	}
+	sheet.Blocks = blocks
 
 	return sheet, nil
 }
 
-func (r *TimesheetRepository) Insert(t *Timesheet) error {
+func (r *TimesheetRepository) Insert(t *model.Timesheet) error {
 	f, err := os.Create(fmt.Sprintf("%s/sheet_%s.csv", r.path, t.Day))
 	if err != nil {
 		return err
@@ -69,6 +81,11 @@ func (r *TimesheetRepository) Insert(t *Timesheet) error {
 
 	csvWriter := csv.NewWriter(f)
 	var rows [][]string
+
+	rows = append(rows, []string{
+		t.LastStart.String(),
+	})
+
 	for _, block := range t.Blocks {
 		rows = append(rows, []string{
 			block.Start.String(),

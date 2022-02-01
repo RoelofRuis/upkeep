@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"strings"
+	"timesheet/model"
 )
 
-func PrettyPrint(t *Timesheet) {
+func PrettyPrint(t *model.Timesheet) {
 	if len(t.Blocks) == 0 {
 		return
 	}
