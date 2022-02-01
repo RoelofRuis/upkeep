@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 	"timesheet/model"
 )
@@ -43,7 +42,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 		return nil, err
 	}
 
-	sheet.Day = day
+	sheet.Tags = model.NewTagSetFromString(rows[0][2])
 	sheet.LastStart = lastStart
 
 	var blocks []model.TimeBlock
@@ -57,10 +56,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 		if err != nil {
 			return nil, err
 		}
-		tags := []string{}
-		if row[2] != "" {
-			tags = strings.Split(row[2], ",")
-		}
+		tags := model.NewTagSetFromString(row[2])
 		blocks = append(blocks, model.TimeBlock{
 			Start: start,
 			End:   end,
@@ -86,13 +82,14 @@ func (r *TimesheetRepository) Insert(t *model.Timesheet) error {
 	rows = append(rows, []string{
 		t.Day,
 		t.LastStart.String(),
+		t.Tags.String(),
 	})
 
 	for _, block := range t.Blocks {
 		rows = append(rows, []string{
 			block.Start.String(),
 			block.End.String(),
-			strings.Join(block.Tags, ","),
+			block.Tags.String(),
 		})
 	}
 

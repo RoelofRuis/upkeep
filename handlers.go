@@ -82,9 +82,9 @@ func (app *application) handleTag(args []string) error {
 			return fmt.Errorf("invalid tag '%s'", tag)
 		}
 		if strings.HasPrefix(tag, "-") {
-			timesheet.UntagActiveBlock(strings.TrimPrefix(tag, "-"))
+			timesheet.DetachTag(strings.TrimPrefix(tag, "-"))
 		} else {
-			timesheet.TagActiveBlock(strings.TrimPrefix(tag, "+"))
+			timesheet.AttachTag(strings.TrimPrefix(tag, "+"))
 		}
 	}
 
