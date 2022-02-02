@@ -6,12 +6,16 @@ import (
 )
 
 type application struct {
+	fileIO              FileIO
 	timesheetRepository TimesheetRepository
 }
 
 func main() {
+	fileIO := FileIO{path: "./data"}
+
 	app := application{
-		timesheetRepository: TimesheetRepository{path: "./data"},
+		fileIO:              fileIO,
+		timesheetRepository: TimesheetRepository{fileIO: fileIO},
 	}
 
 	router := router{actions: make(map[string]handler)}
@@ -19,6 +23,7 @@ func main() {
 	router.register("stop", app.handleStop)
 	router.register("tag", app.handleTag)
 	router.register("show", app.handleShow)
+	router.register("purge", app.handlePurge)
 
 	err, msg := router.handle(os.Args[1:])
 	if err != nil {

@@ -3,20 +3,19 @@ package main
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 	"timesheet/model"
 )
 
 type TimesheetRepository struct {
-	path string
+	fileIO FileIO
 }
 
 func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	day := t.Format("2006-01-02")
 	sheet := model.NewTimesheet(day)
-	f, err := os.Open(fmt.Sprintf("%s/sheet_%s.csv", r.path, day))
+	f, err := r.fileIO.OpenForDay(day)
 	if err != nil {
 		switch {
 		case os.IsNotExist(err):
@@ -70,7 +69,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 }
 
 func (r *TimesheetRepository) Insert(t *model.Timesheet) error {
-	f, err := os.Create(fmt.Sprintf("%s/sheet_%s.csv", r.path, t.Day))
+	f, err := r.fileIO.CreateForDay(t.Day)
 	if err != nil {
 		return err
 	}

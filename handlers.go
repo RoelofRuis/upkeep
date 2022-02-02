@@ -71,6 +71,15 @@ func (app *application) handleTag(args []string) (error, string) {
 	return nil, "tags updated"
 }
 
+func (app *application) handlePurge(args []string) (error, string) {
+	day := time.Now().Format("2006-01-02")
+	err := app.fileIO.DeleteForDay(day)
+	if err != nil {
+		return err, ""
+	}
+	return nil, "purged"
+}
+
 func (app *application) handleShow(args []string) (error, string) {
 	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
 	if err != nil {
