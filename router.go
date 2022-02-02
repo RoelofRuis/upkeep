@@ -29,6 +29,10 @@ func (r *router) handle(args []string) (error, string) {
 		return fmt.Errorf("no command given"), r.helpMessage()
 	}
 
+	if args[0] == "help" {
+		return nil, r.helpMessage()
+	}
+
 	h, has := r.actions[args[0]]
 	if !has {
 		return fmt.Errorf("unknown command '%s'", args[0]), r.helpMessage()
