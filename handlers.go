@@ -14,6 +14,15 @@ func (app *application) handleStart(args []string) (error, string) {
 		return err, ""
 	}
 
+	if timesheet.IsStarted() && !timesheet.Break {
+		return nil, "block already started"
+	}
+
+	if timesheet.Break {
+		timesheet.Stop(time.Now())
+		timesheet.SetBreak(false)
+	}
+
 	timesheet.Start(time.Now())
 
 	err = app.timesheetRepository.Insert(timesheet)
@@ -21,7 +30,25 @@ func (app *application) handleStart(args []string) (error, string) {
 		return err, ""
 	}
 
-	return nil, "started"
+	return nil, "started new block"
+}
+
+func (app *application) handleBreak(args []string) (error, string) {
+	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
+	if err != nil {
+		return err, ""
+	}
+
+	timesheet.Stop(time.Now())
+	timesheet.Start(time.Now())
+	timesheet.SetBreak(true)
+
+	err = app.timesheetRepository.Insert(timesheet)
+	if err != nil {
+		return err, ""
+	}
+
+	return nil, "break started"
 }
 
 func (app *application) handleStop(args []string) (error, string) {
@@ -30,14 +57,22 @@ func (app *application) handleStop(args []string) (error, string) {
 		return err, ""
 	}
 
+	if !timesheet.IsStarted() {
+		return nil, "block already stopped"
+	}
+
 	timesheet.Stop(time.Now())
+
+	if timesheet.Break {
+		timesheet.SetBreak(false)
+	}
 
 	err = app.timesheetRepository.Insert(timesheet)
 	if err != nil {
 		return err, ""
 	}
 
-	return nil, "stopped"
+	return nil, "stopped active block"
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)

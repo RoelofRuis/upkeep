@@ -6,6 +6,7 @@ import (
 
 type Timesheet struct {
 	Day       string
+	Break     bool
 	LastStart Moment
 	Tags      TagSet
 	Blocks    []TimeBlock
@@ -14,10 +15,15 @@ type Timesheet struct {
 func NewTimesheet(day string) *Timesheet {
 	return &Timesheet{
 		Day:       day,
+		Break:     false,
 		LastStart: NewMoment(),
 		Tags:      NewTagSet(),
 		Blocks:    []TimeBlock{},
 	}
+}
+
+func (s *Timesheet) SetBreak(active bool) {
+	s.Break = active
 }
 
 func (s *Timesheet) AttachTag(tag string) {
@@ -41,7 +47,14 @@ func (s *Timesheet) Stop(t time.Time) {
 		return
 	}
 
-	newBlock := NewTimeBlock(s.LastStart, NewMoment().Start(t), s.Tags)
+	var tags TagSet
+	if !s.Break {
+		tags = s.Tags
+	} else {
+		tags = NewTagSetFromString("break")
+	}
+
+	newBlock := NewTimeBlock(s.LastStart, NewMoment().Start(t), tags)
 
 	s.Blocks = append(s.Blocks, newBlock)
 	s.LastStart = NewMoment()

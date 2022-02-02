@@ -1,0 +1,5 @@
+- setting the path where data is stored (folder relative to home? env var?)
+- investigate storing data in JSON format
+- create a monthly export
+- alter tags for past blocks
+- add a break option

@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"os"
+	"strconv"
 	"time"
 	"timesheet/model"
 )
@@ -36,14 +37,21 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 		return nil, errors.New("invalid timesheet file")
 	}
 
+	// Load timesheet fields
+	breakActive, err := strconv.ParseBool(rows[0][0])
+	if err != nil {
+		return nil, err
+	}
 	lastStart, err := model.NewMomentFromString(rows[0][1])
 	if err != nil {
 		return nil, err
 	}
 
+	sheet.Break = breakActive
 	sheet.Tags = model.NewTagSetFromString(rows[0][2])
 	sheet.LastStart = lastStart
 
+	// load blocks
 	var blocks []model.TimeBlock
 
 	for _, row := range rows[1:] {
@@ -78,12 +86,14 @@ func (r *TimesheetRepository) Insert(t *model.Timesheet) error {
 	csvWriter := csv.NewWriter(f)
 	var rows [][]string
 
+	// save timesheet fields
 	rows = append(rows, []string{
-		t.Day,
+		strconv.FormatBool(t.Break),
 		t.LastStart.String(),
 		t.Tags.String(),
 	})
 
+	// save blocks
 	for _, block := range t.Blocks {
 		rows = append(rows, []string{
 			block.Start.String(),
