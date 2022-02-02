@@ -86,6 +86,15 @@ func (app *application) handleShow(args []string) (error, string) {
 		return err, ""
 	}
 
-	msg := fmt.Sprintf("Day: %s", timesheet.Day)
-	return nil, msg
+	var lines []string
+	lines = append(lines, fmt.Sprintf("> %s [%s]", timesheet.Day, timesheet.Tags.String()))
+	for _, block := range timesheet.Blocks {
+		blockString := fmt.Sprintf("%s - %s [%s]", block.Start.HourString(), block.End.HourString(), block.Tags.String())
+		lines = append(lines, blockString)
+	}
+	if timesheet.LastStart.IsStarted() {
+		activeBlockString := fmt.Sprintf("%s -   ?   [%s]", timesheet.LastStart.HourString(), timesheet.Tags.String())
+		lines = append(lines, activeBlockString)
+	}
+	return nil, strings.Join(lines, "\n")
 }

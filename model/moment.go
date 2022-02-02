@@ -3,6 +3,7 @@ package model
 import "time"
 
 const timeLayout = "2006-01-02 15:04"
+const hourLayout = "15:04"
 
 type Moment struct {
 	t *time.Time
@@ -38,4 +39,11 @@ func (m Moment) String() string {
 		return ""
 	}
 	return m.t.Format(timeLayout)
+}
+
+func (m Moment) HourString() string {
+	if m.t == nil {
+		return ""
+	}
+	return m.t.Format(hourLayout)
 }
