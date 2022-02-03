@@ -1,4 +1,8 @@
 - investigate storing data in JSON format
 - create a monthly export
 - alter tags for past blocks
-- add a break option
+
+wenselijke file structure
+ ~/.timekeep/timekeep.json
+ ~/.timekeep/sheets/2022-02-03.json
+
