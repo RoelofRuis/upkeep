@@ -10,8 +10,20 @@ type application struct {
 	timesheetRepository TimesheetRepository
 }
 
+// mode is set via ldflags in build
+var mode = "prod"
+
 func main() {
-	fileIO := FileIO{path: "./data"}
+	var path = "./dev-home"
+	if mode == "prod" {
+		var err error
+		path, err = os.UserHomeDir()
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	fileIO := FileIO{path: path}
 
 	app := application{
 		fileIO:              fileIO,
