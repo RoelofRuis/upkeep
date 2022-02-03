@@ -12,7 +12,7 @@ func NewTagSet() TagSet {
 
 func NewTagSetFromString(s string) TagSet {
 	if s == "" {
-		return TagSet{}
+		return NewTagSet()
 	}
 
 	return TagSet{tags: strings.Split(s, ",")}
