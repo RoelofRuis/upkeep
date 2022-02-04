@@ -23,7 +23,6 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, 
 
 		editor := &TimesheetEditor{upkeep: upkeep, timesheet: timesheet}
 
-
 		err, s := f(args, editor)
 		if err != nil {
 			return err, s
@@ -54,6 +53,12 @@ func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
 
 func HandleStop(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Stop()
+
+	return nil, editor.Show()
+}
+
+func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
+	editor.Abort()
 
 	return nil, editor.Show()
 }

@@ -40,6 +40,14 @@ func (s *Timesheet) Stop(t time.Time, tags TagSet) {
 	s.LastStart = NewMoment()
 }
 
+func (s *Timesheet) Abort() {
+	if !s.IsStarted() {
+		return
+	}
+
+	s.LastStart = NewMoment()
+}
+
 func (s *Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }

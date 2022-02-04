@@ -27,6 +27,10 @@ func (t *TimesheetEditor) Stop() {
 	t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
 }
 
+func (t *TimesheetEditor) Abort() {
+	t.timesheet.Abort()
+}
+
 var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)
 
 func (t *TimesheetEditor) Tag(tags []string) {
