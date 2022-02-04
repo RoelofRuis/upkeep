@@ -72,7 +72,7 @@ func (t *TimesheetEditor) Show() string {
 		))
 	}
 
-	quotum := t.upkeep.QuotumForDay(t.timesheet.Created.Weekday())
+	quotum := t.upkeep.GetQuotumForDay(t.timesheet.Created.Weekday())
 
 	if quotum == 0 {
 		lines = append(lines, fmt.Sprintf(
@@ -99,4 +99,8 @@ func formatDur(d time.Duration) string {
 
 func (t *TimesheetEditor) Purge() {
 	t.timesheet = model.NewTimesheet(time.Now())
+}
+
+func (t *TimesheetEditor) SetQuotum(day time.Weekday, dur time.Duration) {
+	t.upkeep.SetQuotumForDay(day, dur)
 }

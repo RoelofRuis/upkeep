@@ -47,6 +47,8 @@ func main() {
 	router.Register("tag", "change active tags", repository.Edit(app.HandleTag))
 	router.Register("purge", "purge timesheet", repository.Edit(app.HandlePurge))
 
+	router.Register("conf", "edit configuration values", repository.Edit(app.HandleConf))
+
 	router.Register("show", "show timesheet", repository.Edit(app.HandleShow))
 
 	err, msg := router.Handle(os.Args[1:])

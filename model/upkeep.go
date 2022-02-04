@@ -41,7 +41,11 @@ func (s *Upkeep) RemoveTag(tag string) {
 	s.Tags = stack.Push(set.Remove(tag))
 }
 
-func (s *Upkeep) QuotumForDay(day time.Weekday) time.Duration {
+func (s *Upkeep) SetQuotumForDay(day time.Weekday, quotum time.Duration) {
+	s.Quota[day] = quotum
+}
+
+func (s *Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 	quotum, has := s.Quota[day]
 	if !has {
 		return 0
