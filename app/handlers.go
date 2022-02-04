@@ -5,41 +5,10 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"timesheet/infra"
 	"timesheet/model/repo"
 )
 
 type Repository repo.Repository
-
-func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, string)) infra.Handler {
-	return func(args []string) (error, string) {
-		upkeep, err := r.Upkeep.Get()
-		if err != nil {
-			return err, ""
-
-		}
-		timesheet, err := r.Timesheets.GetForDay(time.Now())
-		if err != nil {
-			return err, ""
-		}
-
-		editor := &TimesheetEditor{upkeep: upkeep, timesheet: timesheet}
-
-		err, s := f(args, editor)
-		if err != nil {
-			return err, s
-		}
-
-		if err := r.Upkeep.Insert(editor.upkeep); err != nil {
-			return err, ""
-		}
-		if err := r.Timesheets.Insert(editor.timesheet); err != nil {
-			return err, ""
-		}
-
-		return nil, s
-	}
-}
 
 func HandlePurge(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Purge()

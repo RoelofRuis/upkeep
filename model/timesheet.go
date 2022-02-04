@@ -11,8 +11,8 @@ type Timesheet struct {
 	LastStart Moment
 }
 
-func NewTimesheet(created time.Time) *Timesheet {
-	return &Timesheet{
+func NewTimesheet(created time.Time) Timesheet {
+	return Timesheet{
 		Created:   created,
 		NextId:    0,
 		Blocks:    []TimeBlock{},
@@ -20,17 +20,18 @@ func NewTimesheet(created time.Time) *Timesheet {
 	}
 }
 
-func (s *Timesheet) Start(t time.Time) {
+func (s Timesheet) Start(t time.Time) Timesheet {
 	if s.IsStarted() {
-		return
+		return s
 	}
 
 	s.LastStart = NewMoment().Start(t)
+	return s
 }
 
-func (s *Timesheet) Stop(t time.Time, tags TagSet) {
+func (s Timesheet) Stop(t time.Time, tags TagSet) Timesheet {
 	if !s.IsStarted() {
-		return
+		return s
 	}
 
 	newBlock := NewTimeBlock(s.NextId, s.LastStart, NewMoment().Start(t), tags)
@@ -38,21 +39,23 @@ func (s *Timesheet) Stop(t time.Time, tags TagSet) {
 
 	s.Blocks = append(s.Blocks, newBlock)
 	s.LastStart = NewMoment()
+	return s
 }
 
-func (s *Timesheet) Abort() {
+func (s Timesheet) Abort() Timesheet {
 	if !s.IsStarted() {
-		return
+		return s
 	}
 
 	s.LastStart = NewMoment()
+	return s
 }
 
-func (s *Timesheet) IsStarted() bool {
+func (s Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }
 
-func (s *Timesheet) Duration() time.Duration {
+func (s Timesheet) Duration() time.Duration {
 	dur := time.Duration(0)
 
 	for _, block := range s.Blocks {

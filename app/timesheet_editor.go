@@ -5,8 +5,43 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"timesheet/infra"
 	"timesheet/model"
 )
+
+func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, string)) infra.Handler {
+	return func(args []string) (error, string) {
+		upkeep, err := r.Upkeep.Get()
+		if err != nil {
+			return err, ""
+
+		}
+		timesheet, err := r.Timesheets.GetForDay(time.Now())
+		if err != nil {
+			return err, ""
+		}
+
+		editor := &TimesheetEditor{upkeep: &upkeep, timesheet: &timesheet}
+
+		err, s := f(args, editor)
+		if err != nil {
+			return err, s
+		}
+
+		if editor.upkeep != &upkeep {
+			if err := r.Upkeep.Insert(*editor.upkeep); err != nil {
+				return err, ""
+			}
+		}
+		if editor.timesheet != &timesheet {
+			if err := r.Timesheets.Insert(*editor.timesheet); err != nil {
+				return err, ""
+			}
+		}
+
+		return nil, s
+	}
+}
 
 type TimesheetEditor struct {
 	upkeep    *model.Upkeep
@@ -14,7 +49,9 @@ type TimesheetEditor struct {
 }
 
 func (t *TimesheetEditor) Start(tags []string) {
-	t.timesheet.Start(time.Now())
+	sheet := t.timesheet.Start(time.Now())
+	t.timesheet = &sheet
+
 	t.Tag(tags)
 }
 
@@ -24,26 +61,30 @@ func (t *TimesheetEditor) Switch(tags []string) {
 }
 
 func (t *TimesheetEditor) Stop() {
-	t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
+	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
+	t.timesheet = &sheet
 }
 
 func (t *TimesheetEditor) Abort() {
-	t.timesheet.Abort()
+	sheet := t.timesheet.Abort()
+	t.timesheet = &sheet
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z_]*$`)
 
 func (t *TimesheetEditor) Tag(tags []string) {
+	upkeep := *t.upkeep
 	for _, tag := range tags {
 		if !validTag.MatchString(tag) {
 			continue
 		}
 		if strings.HasPrefix(tag, "-") {
-			t.upkeep.RemoveTag(strings.TrimPrefix(tag, "-"))
+			upkeep = upkeep.RemoveTag(strings.TrimPrefix(tag, "-"))
 		} else {
-			t.upkeep.AddTag(strings.TrimPrefix(tag, "+"))
+			upkeep = upkeep.AddTag(strings.TrimPrefix(tag, "+"))
 		}
 	}
+	t.upkeep = &upkeep
 }
 
 func (t *TimesheetEditor) Show() string {
@@ -98,9 +139,11 @@ func formatDur(d time.Duration) string {
 }
 
 func (t *TimesheetEditor) Purge() {
-	t.timesheet = model.NewTimesheet(time.Now())
+	sheet := model.NewTimesheet(time.Now())
+	t.timesheet = &sheet
 }
 
 func (t *TimesheetEditor) SetQuotum(day time.Weekday, dur time.Duration) {
-	t.upkeep.SetQuotumForDay(day, dur)
+	upkeep := t.upkeep.SetQuotumForDay(day, dur)
+	t.upkeep = &upkeep
 }

@@ -25,7 +25,7 @@ type blockJson struct {
 	Tags  string `json:"tags"`
 }
 
-func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
+func (r *TimesheetRepository) GetForDay(t time.Time) (model.Timesheet, error) {
 	input := timesheetJson{
 		CreatedAt: t.Format(model.LayoutDateHour),
 		NextId:    0,
@@ -34,12 +34,12 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	}
 
 	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", t.Format(model.LayoutDate)), &input); err != nil {
-		return nil, err
+		return model.Timesheet{}, err
 	}
 
 	createdTime, err := time.Parse(model.LayoutDateHour, input.CreatedAt)
 	if err != nil {
-		return nil, err
+		return model.Timesheet{}, err
 	}
 
 	sheet := model.NewTimesheet(createdTime)
@@ -47,7 +47,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 
 	lastStart, err := model.NewMomentFromString(input.LastStart)
 	if err != nil {
-		return nil, err
+		return model.Timesheet{}, err
 	}
 	sheet.LastStart = lastStart
 
@@ -55,11 +55,11 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	for _, blockData := range input.Blocks {
 		start, err := model.NewMomentFromString(blockData.Start)
 		if err != nil {
-			return nil, err
+			return model.Timesheet{}, err
 		}
 		end, err := model.NewMomentFromString(blockData.End)
 		if err != nil {
-			return nil, err
+			return model.Timesheet{}, err
 		}
 		block := model.TimeBlock{
 			Id:    blockData.Id,
@@ -75,7 +75,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	return sheet, nil
 }
 
-func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
+func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	var blocks []blockJson
 
 	for _, block := range m.Blocks {

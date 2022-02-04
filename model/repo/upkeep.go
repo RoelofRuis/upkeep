@@ -16,25 +16,25 @@ type upkeepJson struct {
 	Quota map[int]string `json:"quota"`
 }
 
-func (r *UpkeepRepository) Get() (*model.Upkeep, error) {
+func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 	input := upkeepJson{
 		Version: "0.1",
 	}
 
 	if err := r.FileIO.Read("upkeep.json", &input); err != nil {
-		return nil, err
+		return model.Upkeep{}, err
 	}
 
 	quotumMap := make(map[time.Weekday]time.Duration)
 	for weekday, dur := range input.Quota {
 		duration, err := time.ParseDuration(dur)
 		if err != nil {
-			return nil, err
+			return model.Upkeep{}, err
 		}
 		quotumMap[time.Weekday(weekday)] = duration
 	}
 
-	upkeep := &model.Upkeep{
+	upkeep := model.Upkeep{
 		Version: input.Version,
 		Tags:    model.NewTagStackFromString(input.Tags),
 		Quota:   quotumMap,
@@ -43,7 +43,7 @@ func (r *UpkeepRepository) Get() (*model.Upkeep, error) {
 	return upkeep, nil
 }
 
-func (r *UpkeepRepository) Insert(m *model.Upkeep) error {
+func (r *UpkeepRepository) Insert(m model.Upkeep) error {
 	quotumMap := make(map[int]string)
 	for weekday, dur := range m.Quota {
 		quotumMap[int(weekday)] = dur.String()
