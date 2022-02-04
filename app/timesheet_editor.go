@@ -31,7 +31,7 @@ func (t *TimesheetEditor) Abort() {
 	t.timesheet.Abort()
 }
 
-var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)
+var validTag = regexp.MustCompile(`^[+-]?[a-z_]*$`)
 
 func (t *TimesheetEditor) Tag(tags []string) {
 	for _, tag := range tags {
