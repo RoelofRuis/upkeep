@@ -13,6 +13,7 @@ type TimesheetRepository struct {
 
 type timesheetJson struct {
 	Day       string      `json:"day"`
+	NextId    int         `json:"next_id"`
 	LastStart string      `json:"last_start"`
 	Blocks    []blockJson `json:"blocks"`
 }
@@ -28,6 +29,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 
 	input := timesheetJson{
 		Day:       day,
+		NextId:    0,
 		LastStart: "",
 		Blocks:    nil,
 	}
@@ -80,6 +82,7 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 
 	output := timesheetJson{
 		Day:       m.Day,
+		NextId:    m.NextId,
 		LastStart: m.LastStart.String(),
 		Blocks:    blocks,
 	}

@@ -6,6 +6,7 @@ import (
 
 type Timesheet struct {
 	Day       string
+	NextId    int
 	Blocks    []TimeBlock
 	LastStart Moment
 }
@@ -31,7 +32,8 @@ func (s *Timesheet) Stop(t time.Time, tags TagSet) {
 		return
 	}
 
-	newBlock := NewTimeBlock(s.LastStart, NewMoment().Start(t), tags)
+	newBlock := NewTimeBlock(s.NextId, s.LastStart, NewMoment().Start(t), tags)
+	s.NextId += 1
 
 	s.Blocks = append(s.Blocks, newBlock)
 	s.LastStart = NewMoment()
