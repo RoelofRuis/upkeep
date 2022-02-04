@@ -19,6 +19,7 @@ type timesheetJson struct {
 }
 
 type blockJson struct {
+	Id    int    `json:"id"`
 	Start string `json:"start"`
 	End   string `json:"end"`
 	Tags  string `json:"tags"`
@@ -39,6 +40,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	}
 
 	sheet := model.NewTimesheet(input.Day)
+	sheet.NextId = input.NextId
 
 	lastStart, err := model.NewMomentFromString(input.LastStart)
 	if err != nil {
@@ -57,6 +59,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 			return nil, err
 		}
 		block := model.TimeBlock{
+			Id:    blockData.Id,
 			Start: start,
 			End:   end,
 			Tags:  model.NewTagSetFromString(blockData.Tags),
@@ -74,6 +77,7 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 
 	for _, block := range m.Blocks {
 		blocks = append(blocks, blockJson{
+			Id:    block.Id,
 			Start: block.Start.String(),
 			End:   block.End.String(),
 			Tags:  block.Tags.String(),

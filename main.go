@@ -36,9 +36,9 @@ func main() {
 	router.Register("stop", "stop the active block", repository.Edit(app.HandleStop))
 	router.Register("tag", "change active tags", repository.Edit(app.HandleTag))
 
-	router.Register("show", "show timesheet", repository.Edit(app.HandleShow))
+	router.Register("show", "show timesheet", repository.Read(app.HandleShow))
 
-	router.Register("purge", "purge timesheet", repository.Purge())
+	router.Register("purge", "purge timesheet", repository.Read(repository.HandlePurge))
 
 	err, msg := router.Handle(os.Args[1:])
 	if err != nil {

@@ -9,22 +9,15 @@ import (
 
 type Repository repo.Repository
 
-func (r Repository) Purge() infra.Handler {
-	return func(args []string) (error, string) {
-		timesheet, err := r.Timesheets.GetForDay(time.Now())
-		if err != nil {
-			return err, ""
-		}
-
-		if err := r.Timesheets.Delete(timesheet); err != nil {
-			return err, ""
-		}
-
-		return nil, "purged"
-	}
+func (r Repository) Read(f func(args []string, editor TimesheetEditor) (error, string)) infra.Handler {
+	return r.withEditor(f, false)
 }
 
 func (r Repository) Edit(f func(args []string, editor TimesheetEditor) (error, string)) infra.Handler {
+	return r.withEditor(f, true)
+}
+
+func (r Repository) withEditor(f func(args []string, editor TimesheetEditor) (error, string), save bool) infra.Handler {
 	return func(args []string) (error, string) {
 		upkeep, err := r.Upkeep.Get()
 		if err != nil {
@@ -41,15 +34,30 @@ func (r Repository) Edit(f func(args []string, editor TimesheetEditor) (error, s
 			return err, s
 		}
 
-		if err := r.Upkeep.Insert(upkeep); err != nil {
-			return err, ""
-		}
-		if err := r.Timesheets.Insert(timesheet); err != nil {
-			return err, ""
+		if save {
+			if err := r.Upkeep.Insert(upkeep); err != nil {
+				return err, ""
+			}
+			if err := r.Timesheets.Insert(timesheet); err != nil {
+				return err, ""
+			}
 		}
 
 		return nil, s
 	}
+}
+
+func (r Repository) HandlePurge(args []string, editor TimesheetEditor) (error, string) {
+	timesheet, err := r.Timesheets.GetForDay(time.Now())
+	if err != nil {
+		return err, ""
+	}
+
+	if err := r.Timesheets.Delete(timesheet); err != nil {
+		return err, ""
+	}
+
+	return nil, editor.Show()
 }
 
 func HandleStart(args []string, editor TimesheetEditor) (error, string) {
