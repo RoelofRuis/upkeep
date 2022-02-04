@@ -3,7 +3,7 @@ package model
 import "time"
 
 const LayoutDate = "2006-01-02"
-const LayoutDateHour = "2006-01-02 15:04"
+const LayoutDateHour = "2006-01-02 15:04 -0700 MST"
 const LayoutHour = "15:04"
 
 type Moment struct {
@@ -27,7 +27,7 @@ func NewMomentFromString(timeString string) (Moment, error) {
 }
 
 func (m Moment) Start(t time.Time) Moment {
-	minuteRounded := t.Truncate(time.Minute)
+	minuteRounded := t.Round(time.Minute)
 	return Moment{t: &minuteRounded}
 }
 

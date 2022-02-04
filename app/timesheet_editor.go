@@ -43,17 +43,25 @@ func (t *TimesheetEditor) Tag(tags []string) {
 }
 
 func (t *TimesheetEditor) Show() string {
+
 	var lines []string
 	lines = append(
 		lines,
 		fmt.Sprintf(
-			"> %s [%s]",
+			"> %s\nTags [%s]",
 			t.timesheet.Created.Format("Monday 02 Jan 2006"),
 			t.upkeep.Tags.String(),
 		),
 	)
+	lines = append(lines, "-----------------------")
 	for _, block := range t.timesheet.Blocks {
-		blockString := fmt.Sprintf("%s - %s [%s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour), block.Tags.String())
+		blockString := fmt.Sprintf(
+			"%s - %s (%s) [%s]",
+			block.Start.Format(model.LayoutHour),
+			block.End.Format(model.LayoutHour),
+			block.Duration().String(),
+			block.Tags.String(),
+		)
 		lines = append(lines, blockString)
 	}
 	if t.timesheet.LastStart.IsStarted() {

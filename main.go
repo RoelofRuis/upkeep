@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ModeProd = "prod"
-	ModeDev = "dev"
+	ModeProd  = "prod"
+	ModeDev   = "dev"
 	ModeDebug = "dbg"
 )
 
@@ -20,6 +20,7 @@ var mode = ModeProd
 func main() {
 	var homePath = "./dev-home"
 	prodMode := mode == ModeProd
+	devMode := mode == ModeDev
 	dbgMode := mode == ModeDebug
 	if prodMode {
 		var err error
@@ -30,6 +31,7 @@ func main() {
 	}
 
 	fileIO := infra.FileIO{
+		PrettyJson:   devMode || dbgMode,
 		DebugEnabled: dbgMode,
 		HomePath:     homePath,
 		DataFolder:   ".upkeep",

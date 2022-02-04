@@ -9,9 +9,11 @@ import (
 )
 
 type FileIO struct {
+	PrettyJson   bool
 	DebugEnabled bool
+
 	HomePath     string
-	DataFolder string
+	DataFolder   string
 }
 
 func (fio FileIO) Read(fname string, dst interface{}) error {
@@ -41,7 +43,7 @@ func (fio FileIO) Read(fname string, dst interface{}) error {
 func (fio FileIO) Write(fname string, src interface{}) error {
 	var data []byte
 	var err error
-	if fio.DebugEnabled {
+	if fio.PrettyJson {
 		data, err = json.MarshalIndent(src, "", "  ")
 	} else {
 		data, err = json.Marshal(src)
