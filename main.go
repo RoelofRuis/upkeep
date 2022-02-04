@@ -38,12 +38,11 @@ func main() {
 	}
 
 	router := newRouter()
-	router.register("test", "a test action", app.handleTest) // TODO: remove!
 
-	router.register("start", "start a new block", app.handleStart)
-	router.register("stop", "stop the active block", app.handleStop)
-	router.register("tag", "change active tags", app.handleTag)
-	router.register("show", "show timesheet", app.handleShow)
+	router.register("start", "start a new block", app.withModel(handleStart))
+	router.register("stop", "stop the active block", app.withModel(handleStop))
+	router.register("tag", "change active tags", app.withModel(handleTag))
+	router.register("show", "show timesheet", app.withModel(handleShow))
 	router.register("purge", "purge timesheet", app.handlePurge)
 
 	err, msg := router.handle(os.Args[1:])

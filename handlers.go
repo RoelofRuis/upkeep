@@ -6,71 +6,61 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"timesheet/model"
 )
 
-func (app *application) handleTest(args []string) (error, string) {
-	upkeep, err := app.upkeepRepository.Get()
-	if err != nil {
-		return err, ""
-	}
-
-	fmt.Printf("version: %s\n", upkeep.Version)
-
-	err = app.upkeepRepository.Insert(upkeep)
-	if err != nil {
-		return err, ""
-	}
-
-	return nil, "ok"
+type domain struct {
+	upkeep    *model.Upkeep
+	timesheet *model.Timesheet
 }
 
-func (app *application) handleStart(args []string) (error, string) {
+func (app *application) withModel(f func(args []string, domain domain) (error, string)) func(args []string) (error, string) {
+	upkeep, err := app.upkeepRepository.Get()
+	if err != nil {
+		return func([]string) (error, string) {
+			return err, ""
+		}
+	}
 	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
 	if err != nil {
-		return err, ""
+		return func([]string) (error, string) {
+			return err, ""
+		}
 	}
+	return func(args []string) (error, string) {
+		err, s := f(args, domain{upkeep: upkeep, timesheet: timesheet})
+		if err != nil {
+			return err, s
+		}
 
-	timesheet.Start(time.Now())
+		if err := app.upkeepRepository.Insert(upkeep); err != nil {
+			return err, ""
+		}
+		if err := app.timesheetRepository.Insert(timesheet); err != nil {
+			return err, ""
+		}
 
-	err = app.timesheetRepository.Insert(timesheet)
-	if err != nil {
-		return err, ""
+		return nil, s
 	}
+}
+
+func handleStart(args []string, domain domain) (error, string) {
+	domain.timesheet.Start(time.Now())
 
 	return nil, "started new block"
 }
 
-func (app *application) handleStop(args []string) (error, string) {
-	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
-	if err != nil {
-		return err, ""
-	}
-
-	upkeep, err := app.upkeepRepository.Get()
-	if err != nil {
-		return err, ""
-	}
-
-	timesheet.Stop(time.Now(), upkeep.GetTags())
-
-	err = app.timesheetRepository.Insert(timesheet)
-	if err != nil {
-		return err, ""
-	}
+func handleStop(args []string, domain domain) (error, string) {
+	domain.timesheet.Stop(time.Now(), domain.upkeep.GetTags())
 
 	return nil, "stopped active block"
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)
 
-func (app *application) handleTag(args []string) (error, string) {
+func handleTag(args []string, domain domain) (error, string) {
 	if len(args) < 1 {
 		return errors.New("no tag specified"), ""
-	}
-
-	upkeep, err := app.upkeepRepository.Get()
-	if err != nil {
-		return err, ""
 	}
 
 	for _, tag := range args {
@@ -78,15 +68,10 @@ func (app *application) handleTag(args []string) (error, string) {
 			return fmt.Errorf("invalid tag '%s'", tag), ""
 		}
 		if strings.HasPrefix(tag, "-") {
-			upkeep.RemoveTag(strings.TrimPrefix(tag, "-"))
+			domain.upkeep.RemoveTag(strings.TrimPrefix(tag, "-"))
 		} else {
-			upkeep.AddTag(strings.TrimPrefix(tag, "+"))
+			domain.upkeep.AddTag(strings.TrimPrefix(tag, "+"))
 		}
-	}
-
-	err = app.upkeepRepository.Insert(upkeep)
-	if err != nil {
-		return err, ""
 	}
 
 	return nil, "tags updated"
@@ -105,25 +90,15 @@ func (app *application) handlePurge(args []string) (error, string) {
 	return nil, "purged"
 }
 
-func (app *application) handleShow(args []string) (error, string) {
-	upkeep, err := app.upkeepRepository.Get()
-	if err != nil {
-		return err, ""
-	}
-
-	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
-	if err != nil {
-		return err, ""
-	}
-
+func handleShow(args []string, domain domain) (error, string) {
 	var lines []string
-	lines = append(lines, fmt.Sprintf("> %s [%s]", timesheet.Day, upkeep.GetTags().String()))
-	for _, block := range timesheet.Blocks {
+	lines = append(lines, fmt.Sprintf("> %s [%s]", domain.timesheet.Day, domain.upkeep.GetTags().String()))
+	for _, block := range domain.timesheet.Blocks {
 		blockString := fmt.Sprintf("%s - %s [%s]", block.Start.HourString(), block.End.HourString(), block.Tags.String())
 		lines = append(lines, blockString)
 	}
-	if timesheet.LastStart.IsStarted() {
-		activeBlockString := fmt.Sprintf("%s -   ?   [%s]", timesheet.LastStart.HourString(), upkeep.GetTags().String())
+	if domain.timesheet.LastStart.IsStarted() {
+		activeBlockString := fmt.Sprintf("%s -   ?   [%s]", domain.timesheet.LastStart.HourString(), domain.upkeep.GetTags().String())
 		lines = append(lines, activeBlockString)
 	}
 	return nil, strings.Join(lines, "\n")
