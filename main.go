@@ -3,34 +3,39 @@ package main
 import (
 	"fmt"
 	"os"
+	"timesheet/infra"
+	"timesheet/repo"
 )
 
 type application struct {
-	fileIO              FileIO
-	timesheetRepository TimesheetRepository
+	timekeepRepository  repo.TimekeepRepository
+	timesheetRepository repo.TimesheetRepository
 }
 
 // mode is set via ldflags in build
 var mode = "prod"
 
 func main() {
-	var path = "./dev-home"
-	if mode == "prod" {
+	var homePath = "./dev-home"
+	devMode := mode == "dev"
+	if !devMode {
 		var err error
-		path, err = os.UserHomeDir()
+		homePath, err = os.UserHomeDir()
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	fileIO := FileIO{path: path}
+	fileIO := infra.FileIO{PrettyJSON: devMode, HomePath: homePath}
 
 	app := application{
-		fileIO:              fileIO,
-		timesheetRepository: TimesheetRepository{fileIO: fileIO},
+		timekeepRepository:  repo.TimekeepRepository{FileIO: fileIO},
+		timesheetRepository: repo.TimesheetRepository{FileIO: fileIO},
 	}
 
 	router := newRouter()
+	router.register("test", "a test action", app.handleTest)
+
 	router.register("start", "start a new block", app.handleStart)
 	router.register("stop", "stop the active block", app.handleStop)
 	router.register("tag", "change active tags", app.handleTag)

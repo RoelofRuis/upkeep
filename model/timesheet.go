@@ -5,14 +5,16 @@ import (
 )
 
 type Timesheet struct {
-	Day       string
-	Break     bool
+	Day    string
+	Break  bool // TODO: does this belong here?
+	Blocks []TimeBlock
+	// Deprecated should be moved to Timekeep
 	LastStart Moment
-	Tags      TagSet
-	Blocks    []TimeBlock
+	// Deprecated should be moved to Timekeep
+	Tags TagSet
 }
 
-func NewTimesheet(day string) *Timesheet {
+func NewTimesheet(day string) *Timesheet { // TODO: remove day from constructor?
 	return &Timesheet{
 		Day:       day,
 		Break:     false,

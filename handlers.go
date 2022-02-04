@@ -8,6 +8,22 @@ import (
 	"time"
 )
 
+func (app *application) handleTest(args []string) (error, string) {
+	timekeep, err := app.timekeepRepository.Get()
+	if err != nil {
+		return err, ""
+	}
+
+	fmt.Printf("version: %s\n", timekeep.Version)
+
+	err = app.timekeepRepository.Insert(timekeep)
+	if err != nil {
+		return err, ""
+	}
+
+	return nil, "ok"
+}
+
 func (app *application) handleStart(args []string) (error, string) {
 	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
 	if err != nil {
@@ -107,11 +123,15 @@ func (app *application) handleTag(args []string) (error, string) {
 }
 
 func (app *application) handlePurge(args []string) (error, string) {
-	day := time.Now().Format("2006-01-02")
-	err := app.fileIO.DeleteForDay(day)
+	timesheet, err := app.timesheetRepository.GetForDay(time.Now())
 	if err != nil {
 		return err, ""
 	}
+
+	if err := app.timesheetRepository.Delete(timesheet); err != nil {
+		return err, ""
+	}
+
 	return nil, "purged"
 }
 
