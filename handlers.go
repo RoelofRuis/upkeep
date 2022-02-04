@@ -69,13 +69,6 @@ func handleStop(args []string, domain domain) (error, string) {
 
 func handleSwitch(args []string, domain domain) (error, string) {
 	domain.timesheet.Stop(time.Now(), domain.upkeep.GetTags())
-
-	if len(args) == 1 && args[0] == "-" {
-		domain.upkeep.UnshiftTags()
-	} else {
-		domain.upkeep.ShiftTags()
-	}
-
 	domain.timesheet.Start(time.Now())
 
 	return nil, "switched"

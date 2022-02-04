@@ -43,7 +43,9 @@ func main() {
 	router.register("switch", "switch to a new block", app.withDomain(handleSwitch))
 	router.register("stop", "stop the active block", app.withDomain(handleStop))
 	router.register("tag", "change active tags", app.withDomain(handleTag))
+
 	router.register("show", "show timesheet", app.withDomain(handleShow))
+
 	router.register("purge", "purge timesheet", app.handlePurge)
 
 	err, msg := router.handle(os.Args[1:])
