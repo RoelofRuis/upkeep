@@ -1,4 +1,5 @@
 - create a monthly export
 - alter tags for past blocks
 - break function
+- total times in terms of hours
 

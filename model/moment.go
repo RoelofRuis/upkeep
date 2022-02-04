@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-const timeLayout = "2006-01-02 15:04"
-const hourLayout = "15:04"
+const LayoutDateHour = "2006-01-02 15:04"
+const LayoutHour = "15:04"
 
 type Moment struct {
 	t *time.Time
@@ -17,7 +17,7 @@ func NewMomentFromString(timeString string) (Moment, error) {
 	if timeString == "" {
 		return NewMoment(), nil
 	} else {
-		t, err := time.Parse(timeLayout, timeString)
+		t, err := time.Parse(LayoutDateHour, timeString)
 		if err != nil {
 			return Moment{}, err
 		}
@@ -34,16 +34,9 @@ func (m Moment) IsStarted() bool {
 	return m.t != nil
 }
 
-func (m Moment) String() string {
+func (m Moment) Format(layout string) string {
 	if m.t == nil {
 		return ""
 	}
-	return m.t.Format(timeLayout)
-}
-
-func (m Moment) HourString() string {
-	if m.t == nil {
-		return ""
-	}
-	return m.t.Format(hourLayout)
+	return m.t.Format(layout)
 }

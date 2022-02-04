@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type TimeBlock struct {
 	Id    int
 	Start Moment
@@ -16,10 +18,6 @@ func NewTimeBlock(id int, start Moment, end Moment, tags TagSet) TimeBlock {
 	}
 }
 
-func (ts *TimeBlock) AddTag(t string) {
-	ts.Tags = ts.Tags.Add(t)
-}
-
-func (ts *TimeBlock) RemoveTag(t string) {
-	ts.Tags = ts.Tags.Remove(t)
+func (b TimeBlock) Duration() time.Duration {
+	return b.End.t.Sub(*b.Start.t)
 }

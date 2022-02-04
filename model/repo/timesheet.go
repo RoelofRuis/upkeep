@@ -78,8 +78,8 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 	for _, block := range m.Blocks {
 		blocks = append(blocks, blockJson{
 			Id:    block.Id,
-			Start: block.Start.String(),
-			End:   block.End.String(),
+			Start: block.Start.Format(model.LayoutDateHour),
+			End:   block.End.Format(model.LayoutDateHour),
 			Tags:  block.Tags.String(),
 		})
 	}
@@ -87,7 +87,7 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 	output := timesheetJson{
 		Day:       m.Day,
 		NextId:    m.NextId,
-		LastStart: m.LastStart.String(),
+		LastStart: m.LastStart.Format(model.LayoutDateHour),
 		Blocks:    blocks,
 	}
 
