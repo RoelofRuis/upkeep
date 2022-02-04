@@ -13,23 +13,23 @@ type TimesheetEditor struct {
 	timesheet *model.Timesheet
 }
 
-func (t TimesheetEditor) Start(tags []string) {
+func (t *TimesheetEditor) Start(tags []string) {
 	t.timesheet.Start(time.Now())
 	t.Tag(tags)
 }
 
-func (t TimesheetEditor) Switch(tags []string) {
+func (t *TimesheetEditor) Switch(tags []string) {
 	t.Stop()
 	t.Start(tags)
 }
 
-func (t TimesheetEditor) Stop() {
+func (t *TimesheetEditor) Stop() {
 	t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z]*$`)
 
-func (t TimesheetEditor) Tag(tags []string) {
+func (t *TimesheetEditor) Tag(tags []string) {
 	for _, tag := range tags {
 		if !validTag.MatchString(tag) {
 			continue
@@ -42,7 +42,7 @@ func (t TimesheetEditor) Tag(tags []string) {
 	}
 }
 
-func (t TimesheetEditor) Show() string {
+func (t *TimesheetEditor) Show() string {
 	var lines []string
 	lines = append(lines, fmt.Sprintf("> %s [%s]", t.timesheet.Day, t.upkeep.Tags.String()))
 	for _, block := range t.timesheet.Blocks {
@@ -54,4 +54,8 @@ func (t TimesheetEditor) Show() string {
 		lines = append(lines, activeBlockString)
 	}
 	return strings.Join(lines, "\n")
+}
+
+func (t *TimesheetEditor) Purge() {
+	t.timesheet = model.NewTimesheet(t.timesheet.Day)
 }

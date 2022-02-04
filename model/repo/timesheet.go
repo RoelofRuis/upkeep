@@ -97,7 +97,3 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 
 	return nil
 }
-
-func (r *TimesheetRepository) Delete(m *model.Timesheet) error {
-	return r.FileIO.Delete(fmt.Sprintf("/sheet/%s.json", m.Day))
-}
