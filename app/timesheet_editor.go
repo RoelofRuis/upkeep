@@ -43,7 +43,6 @@ func (t *TimesheetEditor) Tag(tags []string) {
 }
 
 func (t *TimesheetEditor) Show() string {
-
 	var lines []string
 	lines = append(
 		lines,
@@ -59,16 +58,23 @@ func (t *TimesheetEditor) Show() string {
 			"%s - %s (%s) [%s]",
 			block.Start.Format(model.LayoutHour),
 			block.End.Format(model.LayoutHour),
-			block.Duration().String(),
+			formatDur(block.Duration()),
 			block.Tags.String(),
 		)
 		lines = append(lines, blockString)
 	}
 	if t.timesheet.LastStart.IsStarted() {
-		activeBlockString := fmt.Sprintf("%s -   ?   [%s]", t.timesheet.LastStart.Format(model.LayoutHour), t.upkeep.GetTags().String())
+		activeBlockString := fmt.Sprintf("%s -              [%s]", t.timesheet.LastStart.Format(model.LayoutHour), t.upkeep.GetTags().String())
 		lines = append(lines, activeBlockString)
 	}
 	return strings.Join(lines, "\n")
+}
+
+func formatDur(d time.Duration) string {
+	hours := int(d.Hours())
+	minutes := int(d.Minutes()) - (hours * 60)
+
+	return fmt.Sprintf("%01d:%02d", hours, minutes)
 }
 
 func (t *TimesheetEditor) Purge() {
