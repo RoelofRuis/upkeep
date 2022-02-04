@@ -44,7 +44,7 @@ func (t *TimesheetEditor) Tag(tags []string) {
 
 func (t *TimesheetEditor) Show() string {
 	var lines []string
-	lines = append(lines, fmt.Sprintf("> %s [%s]", t.timesheet.Day, t.upkeep.Tags.String()))
+	lines = append(lines, fmt.Sprintf("> %s [%s]", t.timesheet.Created.Format(model.LayoutDate), t.upkeep.Tags.String()))
 	for _, block := range t.timesheet.Blocks {
 		blockString := fmt.Sprintf("%s - %s [%s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour), block.Tags.String())
 		lines = append(lines, blockString)
@@ -57,5 +57,5 @@ func (t *TimesheetEditor) Show() string {
 }
 
 func (t *TimesheetEditor) Purge() {
-	t.timesheet = model.NewTimesheet(t.timesheet.Day)
+	t.timesheet = model.NewTimesheet(time.Now())
 }

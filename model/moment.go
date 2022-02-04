@@ -2,6 +2,7 @@ package model
 
 import "time"
 
+const LayoutDate = "2006-01-02"
 const LayoutDateHour = "2006-01-02 15:04"
 const LayoutHour = "15:04"
 

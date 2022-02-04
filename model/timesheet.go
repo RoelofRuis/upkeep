@@ -5,15 +5,17 @@ import (
 )
 
 type Timesheet struct {
-	Day       string
+	// Deprecated
+	Day string
+	Created   time.Time
 	NextId    int
 	Blocks    []TimeBlock
 	LastStart Moment
 }
 
-func NewTimesheet(day string) *Timesheet {
+func NewTimesheet(created time.Time) *Timesheet {
 	return &Timesheet{
-		Day:       day,
+		Created:   created,
 		Blocks:    []TimeBlock{},
 		LastStart: NewMoment(),
 	}
