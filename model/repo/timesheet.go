@@ -33,7 +33,7 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 		Blocks:    nil,
 	}
 
-	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", t.Format(model.LayoutHour)), &input); err != nil {
+	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", t.Format(model.LayoutDate)), &input); err != nil {
 		return nil, err
 	}
 

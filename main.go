@@ -23,9 +23,9 @@ func main() {
 	}
 
 	fileIO := infra.FileIO{
-		PrettyJSON: devMode,
-		HomePath:   homePath,
-		DataFolder: ".upkeep",
+		DebugEnabled: devMode,
+		HomePath:     homePath,
+		DataFolder:   ".upkeep",
 	}
 
 	repository := app.Repository(repo.New(fileIO))

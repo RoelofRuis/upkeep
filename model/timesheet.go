@@ -5,8 +5,6 @@ import (
 )
 
 type Timesheet struct {
-	// Deprecated
-	Day string
 	Created   time.Time
 	NextId    int
 	Blocks    []TimeBlock
@@ -16,6 +14,7 @@ type Timesheet struct {
 func NewTimesheet(created time.Time) *Timesheet {
 	return &Timesheet{
 		Created:   created,
+		NextId:    0,
 		Blocks:    []TimeBlock{},
 		LastStart: NewMoment(),
 	}

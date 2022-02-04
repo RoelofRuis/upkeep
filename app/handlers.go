@@ -23,6 +23,7 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, 
 
 		editor := &TimesheetEditor{upkeep: upkeep, timesheet: timesheet}
 
+
 		err, s := f(args, editor)
 		if err != nil {
 			return err, s
