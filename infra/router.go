@@ -8,14 +8,16 @@ import (
 type Handler = func(args []string) (error, string)
 
 type Router struct {
-	actions      map[string]Handler
-	descriptions map[string]string
+	defaultAction string
+	actions       map[string]Handler
+	descriptions  map[string]string
 }
 
-func NewRouter() *Router {
+func NewRouter(defaultAction string) *Router {
 	return &Router{
-		actions:      make(map[string]Handler),
-		descriptions: make(map[string]string),
+		defaultAction: defaultAction,
+		actions:       make(map[string]Handler),
+		descriptions:  make(map[string]string),
 	}
 }
 
@@ -26,7 +28,11 @@ func (r *Router) Register(action string, description string, handler Handler) {
 
 func (r *Router) Handle(args []string) (error, string) {
 	if len(args) == 0 {
-		return fmt.Errorf("no command given"), r.HelpMessage()
+		if r.defaultAction == "" {
+			return fmt.Errorf("no command given"), r.HelpMessage()
+		}
+
+		args = append(args, r.defaultAction)
 	}
 
 	if args[0] == "help" {

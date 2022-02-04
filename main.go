@@ -30,7 +30,7 @@ func main() {
 
 	repository := app.Repository(repo.New(fileIO))
 
-	router := infra.NewRouter()
+	router := infra.NewRouter("show")
 	router.Register("start", "start a new block", repository.Edit(app.HandleStart))
 	router.Register("switch", "switch to a new block", repository.Edit(app.HandleSwitch))
 	router.Register("stop", "stop the active block", repository.Edit(app.HandleStop))
