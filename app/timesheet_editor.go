@@ -48,32 +48,44 @@ func (t *TimesheetEditor) Tag(tags []string) {
 
 func (t *TimesheetEditor) Show() string {
 	var lines []string
-	lines = append(
-		lines,
-		fmt.Sprintf(
-			"> %s\ntags [%s]",
-			t.timesheet.Created.Format("Monday 02 Jan 2006"),
-			t.upkeep.Tags.String(),
-		),
-	)
+	lines = append(lines, fmt.Sprintf(
+		"> %s\ntags [%s]",
+		t.timesheet.Created.Format("Monday 02 Jan 2006"),
+		t.upkeep.Tags.String(),
+	))
 
 	for _, block := range t.timesheet.Blocks {
-		blockString := fmt.Sprintf(
+		lines = append(lines, fmt.Sprintf(
 			"%s - %s (%s) [%s]",
 			block.Start.Format(model.LayoutHour),
 			block.End.Format(model.LayoutHour),
 			formatDur(block.Duration()),
 			block.Tags.String(),
-		)
-		lines = append(lines, blockString)
+		))
 	}
 
 	if t.timesheet.LastStart.IsStarted() {
-		activeBlockString := fmt.Sprintf("%s -              [%s]", t.timesheet.LastStart.Format(model.LayoutHour), t.upkeep.GetTags().String())
-		lines = append(lines, activeBlockString)
+		lines = append(lines, fmt.Sprintf(
+			"%s -              [%s]",
+			t.timesheet.LastStart.Format(model.LayoutHour),
+			t.upkeep.GetTags().String(),
+		))
 	}
 
-	lines = append(lines, fmt.Sprintf("              (%s)", formatDur(t.timesheet.Duration())))
+	quotum := t.upkeep.QuotumForDay(t.timesheet.Created.Weekday())
+
+	if quotum == 0 {
+		lines = append(lines, fmt.Sprintf(
+			"              (%s)",
+			formatDur(t.timesheet.Duration()),
+		))
+	} else {
+		lines = append(lines, fmt.Sprintf(
+			"              (%s) of (%s)",
+			formatDur(t.timesheet.Duration()),
+			formatDur(quotum),
+		))
+	}
 
 	return strings.Join(lines, "\n")
 }

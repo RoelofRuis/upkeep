@@ -1,8 +1,11 @@
 package model
 
+import "time"
+
 type Upkeep struct {
 	Version string
 	Tags    TagStack
+	Quota   map[time.Weekday]time.Duration
 }
 
 func (s *Upkeep) ShiftTags() {
@@ -36,4 +39,13 @@ func (s *Upkeep) RemoveTag(tag string) {
 		return
 	}
 	s.Tags = stack.Push(set.Remove(tag))
+}
+
+func (s *Upkeep) QuotumForDay(day time.Weekday) time.Duration {
+	quotum, has := s.Quota[day]
+	if !has {
+		return 0
+	}
+
+	return quotum
 }
