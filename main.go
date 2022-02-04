@@ -45,7 +45,6 @@ func main() {
 	router.register("tag", "change active tags", app.handleTag)
 	router.register("show", "show timesheet", app.handleShow)
 	router.register("purge", "purge timesheet", app.handlePurge)
-	router.register("break", "start a break block", app.handleBreak)
 
 	err, msg := router.handle(os.Args[1:])
 	if err != nil {

@@ -9,35 +9,35 @@ type UpkeepRepository struct {
 	FileIO infra.FileIO
 }
 
-type timekeepJson struct {
+type upkeepJson struct {
 	Version string `json:"version"`
 	Tags    string `json:"tags"`
 }
 
 func (r *UpkeepRepository) Get() (*model.Upkeep, error) {
-	input := timekeepJson{
+	input := upkeepJson{
 		Version: "0.1",
 	}
 
-	if err := r.FileIO.Read("timekeep.json", &input); err != nil {
+	if err := r.FileIO.Read("upkeep.json", &input); err != nil {
 		return nil, err
 	}
 
-	timekeep := &model.Upkeep{
+	upkeep := &model.Upkeep{
 		Version: input.Version,
 		Tags:    model.NewTagStackFromString(input.Tags),
 	}
 
-	return timekeep, nil
+	return upkeep, nil
 }
 
 func (r *UpkeepRepository) Insert(m *model.Upkeep) error {
-	output := timekeepJson{
+	output := upkeepJson{
 		Version: m.Version,
 		Tags:    m.Tags.String(),
 	}
 
-	if err := r.FileIO.Write("timekeep.json", output); err != nil {
+	if err := r.FileIO.Write("upkeep.json", output); err != nil {
 		return err
 	}
 

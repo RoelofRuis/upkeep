@@ -12,9 +12,9 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
-	Day    string      `json:"day"`
-	Break  bool        `json:"break"`
-	Blocks []blockJson `json:"blocks"`
+	Day       string      `json:"day"`
+	LastStart string      `json:"last_start"`
+	Blocks    []blockJson `json:"blocks"`
 }
 
 type blockJson struct {
@@ -27,9 +27,9 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	day := t.Format("2006-01-02")
 
 	input := timesheetJson{
-		Day:    day,
-		Break:  false,
-		Blocks: nil,
+		Day:       day,
+		LastStart: "",
+		Blocks:    nil,
 	}
 
 	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", day), &input); err != nil {
@@ -37,7 +37,12 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	}
 
 	sheet := model.NewTimesheet(input.Day)
-	sheet.Break = input.Break
+
+	lastStart, err := model.NewMomentFromString(input.LastStart)
+	if err != nil {
+		return nil, err
+	}
+	sheet.LastStart = lastStart
 
 	var blocks []model.TimeBlock
 	for _, blockData := range input.Blocks {
@@ -74,9 +79,9 @@ func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
 	}
 
 	output := timesheetJson{
-		Day:    m.Day,
-		Break:  m.Break,
-		Blocks: blocks,
+		Day:       m.Day,
+		LastStart: m.LastStart.String(),
+		Blocks:    blocks,
 	}
 
 	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Day), output); err != nil {
