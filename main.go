@@ -3,14 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"timesheet/app"
 	"timesheet/infra"
-	"timesheet/repo"
+	"timesheet/model/repo"
 )
-
-type application struct {
-	upkeepRepository    repo.UpkeepRepository
-	timesheetRepository repo.TimesheetRepository
-}
 
 // mode is set via ldflags in build
 var mode = "prod"
@@ -32,23 +28,19 @@ func main() {
 		DataFolder: ".upkeep",
 	}
 
-	app := application{
-		upkeepRepository:    repo.UpkeepRepository{FileIO: fileIO},
-		timesheetRepository: repo.TimesheetRepository{FileIO: fileIO},
-	}
+	repository := app.Repository(repo.New(fileIO))
 
-	router := newRouter()
+	router := infra.NewRouter()
+	router.Register("start", "start a new block", repository.Edit(app.HandleStart))
+	router.Register("switch", "switch to a new block", repository.Edit(app.HandleSwitch))
+	router.Register("stop", "stop the active block", repository.Edit(app.HandleStop))
+	router.Register("tag", "change active tags", repository.Edit(app.HandleTag))
 
-	router.register("start", "start a new block", app.withDomain(handleStart))
-	router.register("switch", "switch to a new block", app.withDomain(handleSwitch))
-	router.register("stop", "stop the active block", app.withDomain(handleStop))
-	router.register("tag", "change active tags", app.withDomain(handleTag))
+	router.Register("show", "show timesheet", repository.Edit(app.HandleShow))
 
-	router.register("show", "show timesheet", app.withDomain(handleShow))
+	router.Register("purge", "purge timesheet", repository.Purge())
 
-	router.register("purge", "purge timesheet", app.handlePurge)
-
-	err, msg := router.handle(os.Args[1:])
+	err, msg := router.Handle(os.Args[1:])
 	if err != nil {
 		fmt.Printf("error: %s\n", err.Error())
 	}
