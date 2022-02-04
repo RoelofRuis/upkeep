@@ -9,14 +9,14 @@ import (
 )
 
 func (app *application) handleTest(args []string) (error, string) {
-	timekeep, err := app.timekeepRepository.Get()
+	upkeep, err := app.upkeepRepository.Get()
 	if err != nil {
 		return err, ""
 	}
 
-	fmt.Printf("version: %s\n", timekeep.Version)
+	fmt.Printf("version: %s\n", upkeep.Version)
 
-	err = app.timekeepRepository.Insert(timekeep)
+	err = app.upkeepRepository.Insert(upkeep)
 	if err != nil {
 		return err, ""
 	}

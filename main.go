@@ -8,7 +8,7 @@ import (
 )
 
 type application struct {
-	timekeepRepository  repo.TimekeepRepository
+	upkeepRepository    repo.UpkeepRepository
 	timesheetRepository repo.TimesheetRepository
 }
 
@@ -26,15 +26,19 @@ func main() {
 		}
 	}
 
-	fileIO := infra.FileIO{PrettyJSON: devMode, HomePath: homePath}
+	fileIO := infra.FileIO{
+		PrettyJSON: devMode,
+		HomePath:   homePath,
+		DataFolder: ".upkeep",
+	}
 
 	app := application{
-		timekeepRepository:  repo.TimekeepRepository{FileIO: fileIO},
+		upkeepRepository:    repo.UpkeepRepository{FileIO: fileIO},
 		timesheetRepository: repo.TimesheetRepository{FileIO: fileIO},
 	}
 
 	router := newRouter()
-	router.register("test", "a test action", app.handleTest)
+	router.register("test", "a test action", app.handleTest) // TODO: remove!
 
 	router.register("start", "start a new block", app.handleStart)
 	router.register("stop", "stop the active block", app.handleStop)

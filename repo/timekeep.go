@@ -5,7 +5,7 @@ import (
 	"timesheet/model"
 )
 
-type TimekeepRepository struct {
+type UpkeepRepository struct {
 	FileIO infra.FileIO
 }
 
@@ -14,7 +14,7 @@ type timekeepJson struct {
 	Tags    string `json:"tags"`
 }
 
-func (r *TimekeepRepository) Get() (*model.Timekeep, error) {
+func (r *UpkeepRepository) Get() (*model.Upkeep, error) {
 	input := timekeepJson{
 		Version: "0.1",
 	}
@@ -23,7 +23,7 @@ func (r *TimekeepRepository) Get() (*model.Timekeep, error) {
 		return nil, err
 	}
 
-	timekeep := &model.Timekeep{
+	timekeep := &model.Upkeep{
 		Version: input.Version,
 		Tags:    model.NewTagStackFromString(input.Tags),
 	}
@@ -31,7 +31,7 @@ func (r *TimekeepRepository) Get() (*model.Timekeep, error) {
 	return timekeep, nil
 }
 
-func (r *TimekeepRepository) Insert(m *model.Timekeep) error {
+func (r *UpkeepRepository) Insert(m *model.Upkeep) error {
 	output := timekeepJson{
 		Version: m.Version,
 		Tags:    m.Tags.String(),

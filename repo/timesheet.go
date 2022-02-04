@@ -12,13 +12,15 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
-	Day    string `json:"day"`
-	Break  bool   `json:"break"`
-	Blocks []struct {
-		Start string `json:"start"`
-		End   string `json:"end"`
-		Tags  string `json:"tags"`
-	} `json:"blocks"`
+	Day    string      `json:"day"`
+	Break  bool        `json:"break"`
+	Blocks []blockJson `json:"blocks"`
+}
+
+type blockJson struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
+	Tags  string `json:"tags"`
 }
 
 func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
@@ -60,20 +62,30 @@ func (r *TimesheetRepository) GetForDay(t time.Time) (*model.Timesheet, error) {
 	return sheet, nil
 }
 
-func (r *TimesheetRepository) Delete(m *model.Timesheet) error {
-	return r.FileIO.Delete(fmt.Sprintf("/sheet/%s.json", m.Day))
-}
-
 func (r *TimesheetRepository) Insert(m *model.Timesheet) error {
-	output := timesheetJson{
-		Day: m.Day,
+	var blocks []blockJson
+
+	for _, block := range m.Blocks {
+		blocks = append(blocks, blockJson{
+			Start: block.Start.String(),
+			End:   block.End.String(),
+			Tags:  block.Tags.String(),
+		})
 	}
 
-	// TODO: implement
+	output := timesheetJson{
+		Day:    m.Day,
+		Break:  m.Break,
+		Blocks: blocks,
+	}
 
 	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Day), output); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *TimesheetRepository) Delete(m *model.Timesheet) error {
+	return r.FileIO.Delete(fmt.Sprintf("/sheet/%s.json", m.Day))
 }

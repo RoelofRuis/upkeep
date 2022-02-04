@@ -8,9 +8,9 @@ type Timesheet struct {
 	Day    string
 	Break  bool // TODO: does this belong here?
 	Blocks []TimeBlock
-	// Deprecated should be moved to Timekeep
+	// Deprecated should be moved to Upkeep
 	LastStart Moment
-	// Deprecated should be moved to Timekeep
+	// Deprecated should be moved to Upkeep
 	Tags TagSet
 }
 

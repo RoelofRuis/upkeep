@@ -10,10 +10,11 @@ import (
 type FileIO struct {
 	PrettyJSON bool
 	HomePath   string
+	DataFolder string
 }
 
 func (fio FileIO) Read(fname string, dst interface{}) error {
-	fpath := path.Join(fio.HomePath, ".timekeep", fname)
+	fpath := path.Join(fio.HomePath, fio.DataFolder, fname)
 
 	data, err := ioutil.ReadFile(fpath)
 	if err != nil {
@@ -44,7 +45,7 @@ func (fio FileIO) Write(fname string, src interface{}) error {
 		return nil
 	}
 
-	fpath := path.Join(fio.HomePath, ".timekeep", fname)
+	fpath := path.Join(fio.HomePath, fio.DataFolder, fname)
 
 	if _, err := os.Stat(fpath); os.IsNotExist(err) {
 		err := os.MkdirAll(path.Dir(fpath), 0o700)
@@ -61,7 +62,7 @@ func (fio FileIO) Write(fname string, src interface{}) error {
 }
 
 func (fio FileIO) Delete(fname string) error {
-	fpath := path.Join(fio.HomePath, ".timekeep", fname)
+	fpath := path.Join(fio.HomePath, fio.DataFolder, fname)
 	if err := os.Remove(fpath); !os.IsNotExist(err) {
 		return err
 	}

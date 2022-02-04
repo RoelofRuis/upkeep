@@ -1,6 +1,6 @@
 package model
 
-type Timekeep struct {
+type Upkeep struct {
 	Version string
 	Tags    TagStack
 }
