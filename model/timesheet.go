@@ -51,3 +51,13 @@ func (s *Timesheet) Abort() {
 func (s *Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }
+
+func (s *Timesheet) Duration() time.Duration {
+	dur := time.Duration(0)
+
+	for _, block := range s.Blocks {
+		dur += block.Duration()
+	}
+
+	return dur
+}
