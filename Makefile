@@ -1,5 +1,8 @@
-build-dev:
+build:
 	GOOS=linux go build -ldflags="-X 'main.mode=dev'" -o upkeep
 
-build:
+build-dbg:
+	GOOS=linux go build -ldflags="-X 'main.mode=dbg'" -o upkeep
+
+build-prod:
 	GOOS=linux go build -ldflags="-s -w" -o upkeep

@@ -8,13 +8,20 @@ import (
 	"timesheet/model/repo"
 )
 
+const (
+	ModeProd = "prod"
+	ModeDev = "dev"
+	ModeDebug = "dbg"
+)
+
 // mode is set via ldflags in build
-var mode = "prod"
+var mode = ModeProd
 
 func main() {
 	var homePath = "./dev-home"
-	devMode := mode == "dev"
-	if !devMode {
+	prodMode := mode == ModeProd
+	dbgMode := mode == ModeDebug
+	if prodMode {
 		var err error
 		homePath, err = os.UserHomeDir()
 		if err != nil {
@@ -23,7 +30,7 @@ func main() {
 	}
 
 	fileIO := infra.FileIO{
-		DebugEnabled: devMode,
+		DebugEnabled: dbgMode,
 		HomePath:     homePath,
 		DataFolder:   ".upkeep",
 	}
