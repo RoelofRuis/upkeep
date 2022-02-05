@@ -146,7 +146,12 @@ func (t *TimesheetEditor) Purge() {
 	t.timesheet = &sheet
 }
 
-func (t *TimesheetEditor) SetQuotum(day time.Weekday, dur time.Duration) {
-	upkeep := t.upkeep.SetQuotumForDay(day, dur)
-	t.upkeep = &upkeep
+func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
+	if dur == nil {
+		upkeep := t.upkeep.RemoveQuotumForDay(day)
+		t.upkeep = &upkeep
+	} else {
+		upkeep := t.upkeep.SetQuotumForDay(day, *dur)
+		t.upkeep = &upkeep
+	}
 }

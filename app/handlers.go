@@ -54,26 +54,23 @@ func HandleShow(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.Show()
 }
 
-func HandleConf(args []string, editor *TimesheetEditor) (error, string) {
+func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
-		return errors.New("no setting given"), ""
+		return errors.New("too few arguments"), ""
+	}
+	weekday, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return err, ""
+	}
+	if len(args) == 1 {
+		editor.AdjustQuotum(time.Weekday(weekday), nil)
+		return nil, fmt.Sprintf("removed quotum")
 	}
 
-	if args[0] == "quotum" {
-		if len(args) < 3 {
-			return errors.New("too few arguments"), ""
-		}
-		weekday, err := strconv.ParseInt(args[1], 10, 64)
-		if err != nil {
-			return err, ""
-		}
-		duration, err := time.ParseDuration(args[2])
-		if err != nil {
-			return err, ""
-		}
-		editor.SetQuotum(time.Weekday(weekday), duration)
-		return nil, fmt.Sprintf("updated '%s'", args[0])
+	duration, err := time.ParseDuration(args[1])
+	if err != nil {
+		return err, ""
 	}
-
-	return fmt.Errorf("unknown setting '%s'", args[0]), ""
+	editor.AdjustQuotum(time.Weekday(weekday), &duration)
+	return nil, fmt.Sprintf("updated quotum")
 }

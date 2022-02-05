@@ -52,6 +52,11 @@ func (s Upkeep) SetQuotumForDay(day time.Weekday, quotum time.Duration) Upkeep {
 	return s
 }
 
+func (s Upkeep) RemoveQuotumForDay(day time.Weekday) Upkeep {
+	delete(s.Quota, day)
+	return s
+}
+
 func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 	quotum, has := s.Quota[day]
 	if !has {

@@ -8,16 +8,23 @@ import (
 type Handler = func(args []string) (error, string)
 
 type Router struct {
-	defaultAction string
-	actions       map[string]Handler
-	descriptions  map[string]string
+	NoCommandGivenMsg    string
+	NoMatchingHandlerMsg string
+	DefaultAction        string
+	HelpActive           bool
+
+	actions      map[string]Handler
+	descriptions map[string]string
 }
 
-func NewRouter(defaultAction string) *Router {
+func NewRouter() *Router {
 	return &Router{
-		defaultAction: defaultAction,
-		actions:       make(map[string]Handler),
-		descriptions:  make(map[string]string),
+		DefaultAction:        "",
+		NoCommandGivenMsg:    "no command given",
+		NoMatchingHandlerMsg: "unknown command '%s'",
+
+		actions:      make(map[string]Handler),
+		descriptions: make(map[string]string),
 	}
 }
 
@@ -28,11 +35,11 @@ func (r *Router) Register(action string, description string, handler Handler) {
 
 func (r *Router) Handle(args []string) (error, string) {
 	if len(args) == 0 {
-		if r.defaultAction == "" {
-			return fmt.Errorf("no command given"), r.HelpMessage()
+		if r.DefaultAction == "" {
+			return fmt.Errorf(r.NoCommandGivenMsg), r.HelpMessage()
 		}
 
-		args = append(args, r.defaultAction)
+		args = append(args, r.DefaultAction)
 	}
 
 	if args[0] == "help" {
@@ -41,7 +48,7 @@ func (r *Router) Handle(args []string) (error, string) {
 
 	h, has := r.actions[args[0]]
 	if !has {
-		return fmt.Errorf("unknown command '%s'", args[0]), r.HelpMessage()
+		return fmt.Errorf(r.NoMatchingHandlerMsg, args[0]), r.HelpMessage()
 	}
 
 	return h(args[1:])

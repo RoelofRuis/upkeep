@@ -39,19 +39,22 @@ func main() {
 
 	repository := app.Repository(repo.New(fileIO))
 
-	router := infra.NewRouter("show")
-	router.Register("start", "start a new block", repository.Edit(app.HandleStart))
-	router.Register("switch", "switch to a new block", repository.Edit(app.HandleSwitch))
-	router.Register("stop", "stop the active block and save it", repository.Edit(app.HandleStop))
-	router.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))
-	router.Register("tag", "change active tags", repository.Edit(app.HandleTag))
-	router.Register("purge", "purge timesheet", repository.Edit(app.HandlePurge))
+	mainRouter := infra.NewRouter()
+	mainRouter.Register("start", "start a new block", repository.Edit(app.HandleStart))
+	mainRouter.Register("switch", "switch to a new block", repository.Edit(app.HandleSwitch))
+	mainRouter.Register("stop", "stop the active block and save it", repository.Edit(app.HandleStop))
+	mainRouter.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))
+	mainRouter.Register("tag", "change active tags", repository.Edit(app.HandleTag))
+	mainRouter.Register("purge", "purge timesheet", repository.Edit(app.HandlePurge))
 
-	router.Register("conf", "edit configuration values", repository.Edit(app.HandleConf))
+	confRouter := infra.NewRouter()
+	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
+	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 
-	router.Register("show", "show timesheet", repository.Edit(app.HandleShow))
+	mainRouter.Register("show", "show timesheet", repository.Edit(app.HandleShow))
+	mainRouter.DefaultAction = "show"
 
-	err, msg := router.Handle(os.Args[1:])
+	err, msg := mainRouter.Handle(os.Args[1:])
 	if err != nil {
 		fmt.Printf("error: %s\n", err.Error())
 	}
