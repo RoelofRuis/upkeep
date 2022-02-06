@@ -14,7 +14,6 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, 
 		upkeep, err := r.Upkeep.Get()
 		if err != nil {
 			return err, ""
-
 		}
 		timesheet, err := r.Timesheets.GetForDay(time.Now())
 		if err != nil {
