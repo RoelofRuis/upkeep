@@ -49,7 +49,14 @@ type TimesheetEditor struct {
 }
 
 func (t *TimesheetEditor) Start(tags []string) {
-	sheet := t.timesheet.Start(time.Now())
+	now := time.Now()
+	sheet := t.timesheet.Start(now)
+
+	quotum := t.upkeep.GetQuotumForDay(now.Weekday())
+	if quotum != 0 {
+		sheet = sheet.SetQuotum(quotum)
+	}
+
 	t.timesheet = &sheet
 
 	t.Tag(tags)
@@ -113,7 +120,7 @@ func (t *TimesheetEditor) Show() string {
 		))
 	}
 
-	quotum := t.upkeep.GetQuotumForDay(t.timesheet.Created.Weekday())
+	quotum := t.timesheet.Quotum
 
 	if quotum == 0 {
 		lines = append(lines, fmt.Sprintf(
