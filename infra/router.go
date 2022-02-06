@@ -2,6 +2,7 @@ package infra
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -56,8 +57,15 @@ func (r *Router) Handle(args []string) (error, string) {
 
 func (r *Router) HelpMessage() string {
 	lines := []string{fmt.Sprintf("available actions:")}
-	for action, description := range r.descriptions {
-		lines = append(lines, fmt.Sprintf("  - %s\n  %s", action, description))
+
+	actions := make([]string, 0, len(r.descriptions))
+	for action := range r.descriptions {
+		actions = append(actions, action)
+	}
+	sort.Strings(actions)
+
+	for _, action := range actions {
+		lines = append(lines, fmt.Sprintf("  - %s\n  %s", action, r.descriptions[action]))
 	}
 	return strings.Join(lines, "\n")
 }
