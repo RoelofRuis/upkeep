@@ -48,6 +48,8 @@ type TimesheetEditor struct {
 }
 
 func (t *TimesheetEditor) Start(tags []string) {
+	t.Stop()
+
 	now := time.Now()
 	sheet := t.timesheet.Start(now)
 
@@ -61,11 +63,6 @@ func (t *TimesheetEditor) Start(tags []string) {
 	t.Tag(tags)
 }
 
-func (t *TimesheetEditor) Switch(tags []string) {
-	t.Stop()
-	t.Start(tags)
-}
-
 func (t *TimesheetEditor) Stop() {
 	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
 	t.timesheet = &sheet
@@ -74,6 +71,20 @@ func (t *TimesheetEditor) Stop() {
 func (t *TimesheetEditor) Abort() {
 	sheet := t.timesheet.Abort()
 	t.timesheet = &sheet
+}
+
+func (t *TimesheetEditor) Switch(tags []string) {
+	t.Stop()
+	upkeep := t.upkeep.ShiftTags()
+	t.upkeep = &upkeep
+	t.Start(tags)
+}
+
+func (t *TimesheetEditor) Continue() {
+	t.Stop()
+	upkeep := t.upkeep.UnshiftTags()
+	t.upkeep = &upkeep
+	t.Start([]string{})
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z_]*$`)

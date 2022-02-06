@@ -40,6 +40,12 @@ func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.Show()
 }
 
+func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
+	editor.Continue()
+
+	return nil, editor.Show()
+}
+
 func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
 		return errors.New("no tags specified"), ""

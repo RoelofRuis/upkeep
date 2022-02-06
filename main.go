@@ -41,9 +41,10 @@ func main() {
 
 	mainRouter := infra.NewRouter()
 	mainRouter.Register("start", "start a new block", repository.Edit(app.HandleStart))
-	mainRouter.Register("switch", "switch to a new block", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("stop", "stop the active block and save it", repository.Edit(app.HandleStop))
 	mainRouter.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))
+	mainRouter.Register("switch", "switch to a new block with new tags", repository.Edit(app.HandleSwitch))
+	mainRouter.Register("continue", "switch back to the old tags", repository.Edit(app.HandleContinue))
 	mainRouter.Register("tag", "change active tags", repository.Edit(app.HandleTag))
 	mainRouter.Register("purge", "purge timesheet", repository.Edit(app.HandlePurge))
 
