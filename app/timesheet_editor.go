@@ -90,7 +90,7 @@ func (t *TimesheetEditor) Continue() {
 	t.Start(nil)
 }
 
-var validTag = regexp.MustCompile(`^[+-]?[a-z_]*$`)
+var validTag = regexp.MustCompile(`^[+-]?[a-z_]+$`)
 
 func (t *TimesheetEditor) Tag(tags []string) {
 	upkeep := *t.upkeep
