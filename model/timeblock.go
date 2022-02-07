@@ -19,5 +19,5 @@ func NewTimeBlock(id int, start Moment, end Moment, tags TagSet) TimeBlock {
 }
 
 func (b TimeBlock) Duration() time.Duration {
-	return b.End.t.Sub(*b.Start.t)
+	return b.End.Sub(b.Start)
 }

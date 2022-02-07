@@ -122,10 +122,16 @@ func (t *TimesheetEditor) Show() string {
 		))
 	}
 
-	if t.timesheet.LastStart.IsStarted() {
+	if t.timesheet.IsStarted() {
+		start := t.timesheet.LastStart
+		end := model.NewMoment().Start(time.Now())
+		dur := end.Sub(start)
+
 		lines = append(lines, fmt.Sprintf(
-			"%s -              <%s>",
-			t.timesheet.LastStart.Format(model.LayoutHour),
+			"%s > %s [%s] <%s>",
+			start.Format(model.LayoutHour),
+			end.Format(model.LayoutHour),
+			formatDur(dur),
 			t.upkeep.GetTags().String(),
 		))
 	}

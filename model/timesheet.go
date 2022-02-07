@@ -64,6 +64,10 @@ func (s Timesheet) Duration() time.Duration {
 		dur += block.Duration()
 	}
 
+	if s.LastStart.IsStarted() {
+		dur += time.Now().Sub(*s.LastStart.t)
+	}
+
 	return dur
 }
 

@@ -27,7 +27,7 @@ func NewMomentFromString(timeString string) (Moment, error) {
 }
 
 func (m Moment) Start(t time.Time) Moment {
-	minuteRounded := t.Round(time.Minute)
+	minuteRounded := t.Truncate(time.Minute)
 	return Moment{t: &minuteRounded}
 }
 
@@ -40,4 +40,12 @@ func (m Moment) Format(layout string) string {
 		return ""
 	}
 	return m.t.Format(layout)
+}
+
+func (m Moment) Sub(that Moment) time.Duration {
+	if m.t == nil || that.t == nil {
+		return 0
+	}
+
+	return m.t.Sub(*that.t)
 }
