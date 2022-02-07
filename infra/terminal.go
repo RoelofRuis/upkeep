@@ -10,6 +10,7 @@ var (
 	Bold   = "\033[1m"
 	Red    = "\033[31m"
 	Yellow = "\033[33m"
+	White  = "\033[37m"
 )
 
 type TerminalPrinter struct {
@@ -23,6 +24,11 @@ func (t *TerminalPrinter) Red(s string, args ...interface{}) *TerminalPrinter {
 
 func (t *TerminalPrinter) Yellow(s string, args ...interface{}) *TerminalPrinter {
 	t.addToBuffer(Yellow+s+Reset, args...)
+	return t
+}
+
+func (t *TerminalPrinter) White(s string, args ...interface{}) *TerminalPrinter {
+	t.addToBuffer(White+s+Reset, args...)
 	return t
 }
 

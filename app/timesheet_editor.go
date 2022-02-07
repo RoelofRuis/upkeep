@@ -118,7 +118,7 @@ func (t *TimesheetEditor) Day() string {
 	printer.Yellow("%s", t.upkeep.Tags.String()).Newline()
 
 	for _, block := range t.timesheet.Blocks {
-		printer.Print("%2d ", block.Id).
+		printer.White("%2d ", block.Id).
 			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour)).
 			Bold(" [%s] ", formatDur(block.Duration())).
 			Yellow("%s", block.Tags.String()).
