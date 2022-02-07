@@ -1,5 +1,0 @@
-- view past week
-- create a monthly export
-- alter tags for past blocks
-- break function
-

@@ -1,0 +1,6 @@
+- view past week
+- create a monthly export
+- alter tags for past blocks
+- allow tag to discount on total time
+- make start remove current tags by default
+- if block is active, make it count towards the current time
