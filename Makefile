@@ -6,3 +6,6 @@ build-dbg:
 
 build-prod:
 	GOOS=linux go build -ldflags="-s -w" -o upkeep
+
+install:
+	GOOS=linux go install -ldflags="-s -w"
