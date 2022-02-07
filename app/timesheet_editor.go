@@ -107,7 +107,7 @@ func (t *TimesheetEditor) Tag(tags []string) {
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) Show() string {
+func (t *TimesheetEditor) Day() string {
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
 	printer.Yellow("%s", t.upkeep.Tags.String()).Newline()

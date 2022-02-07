@@ -52,8 +52,8 @@ func main() {
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 
-	mainRouter.Register("show", "show timesheet", repository.Edit(app.HandleShow))
-	mainRouter.DefaultAction = "show"
+	mainRouter.Register("day", "show timesheet for today", repository.Edit(app.HandleDay))
+	mainRouter.DefaultAction = "day"
 
 	err, msg := mainRouter.Handle(os.Args[1:])
 	if err != nil {

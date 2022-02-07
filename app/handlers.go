@@ -13,37 +13,37 @@ type Repository repo.Repository
 func HandlePurge(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Purge()
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Start(args)
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleStop(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Stop()
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Abort()
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Switch(args)
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Continue()
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
 func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
@@ -53,11 +53,11 @@ func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Tag(args)
 
-	return nil, editor.Show()
+	return nil, editor.Day()
 }
 
-func HandleShow(args []string, editor *TimesheetEditor) (error, string) {
-	return nil, editor.Show()
+func HandleDay(args []string, editor *TimesheetEditor) (error, string) {
+	return nil, editor.Day()
 }
 
 func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {
