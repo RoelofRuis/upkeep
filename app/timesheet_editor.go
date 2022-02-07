@@ -60,7 +60,10 @@ func (t *TimesheetEditor) Start(tags []string) {
 
 	t.timesheet = &sheet
 
-	t.Tag(tags)
+	if tags != nil {
+		t.upkeep.ClearTags()
+		t.Tag(tags)
+	}
 }
 
 func (t *TimesheetEditor) Stop() {
@@ -84,7 +87,7 @@ func (t *TimesheetEditor) Continue() {
 	t.Stop()
 	upkeep := t.upkeep.UnshiftTags()
 	t.upkeep = &upkeep
-	t.Start([]string{})
+	t.Start(nil)
 }
 
 var validTag = regexp.MustCompile(`^[+-]?[a-z_]*$`)
