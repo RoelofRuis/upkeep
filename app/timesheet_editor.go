@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"timesheet/infra"
-	"timesheet/model"
+	"upkeep/infra"
+	"upkeep/model"
 )
 
 func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, string)) infra.Handler {

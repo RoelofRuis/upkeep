@@ -2,8 +2,8 @@ package repo
 
 import (
 	"time"
-	"timesheet/infra"
-	"timesheet/model"
+	"upkeep/infra"
+	"upkeep/model"
 )
 
 type UpkeepRepository struct {
@@ -11,9 +11,9 @@ type UpkeepRepository struct {
 }
 
 type upkeepJson struct {
-	Version string `json:"version"`
-	Tags  string         `json:"tags"`
-	Quota map[int]string `json:"quota"`
+	Version string         `json:"version"`
+	Tags    string         `json:"tags"`
+	Quota   map[int]string `json:"quota"`
 }
 
 func (r *UpkeepRepository) Get() (model.Upkeep, error) {

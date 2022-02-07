@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"timesheet/app"
-	"timesheet/infra"
-	"timesheet/model/repo"
+	"upkeep/app"
+	"upkeep/infra"
+	"upkeep/model/repo"
 )
 
 const (

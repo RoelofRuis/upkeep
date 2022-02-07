@@ -3,8 +3,8 @@ package repo
 import (
 	"fmt"
 	"time"
-	"timesheet/infra"
-	"timesheet/model"
+	"upkeep/infra"
+	"upkeep/model"
 )
 
 type TimesheetRepository struct {

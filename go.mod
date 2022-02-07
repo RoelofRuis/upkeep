@@ -1,3 +1,3 @@
-module timesheet
+module upkeep
 
 go 1.17

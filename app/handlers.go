@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"timesheet/model/repo"
+	"upkeep/model/repo"
 )
 
 type Repository repo.Repository

@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"timesheet/infra"
+	"upkeep/infra"
 )
 
 type Repository struct {
