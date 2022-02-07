@@ -108,22 +108,16 @@ func (t *TimesheetEditor) Tag(tags []string) {
 }
 
 func (t *TimesheetEditor) Show() string {
-	var lines []string
-	lines = append(lines, fmt.Sprintf(
-		"@ %s\n<%s>",
-		t.timesheet.Created.Format("Monday 02 Jan 2006"),
-		t.upkeep.Tags.String(),
-	))
+	printer := infra.TerminalPrinter{}
+	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
+	printer.Yellow("%s", t.upkeep.Tags.String()).Newline()
 
 	for _, block := range t.timesheet.Blocks {
-		lines = append(lines, fmt.Sprintf(
-			"%2d [%s - %s] [%s] <%s>",
-			block.Id,
-			block.Start.Format(model.LayoutHour),
-			block.End.Format(model.LayoutHour),
-			formatDur(block.Duration()),
-			block.Tags.String(),
-		))
+		printer.Print("%2d ", block.Id).
+			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour)).
+			Bold(" [%s] ", formatDur(block.Duration())).
+			Yellow("%s", block.Tags.String()).
+			Newline()
 	}
 
 	if t.timesheet.IsStarted() {
@@ -131,35 +125,30 @@ func (t *TimesheetEditor) Show() string {
 		end := model.NewMoment().Start(time.Now())
 		dur := end.Sub(start)
 
-		lines = append(lines, fmt.Sprintf(
-			"   [%s - %s) [%s] <%s>",
-			start.Format(model.LayoutHour),
-			end.Format(model.LayoutHour),
-			formatDur(dur),
-			t.upkeep.GetTags().String(),
-		))
+		printer.Print("   [%s - %s) ", start.Format(model.LayoutHour), end.Format(model.LayoutHour)).
+			Bold("[%s]", formatDur(dur)).
+			Yellow(" %s", t.upkeep.GetTags().String()).
+			Newline()
 	}
 
 	quotum := t.timesheet.Quotum
 	totalDuration := t.upkeep.TimesheetDuration(*t.timesheet)
 
 	if quotum == 0 {
-		lines = append(lines, fmt.Sprintf(
+		printer.Print(
 			"                   [%s]",
 			formatDur(totalDuration),
-		))
+		).Newline()
 	} else {
 		perc := (float64(totalDuration) / float64(quotum)) * 100
 
-		lines = append(lines, fmt.Sprintf(
-			"                   [%s] / [%s] (%0.1f%%)",
-			formatDur(totalDuration),
-			formatDur(quotum),
-			perc,
-		))
+		printer.Print("                   ").
+			Bold("[%s]", formatDur(totalDuration)).
+			Print(" / [%s] (%0.1f%%)", formatDur(quotum), perc).
+			Newline()
 	}
 
-	return strings.Join(lines, "\n")
+	return printer.String()
 }
 
 func formatDur(d time.Duration) string {
