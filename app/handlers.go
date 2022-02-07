@@ -10,12 +10,6 @@ import (
 
 type Repository repo.Repository
 
-func HandlePurge(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Purge()
-
-	return nil, editor.Day()
-}
-
 func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Start(args)
 
@@ -57,6 +51,21 @@ func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
 }
 
 func HandleDay(args []string, editor *TimesheetEditor) (error, string) {
+	return nil, editor.Day()
+}
+
+func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) == 0 {
+		return errors.New("no id given"), ""
+	}
+
+	id, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return err, ""
+	}
+
+	editor.Remove(int(id))
+
 	return nil, editor.Day()
 }
 

@@ -46,7 +46,8 @@ func main() {
 	mainRouter.Register("switch", "switch to a new block with new tags", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "switch back to the old tags", repository.Edit(app.HandleContinue))
 	mainRouter.Register("tag", "change active tags", repository.Edit(app.HandleTag))
-	mainRouter.Register("purge", "purge timesheet", repository.Edit(app.HandlePurge))
+
+	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 
 	confRouter := infra.NewRouter()
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))

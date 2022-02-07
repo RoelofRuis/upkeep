@@ -90,6 +90,11 @@ func (t *TimesheetEditor) Continue() {
 	t.Start(nil)
 }
 
+func (t *TimesheetEditor) Remove(blockId int) {
+	timesheet := t.timesheet.Remove(blockId)
+	t.timesheet = &timesheet
+}
+
 var validTag = regexp.MustCompile(`^[+-]?[a-z_]+$`)
 
 func (t *TimesheetEditor) Tag(tags []string) {
@@ -156,11 +161,6 @@ func formatDur(d time.Duration) string {
 	minutes := int(d.Minutes()) - (hours * 60)
 
 	return fmt.Sprintf("%01d:%02d", hours, minutes)
-}
-
-func (t *TimesheetEditor) Purge() {
-	sheet := model.NewTimesheet(time.Now())
-	t.timesheet = &sheet
 }
 
 func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {

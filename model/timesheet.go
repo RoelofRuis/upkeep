@@ -44,6 +44,15 @@ func (s Timesheet) Stop(t time.Time, tags TagSet) Timesheet {
 	return s
 }
 
+func (s Timesheet) Remove(blockId int) Timesheet {
+	for i, block := range s.Blocks {
+		if block.Id == blockId {
+			s.Blocks = append(s.Blocks[:i], s.Blocks[i+1:]...)
+		}
+	}
+	return s
+}
+
 func (s Timesheet) Abort() Timesheet {
 	if !s.IsStarted() {
 		return s
