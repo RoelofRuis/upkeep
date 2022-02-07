@@ -57,20 +57,6 @@ func (s Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }
 
-func (s Timesheet) Duration() time.Duration {
-	dur := time.Duration(0)
-
-	for _, block := range s.Blocks {
-		dur += block.Duration()
-	}
-
-	if s.LastStart.IsStarted() {
-		dur += time.Now().Sub(*s.LastStart.t)
-	}
-
-	return dur
-}
-
 func (s Timesheet) SetQuotum(q time.Duration) Timesheet {
 	s.Quotum = q
 	return s

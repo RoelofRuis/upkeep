@@ -117,7 +117,8 @@ func (t *TimesheetEditor) Show() string {
 
 	for _, block := range t.timesheet.Blocks {
 		lines = append(lines, fmt.Sprintf(
-			"%s - %s [%s] <%s>",
+			"%2d [%s - %s] [%s] <%s>",
+			block.Id,
 			block.Start.Format(model.LayoutHour),
 			block.End.Format(model.LayoutHour),
 			formatDur(block.Duration()),
@@ -131,7 +132,7 @@ func (t *TimesheetEditor) Show() string {
 		dur := end.Sub(start)
 
 		lines = append(lines, fmt.Sprintf(
-			"%s > %s [%s] <%s>",
+			"   [%s - %s) [%s] <%s>",
 			start.Format(model.LayoutHour),
 			end.Format(model.LayoutHour),
 			formatDur(dur),
@@ -140,18 +141,19 @@ func (t *TimesheetEditor) Show() string {
 	}
 
 	quotum := t.timesheet.Quotum
+	totalDuration := t.upkeep.TimesheetDuration(*t.timesheet)
 
 	if quotum == 0 {
 		lines = append(lines, fmt.Sprintf(
-			"              [%s]",
-			formatDur(t.timesheet.Duration()),
+			"                   [%s]",
+			formatDur(totalDuration),
 		))
 	} else {
-		perc := (float64(t.timesheet.Duration()) / float64(quotum)) * 100
+		perc := (float64(totalDuration) / float64(quotum)) * 100
 
 		lines = append(lines, fmt.Sprintf(
-			"              [%s] / [%s] (%0.2f%%)",
-			formatDur(t.timesheet.Duration()),
+			"                   [%s] / [%s] (%0.1f%%)",
+			formatDur(totalDuration),
 			formatDur(quotum),
 			perc,
 		))

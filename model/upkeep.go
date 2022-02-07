@@ -75,3 +75,17 @@ func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 
 	return quotum
 }
+
+func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
+	dur := time.Duration(0)
+
+	for _, block := range t.Blocks {
+		dur += block.Duration()
+	}
+
+	if t.LastStart.IsStarted() {
+		dur += time.Now().Sub(*t.LastStart.t)
+	}
+
+	return dur
+}
