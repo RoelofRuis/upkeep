@@ -94,7 +94,7 @@ func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
 		return errors.New("no category given"), ""
 	}
 
-	editor.Inlcude(args[0])
+	editor.Include(args[0])
 
 	return nil, editor.Day()
 }

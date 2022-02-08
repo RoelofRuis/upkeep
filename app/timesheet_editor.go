@@ -109,7 +109,7 @@ func (t *TimesheetEditor) Exclude(category string) {
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) Inlcude(category string) {
+func (t *TimesheetEditor) Include(category string) {
 	upkeep := t.upkeep.RemoveExcludedCategory(category)
 	t.upkeep = &upkeep
 }
@@ -119,9 +119,7 @@ func (t *TimesheetEditor) Day() string {
 
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
-	printer.Green("%s", t.upkeep.Categories.String()).
-		Yellow(" %s", excludedCategories.String()).
-		Newline()
+	printer.Green("%s", t.upkeep.Categories.String()).Newline()
 
 	for _, block := range t.timesheet.Blocks {
 		printer.White("%2d ", block.Id).
