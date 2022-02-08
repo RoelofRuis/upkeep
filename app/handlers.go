@@ -11,7 +11,12 @@ import (
 type Repository repo.Repository
 
 func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Start(args)
+	category := ""
+	if len(args) > 0 {
+		category = args[0]
+	}
+
+	editor.Start(category)
 
 	return nil, editor.Day()
 }
@@ -29,7 +34,12 @@ func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
 }
 
 func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Switch(args)
+	category := ""
+	if len(args) > 0 {
+		category = args[0]
+	}
+
+	editor.Switch(category)
 
 	return nil, editor.Day()
 }
@@ -40,12 +50,12 @@ func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.Day()
 }
 
-func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
+func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
-		return errors.New("no tags specified"), ""
+		return errors.New("no category specified"), ""
 	}
 
-	editor.Tag(args)
+	editor.Category(args[0])
 
 	return nil, editor.Day()
 }

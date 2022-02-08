@@ -3,18 +3,18 @@ package model
 import "time"
 
 type TimeBlock struct {
-	Id    int
-	Start Moment
-	End   Moment
-	Tags  TagSet
+	Id       int
+	Start    Moment
+	End      Moment
+	Category string
 }
 
-func NewTimeBlock(id int, start Moment, end Moment, tags TagSet) TimeBlock {
+func NewTimeBlock(id int, start Moment, end Moment, category string) TimeBlock {
 	return TimeBlock{
-		Id:    id,
-		Start: start,
-		End:   end,
-		Tags:  tags,
+		Id:       id,
+		Start:    start,
+		End:      end,
+		Category: category,
 	}
 }
 

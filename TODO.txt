@@ -1,5 +1,5 @@
 - view past week
 - create a monthly export
-- alter tags for past blocks
+- alter category for past blocks
 - allow tag to discount on total time
-- show time per tag
+- show time per category (or tag?)

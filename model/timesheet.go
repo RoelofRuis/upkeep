@@ -31,12 +31,12 @@ func (s Timesheet) Start(t time.Time) Timesheet {
 	return s
 }
 
-func (s Timesheet) Stop(t time.Time, tags TagSet) Timesheet {
+func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 	if !s.IsStarted() {
 		return s
 	}
 
-	newBlock := NewTimeBlock(s.NextId, s.LastStart, NewMoment().Start(t), tags)
+	newBlock := NewTimeBlock(s.NextId, s.LastStart, NewMoment().Start(t), category)
 	s.NextId += 1
 
 	s.Blocks = append(s.Blocks, newBlock)

@@ -2,7 +2,6 @@ package app
 
 import (
 	"regexp"
-	"strings"
 	"time"
 	"upkeep/infra"
 	"upkeep/model"
@@ -46,7 +45,7 @@ type TimesheetEditor struct {
 	timesheet *model.Timesheet
 }
 
-func (t *TimesheetEditor) Start(tags []string) {
+func (t *TimesheetEditor) Start(category string) {
 	t.Stop()
 
 	now := time.Now()
@@ -59,14 +58,13 @@ func (t *TimesheetEditor) Start(tags []string) {
 
 	t.timesheet = &sheet
 
-	if tags != nil {
-		t.upkeep.ClearTags()
-		t.Tag(tags)
+	if category != "" {
+		t.Category(category)
 	}
 }
 
 func (t *TimesheetEditor) Stop() {
-	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetTags())
+	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetCategory())
 	t.timesheet = &sheet
 }
 
@@ -75,18 +73,18 @@ func (t *TimesheetEditor) Abort() {
 	t.timesheet = &sheet
 }
 
-func (t *TimesheetEditor) Switch(tags []string) {
+func (t *TimesheetEditor) Switch(category string) {
 	t.Stop()
-	upkeep := t.upkeep.ShiftTags()
+	upkeep := t.upkeep.ShiftCategory()
 	t.upkeep = &upkeep
-	t.Start(tags)
+	t.Start(category)
 }
 
 func (t *TimesheetEditor) Continue() {
 	t.Stop()
-	upkeep := t.upkeep.UnshiftTags()
+	upkeep := t.upkeep.UnshiftCategory()
 	t.upkeep = &upkeep
-	t.Start(nil)
+	t.Start("")
 }
 
 func (t *TimesheetEditor) Remove(blockId int) {
@@ -94,33 +92,28 @@ func (t *TimesheetEditor) Remove(blockId int) {
 	t.timesheet = &timesheet
 }
 
-var validTag = regexp.MustCompile(`^[+-]?[a-z_]+$`)
+var validCategory = regexp.MustCompile(`^[a-z0-9_]+$`)
 
-func (t *TimesheetEditor) Tag(tags []string) {
+func (t *TimesheetEditor) Category(category string) {
 	upkeep := *t.upkeep
-	for _, tag := range tags {
-		if !validTag.MatchString(tag) {
-			continue
-		}
-		if strings.HasPrefix(tag, "-") {
-			upkeep = upkeep.RemoveTag(strings.TrimPrefix(tag, "-"))
-		} else {
-			upkeep = upkeep.AddTag(strings.TrimPrefix(tag, "+"))
-		}
+
+	if !validCategory.MatchString(category) {
+		return
 	}
+	upkeep = upkeep.SetCategory(category)
 	t.upkeep = &upkeep
 }
 
 func (t *TimesheetEditor) Day() string {
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
-	printer.Green("%s", t.upkeep.Tags.String()).Newline()
+	printer.Green("%s", t.upkeep.Categories.String()).Newline()
 
 	for _, block := range t.timesheet.Blocks {
 		printer.White("%2d ", block.Id).
 			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour)).
 			Bold(" [%s] ", infra.FormatDuration(block.Duration())).
-			Green("%s", block.Tags.String()).
+			Green("%s", block.Category).
 			Newline()
 	}
 
@@ -132,7 +125,7 @@ func (t *TimesheetEditor) Day() string {
 		printer.White(">> ").
 			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour)).
 			Bold("[%s]", infra.FormatDuration(dur)).
-			Green(" %s", t.upkeep.GetTags().String()).
+			Green(" %s", t.upkeep.GetCategory()).
 			Newline()
 	}
 

@@ -3,56 +3,33 @@ package model
 import "time"
 
 type Upkeep struct {
-	Version string
-	Tags    TagStack
-	Quota   map[time.Weekday]time.Duration
+	Version    string
+	Categories StringStack
+	Quota      map[time.Weekday]time.Duration
 }
 
-func (s Upkeep) ShiftTags() Upkeep {
-	s.Tags = s.Tags.Push(NewTagSet())
+func (s Upkeep) ShiftCategory() Upkeep {
+	s.Categories = s.Categories.Push("")
 	return s
 }
 
-func (s Upkeep) UnshiftTags() Upkeep {
-	stack, _, _ := s.Tags.Pop()
-	s.Tags = stack
+func (s Upkeep) UnshiftCategory() Upkeep {
+	stack, _, _ := s.Categories.Pop()
+	s.Categories = stack
 	return s
 }
 
-func (s *Upkeep) GetTags() TagSet {
-	set, has := s.Tags.Peek()
+func (s *Upkeep) GetCategory() string {
+	cat, has := s.Categories.Peek()
 	if !has {
-		return NewTagSet()
+		return ""
 	}
-	return set
+	return cat
 }
 
-func (s Upkeep) AddTag(tag string) Upkeep {
-	stack, set, has := s.Tags.Pop()
-	if !has {
-		set = NewTagSet()
-	}
-	s.Tags = stack.Push(set.Add(tag))
-
-	return s
-}
-
-func (s Upkeep) RemoveTag(tag string) Upkeep {
-	stack, set, has := s.Tags.Pop()
-	if !has {
-		return s
-	}
-	s.Tags = stack.Push(set.Remove(tag))
-
-	return s
-}
-
-func (s Upkeep) ClearTags() Upkeep {
-	stack, _, has := s.Tags.Pop()
-	if !has {
-		return s
-	}
-	s.Tags = stack.Push(NewTagSet())
+func (s Upkeep) SetCategory(name string) Upkeep {
+	stack, _, _ := s.Categories.Pop()
+	s.Categories = stack.Push(name)
 
 	return s
 }
