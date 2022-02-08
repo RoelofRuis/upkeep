@@ -19,10 +19,8 @@ func NewTagSetFromString(s string) TagSet {
 }
 
 func (ts TagSet) Add(tag string) TagSet {
-	for _, t := range ts.tags {
-		if t == tag {
-			return ts
-		}
+	if ts.Contains(tag) {
+		return ts
 	}
 	return TagSet{tags: append(ts.tags, tag)}
 }
@@ -36,6 +34,15 @@ func (ts TagSet) Remove(tag string) TagSet {
 		}
 	}
 	return ts
+}
+
+func (ts TagSet) Contains(tag string) bool {
+	for _, t := range ts.tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
 }
 
 func (ts TagSet) String() string {

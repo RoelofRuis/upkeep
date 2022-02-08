@@ -3,12 +3,14 @@ package infra
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 var (
 	Reset  = "\033[0m"
 	Bold   = "\033[1m"
 	Red    = "\033[31m"
+	Green  = "\033[32m"
 	Yellow = "\033[33m"
 	White  = "\033[37m"
 )
@@ -19,6 +21,11 @@ type TerminalPrinter struct {
 
 func (t *TerminalPrinter) Red(s string, args ...interface{}) *TerminalPrinter {
 	t.addToBuffer(Red+s+Reset, args...)
+	return t
+}
+
+func (t *TerminalPrinter) Green(s string, args ...interface{}) *TerminalPrinter {
+	t.addToBuffer(Green+s+Reset, args...)
 	return t
 }
 
@@ -58,4 +65,11 @@ func (t *TerminalPrinter) addToBuffer(s string, args ...interface{}) {
 
 func (t *TerminalPrinter) String() string {
 	return strings.Join(t.lines, "\n")
+}
+
+func FormatDuration(d time.Duration) string {
+	hours := int(d.Hours())
+	minutes := int(d.Minutes()) - (hours * 60)
+
+	return fmt.Sprintf("%01d:%02d", hours, minutes)
 }

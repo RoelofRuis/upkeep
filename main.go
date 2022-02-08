@@ -50,15 +50,17 @@ func main() {
 	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 
 	confRouter := infra.NewRouter()
-	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
+	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 
 	mainRouter.Register("day", "show timesheet for today", repository.Edit(app.HandleDay))
 	mainRouter.DefaultAction = "day"
 
 	err, msg := mainRouter.Handle(os.Args[1:])
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		printer := infra.TerminalPrinter{}
+		printer.Red("error: %s", err.Error()).Newline()
+		fmt.Print(printer.String())
 	}
 	fmt.Printf("%s\n", msg)
 }

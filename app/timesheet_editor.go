@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -115,13 +114,13 @@ func (t *TimesheetEditor) Tag(tags []string) {
 func (t *TimesheetEditor) Day() string {
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
-	printer.Yellow("%s", t.upkeep.Tags.String()).Newline()
+	printer.Green("%s", t.upkeep.Tags.String()).Newline()
 
 	for _, block := range t.timesheet.Blocks {
 		printer.White("%2d ", block.Id).
 			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour)).
-			Bold(" [%s] ", formatDur(block.Duration())).
-			Yellow("%s", block.Tags.String()).
+			Bold(" [%s] ", infra.FormatDuration(block.Duration())).
+			Green("%s", block.Tags.String()).
 			Newline()
 	}
 
@@ -130,9 +129,10 @@ func (t *TimesheetEditor) Day() string {
 		end := model.NewMoment().Start(time.Now())
 		dur := end.Sub(start)
 
-		printer.Print("   [%s - %s) ", start.Format(model.LayoutHour), end.Format(model.LayoutHour)).
-			Bold("[%s]", formatDur(dur)).
-			Yellow(" %s", t.upkeep.GetTags().String()).
+		printer.White(">> ").
+			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour)).
+			Bold("[%s]", infra.FormatDuration(dur)).
+			Green(" %s", t.upkeep.GetTags().String()).
 			Newline()
 	}
 
@@ -140,27 +140,19 @@ func (t *TimesheetEditor) Day() string {
 	totalDuration := t.upkeep.TimesheetDuration(*t.timesheet)
 
 	if quotum == 0 {
-		printer.Print(
-			"                   [%s]",
-			formatDur(totalDuration),
-		).Newline()
+		printer.Print("                   ").
+			Bold("[%s]", infra.FormatDuration(totalDuration)).
+			Newline()
 	} else {
 		perc := (float64(totalDuration) / float64(quotum)) * 100
 
 		printer.Print("                   ").
-			Bold("[%s]", formatDur(totalDuration)).
-			Print(" / [%s] (%0.1f%%)", formatDur(quotum), perc).
+			Bold("[%s]", infra.FormatDuration(totalDuration)).
+			Print(" / [%s] (%0.1f%%)", infra.FormatDuration(quotum), perc).
 			Newline()
 	}
 
 	return printer.String()
-}
-
-func formatDur(d time.Duration) string {
-	hours := int(d.Hours())
-	minutes := int(d.Minutes()) - (hours * 60)
-
-	return fmt.Sprintf("%01d:%02d", hours, minutes)
 }
 
 func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
