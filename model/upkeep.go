@@ -20,11 +20,7 @@ func (s Upkeep) UnshiftCategory() Upkeep {
 }
 
 func (s *Upkeep) GetCategory() string {
-	cat, has := s.Categories.Peek()
-	if !has {
-		return ""
-	}
-	return cat
+	return s.Categories.Peek()
 }
 
 func (s Upkeep) SetCategory(name string) Upkeep {

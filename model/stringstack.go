@@ -39,14 +39,14 @@ func (ss StringStack) Pop() (StringStack, string, bool) {
 	return ss[:index], element, true
 }
 
-func (ss StringStack) Peek() (string, bool) {
+func (ss StringStack) Peek() string {
 	if ss.IsEmpty() {
-		return "", false
+		return ""
 	}
 
 	index := len(ss) - 1
 	element := ss[index]
-	return element, true
+	return element
 }
 
 func (ss StringStack) String() string {
