@@ -11,47 +11,57 @@ import (
 type Repository repo.Repository
 
 func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Start(args)
+	category := ""
+	if len(args) > 0 {
+		category = args[0]
+	}
 
-	return nil, editor.Day()
+	editor.Start(category)
+
+	return nil, editor.View()
 }
 
 func HandleStop(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Stop()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Abort()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Switch(args)
+	category := ""
+	if len(args) > 0 {
+		category = args[0]
+	}
 
-	return nil, editor.Day()
+	editor.Switch(category)
+
+	return nil, editor.View()
 }
 
 func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Continue()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
-func HandleTag(args []string, editor *TimesheetEditor) (error, string) {
+func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
-		return errors.New("no tags specified"), ""
+		return errors.New("no category specified"), ""
 	}
 
-	editor.Tag(args)
+	editor.Category(args[0])
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleDay(args []string, editor *TimesheetEditor) (error, string) {
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
@@ -66,7 +76,27 @@ func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Remove(int(id))
 
-	return nil, editor.Day()
+	return nil, editor.View()
+}
+
+func HandleExclude(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) == 0 {
+		return errors.New("no category given"), ""
+	}
+
+	editor.Exclude(args[0])
+
+	return nil, editor.View()
+}
+
+func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) == 0 {
+		return errors.New("no category given"), ""
+	}
+
+	editor.Include(args[0])
+
+	return nil, editor.View()
 }
 
 func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {

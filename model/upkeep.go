@@ -1,58 +1,47 @@
 package model
 
-import "time"
+import (
+	"time"
+	"upkeep/infra"
+)
 
 type Upkeep struct {
-	Version string
-	Tags    TagStack
-	Quota   map[time.Weekday]time.Duration
+	Version            string
+	Categories         infra.Stack
+	Quota              map[time.Weekday]time.Duration
+	ExcludedCategories infra.Set
 }
 
-func (s Upkeep) ShiftTags() Upkeep {
-	s.Tags = s.Tags.Push(NewTagSet())
+func (s Upkeep) ShiftCategory() Upkeep {
+	s.Categories = s.Categories.Push("")
 	return s
 }
 
-func (s Upkeep) UnshiftTags() Upkeep {
-	stack, _, _ := s.Tags.Pop()
-	s.Tags = stack
+func (s Upkeep) UnshiftCategory() Upkeep {
+	stack, _, _ := s.Categories.Pop()
+	s.Categories = stack
 	return s
 }
 
-func (s *Upkeep) GetTags() TagSet {
-	set, has := s.Tags.Peek()
-	if !has {
-		return NewTagSet()
-	}
-	return set
+func (s *Upkeep) GetCategory() string {
+	return s.Categories.Peek()
 }
 
-func (s Upkeep) AddTag(tag string) Upkeep {
-	stack, set, has := s.Tags.Pop()
-	if !has {
-		set = NewTagSet()
-	}
-	s.Tags = stack.Push(set.Add(tag))
+func (s Upkeep) SetCategory(name string) Upkeep {
+	stack, _, _ := s.Categories.Pop()
+	s.Categories = stack.Push(name)
 
 	return s
 }
 
-func (s Upkeep) RemoveTag(tag string) Upkeep {
-	stack, set, has := s.Tags.Pop()
-	if !has {
-		return s
-	}
-	s.Tags = stack.Push(set.Remove(tag))
+func (s Upkeep) AddExcludedCategory(name string) Upkeep {
+	s.ExcludedCategories = s.ExcludedCategories.Add(name)
 
 	return s
 }
 
-func (s Upkeep) ClearTags() Upkeep {
-	stack, _, has := s.Tags.Pop()
-	if !has {
-		return s
-	}
-	s.Tags = stack.Push(NewTagSet())
+func (s Upkeep) RemoveExcludedCategory(name string) Upkeep {
+	s.ExcludedCategories = s.ExcludedCategories.Remove(name)
 
 	return s
 }
@@ -80,10 +69,12 @@ func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
 	dur := time.Duration(0)
 
 	for _, block := range t.Blocks {
-		dur += block.Duration()
+		if !s.ExcludedCategories.Contains(block.Category) {
+			dur += block.Duration()
+		}
 	}
 
-	if t.LastStart.IsStarted() {
+	if t.LastStart.IsStarted() && !s.ExcludedCategories.Contains(s.Categories.Peek()) {
 		dur += time.Now().Sub(*t.LastStart.t)
 	}
 

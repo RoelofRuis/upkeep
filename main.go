@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 	"upkeep/app"
 	"upkeep/infra"
 	"upkeep/model/repo"
@@ -44,9 +45,11 @@ func main() {
 	mainRouter.Register("start", "start a new block", repository.Edit(app.HandleStart))
 	mainRouter.Register("stop", "stop the active block and save it", repository.Edit(app.HandleStop))
 	mainRouter.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))
-	mainRouter.Register("switch", "switch to a new block with new tags", repository.Edit(app.HandleSwitch))
-	mainRouter.Register("continue", "switch back to the old tags", repository.Edit(app.HandleContinue))
-	mainRouter.Register("tag", "change active tags", repository.Edit(app.HandleTag))
+	mainRouter.Register("switch", "switch to a new block with new category", repository.Edit(app.HandleSwitch))
+	mainRouter.Register("continue", "switch back to the old category", repository.Edit(app.HandleContinue))
+	mainRouter.Register("cat", "change active category", repository.Edit(app.HandleCategory))
+	mainRouter.Register("exclude", "exclude a category from counting towards total time", repository.Edit(app.HandleExclude))
+	mainRouter.Register("include", "include a category in counting towards total time", repository.Edit(app.HandleInclude))
 
 	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 
@@ -54,7 +57,8 @@ func main() {
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 
-	mainRouter.Register("day", "show timesheet for today", repository.Edit(app.HandleDay))
+	mainRouter.Register("day", "show timesheet for today", repository.HandleViewAt(time.Now()))
+	mainRouter.Register("yesterday", "show timesheet for yesterday", repository.HandleViewAt(time.Now().AddDate(0, 0, -1)))
 	mainRouter.DefaultAction = "day"
 
 	err, msg := mainRouter.Handle(os.Args[1:])
