@@ -40,6 +40,7 @@ func main() {
 	repository := app.Repository(repo.New(fileIO))
 
 	mainRouter := infra.NewRouter()
+	mainRouter.Register("version", "show version", repository.Edit(app.HandleVersion))
 	mainRouter.Register("start", "start a new block", repository.Edit(app.HandleStart))
 	mainRouter.Register("stop", "stop the active block and save it", repository.Edit(app.HandleStop))
 	mainRouter.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))

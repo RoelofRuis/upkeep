@@ -16,6 +16,8 @@ type upkeepJson struct {
 	Quota   map[int]string `json:"quota"`
 }
 
+const VERSION = "0.2"
+
 func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 	input := upkeepJson{
 		Version: "0.1",
@@ -39,6 +41,8 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 		Tags:    model.NewTagStackFromString(input.Tags),
 		Quota:   quotumMap,
 	}
+
+	upkeep.Version = VERSION
 
 	return upkeep, nil
 }

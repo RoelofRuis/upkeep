@@ -89,3 +89,7 @@ func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {
 	editor.AdjustQuotum(time.Weekday(weekday), &duration)
 	return nil, fmt.Sprintf("updated quotum")
 }
+
+func HandleVersion(args []string, editor *TimesheetEditor) (error, string) {
+	return nil, fmt.Sprintf("Version: %s", editor.upkeep.Version)
+}
