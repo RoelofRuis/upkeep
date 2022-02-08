@@ -104,17 +104,38 @@ func (t *TimesheetEditor) Category(category string) {
 	t.upkeep = &upkeep
 }
 
+func (t *TimesheetEditor) Exclude(category string) {
+	upkeep := t.upkeep.AddExcludedCategory(category)
+	t.upkeep = &upkeep
+}
+
+func (t *TimesheetEditor) Inlcude(category string) {
+	upkeep := t.upkeep.RemoveExcludedCategory(category)
+	t.upkeep = &upkeep
+}
+
 func (t *TimesheetEditor) Day() string {
+	excludedCategories := t.upkeep.ExcludedCategories
+
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
-	printer.Green("%s", t.upkeep.Categories.String()).Newline()
+	printer.Green("%s", t.upkeep.Categories.String()).
+		Yellow(" %s", excludedCategories.String()).
+		Newline()
 
 	for _, block := range t.timesheet.Blocks {
 		printer.White("%2d ", block.Id).
-			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour)).
-			Bold(" [%s] ", infra.FormatDuration(block.Duration())).
-			Green("%s", block.Category).
-			Newline()
+			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour))
+
+		if excludedCategories.Contains(block.Category) {
+			printer.Print(" [%s] ", infra.FormatDuration(block.Duration())).
+				Yellow("%s", block.Category)
+		} else {
+			printer.Bold(" [%s] ", infra.FormatDuration(block.Duration())).
+				Green("%s", block.Category)
+		}
+
+		printer.Newline()
 	}
 
 	if t.timesheet.IsStarted() {
@@ -123,10 +144,17 @@ func (t *TimesheetEditor) Day() string {
 		dur := end.Sub(start)
 
 		printer.White(">> ").
-			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour)).
-			Bold("[%s]", infra.FormatDuration(dur)).
-			Green(" %s", t.upkeep.GetCategory()).
-			Newline()
+			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
+
+		if excludedCategories.Contains(t.upkeep.GetCategory()) {
+			printer.Print("[%s]", infra.FormatDuration(dur)).
+				Yellow(" %s", t.upkeep.GetCategory())
+		} else {
+			printer.Bold("[%s]", infra.FormatDuration(dur)).
+				Green(" %s", t.upkeep.GetCategory())
+		}
+
+		printer.Newline()
 	}
 
 	quotum := t.timesheet.Quotum

@@ -11,9 +11,10 @@ type UpkeepRepository struct {
 }
 
 type upkeepJson struct {
-	Version    string         `json:"version"`
-	Categories string         `json:"categories"`
-	Quota      map[int]string `json:"quota"`
+	Version            string         `json:"version"`
+	ActiveCategory     string         `json:"active_category"`
+	Quota              map[int]string `json:"quota"`
+	ExcludedCategories string         `json:"excluded_categories"`
 }
 
 func (r *UpkeepRepository) Get() (model.Upkeep, error) {
@@ -35,9 +36,10 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 	}
 
 	upkeep := model.Upkeep{
-		Version:    input.Version,
-		Categories: model.NewStringStackFromString(input.Categories),
-		Quota:      quotumMap,
+		Version:            input.Version,
+		Categories:         infra.NewStackFromString(input.ActiveCategory),
+		Quota:              quotumMap,
+		ExcludedCategories: infra.NewSetFromString(input.ExcludedCategories),
 	}
 
 	return upkeep, nil
@@ -50,9 +52,10 @@ func (r *UpkeepRepository) Insert(m model.Upkeep) error {
 	}
 
 	output := upkeepJson{
-		Version:    m.Version,
-		Categories: m.Categories.String(),
-		Quota:      quotumMap,
+		Version:            m.Version,
+		ActiveCategory:     m.Categories.String(),
+		Quota:              quotumMap,
+		ExcludedCategories: m.ExcludedCategories.String(),
 	}
 
 	if err := r.FileIO.Write("upkeep.json", output); err != nil {

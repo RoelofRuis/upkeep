@@ -46,6 +46,8 @@ func main() {
 	mainRouter.Register("switch", "switch to a new block with new category", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "switch back to the old category", repository.Edit(app.HandleContinue))
 	mainRouter.Register("cat", "change active category", repository.Edit(app.HandleCategory))
+	mainRouter.Register("exclude", "exclude a category from counting towards total time", repository.Edit(app.HandleExclude))
+	mainRouter.Register("include", "include a category in counting towards total time", repository.Edit(app.HandleInclude))
 
 	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 

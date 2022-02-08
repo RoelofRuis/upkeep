@@ -1,19 +1,19 @@
-package model
+package infra
 
 import "strings"
 
-type StringStack []string
+type Stack []string
 
-func NewStringStack() StringStack {
-	return StringStack{}
+func NewStack() Stack {
+	return Stack{}
 }
 
-func NewStringStackFromString(s string) StringStack {
+func NewStackFromString(s string) Stack {
 	if s == "" {
-		return NewStringStack()
+		return NewStack()
 	}
 
-	var elements StringStack
+	var elements Stack
 	for _, elem := range strings.Split(s, "|") {
 		elements = append(elements, elem)
 	}
@@ -21,15 +21,15 @@ func NewStringStackFromString(s string) StringStack {
 	return elements
 }
 
-func (ss StringStack) IsEmpty() bool {
+func (ss Stack) IsEmpty() bool {
 	return len(ss) == 0
 }
 
-func (ss StringStack) Push(s string) StringStack {
+func (ss Stack) Push(s string) Stack {
 	return append(ss, s)
 }
 
-func (ss StringStack) Pop() (StringStack, string, bool) {
+func (ss Stack) Pop() (Stack, string, bool) {
 	if ss.IsEmpty() {
 		return ss, "", false
 	}
@@ -39,7 +39,7 @@ func (ss StringStack) Pop() (StringStack, string, bool) {
 	return ss[:index], element, true
 }
 
-func (ss StringStack) Peek() string {
+func (ss Stack) Peek() string {
 	if ss.IsEmpty() {
 		return ""
 	}
@@ -49,6 +49,6 @@ func (ss StringStack) Peek() string {
 	return element
 }
 
-func (ss StringStack) String() string {
+func (ss Stack) String() string {
 	return strings.Join(ss, "|")
 }

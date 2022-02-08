@@ -1,11 +1,15 @@
 package model
 
-import "time"
+import (
+	"time"
+	"upkeep/infra"
+)
 
 type Upkeep struct {
-	Version    string
-	Categories StringStack
-	Quota      map[time.Weekday]time.Duration
+	Version            string
+	Categories         infra.Stack
+	Quota              map[time.Weekday]time.Duration
+	ExcludedCategories infra.Set
 }
 
 func (s Upkeep) ShiftCategory() Upkeep {
@@ -26,6 +30,18 @@ func (s *Upkeep) GetCategory() string {
 func (s Upkeep) SetCategory(name string) Upkeep {
 	stack, _, _ := s.Categories.Pop()
 	s.Categories = stack.Push(name)
+
+	return s
+}
+
+func (s Upkeep) AddExcludedCategory(name string) Upkeep {
+	s.ExcludedCategories = s.ExcludedCategories.Add(name)
+
+	return s
+}
+
+func (s Upkeep) RemoveExcludedCategory(name string) Upkeep {
+	s.ExcludedCategories = s.ExcludedCategories.Remove(name)
 
 	return s
 }
@@ -53,7 +69,9 @@ func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
 	dur := time.Duration(0)
 
 	for _, block := range t.Blocks {
-		dur += block.Duration()
+		if !s.ExcludedCategories.Contains(block.Category) {
+			dur += block.Duration()
+		}
 	}
 
 	if t.LastStart.IsStarted() {

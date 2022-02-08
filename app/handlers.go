@@ -79,6 +79,26 @@ func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.Day()
 }
 
+func HandleExclude(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) == 0 {
+		return errors.New("no category given"), ""
+	}
+
+	editor.Exclude(args[0])
+
+	return nil, editor.Day()
+}
+
+func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) == 0 {
+		return errors.New("no category given"), ""
+	}
+
+	editor.Inlcude(args[0])
+
+	return nil, editor.Day()
+}
+
 func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
 		return errors.New("too few arguments"), ""
