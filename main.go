@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 	"upkeep/app"
 	"upkeep/infra"
 	"upkeep/model/repo"
@@ -55,7 +56,8 @@ func main() {
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 
-	mainRouter.Register("day", "show timesheet for today", repository.Edit(app.HandleDay))
+	mainRouter.Register("day", "show timesheet for today", repository.HandleViewAt(time.Now()))
+	mainRouter.Register("yesterday", "show timesheet for yesterday", repository.HandleViewAt(time.Now().AddDate(0, 0, -1)))
 	mainRouter.DefaultAction = "day"
 
 	err, msg := mainRouter.Handle(os.Args[1:])

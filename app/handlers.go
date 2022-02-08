@@ -18,19 +18,19 @@ func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Start(category)
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleStop(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Stop()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Abort()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
@@ -41,13 +41,13 @@ func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Switch(category)
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 	editor.Continue()
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
@@ -57,11 +57,11 @@ func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Category(args[0])
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleDay(args []string, editor *TimesheetEditor) (error, string) {
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
@@ -76,7 +76,7 @@ func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Remove(int(id))
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleExclude(args []string, editor *TimesheetEditor) (error, string) {
@@ -86,7 +86,7 @@ func HandleExclude(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Exclude(args[0])
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
@@ -96,7 +96,7 @@ func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Include(args[0])
 
-	return nil, editor.Day()
+	return nil, editor.View()
 }
 
 func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {

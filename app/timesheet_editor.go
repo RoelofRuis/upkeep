@@ -7,6 +7,11 @@ import (
 	"upkeep/model"
 )
 
+type TimesheetEditor struct {
+	upkeep    *model.Upkeep
+	timesheet *model.Timesheet
+}
+
 func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, string)) infra.Handler {
 	return func(args []string) (error, string) {
 		upkeep, err := r.Upkeep.Get()
@@ -38,11 +43,6 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, 
 
 		return nil, s
 	}
-}
-
-type TimesheetEditor struct {
-	upkeep    *model.Upkeep
-	timesheet *model.Timesheet
 }
 
 func (t *TimesheetEditor) Start(category string) {
@@ -114,66 +114,6 @@ func (t *TimesheetEditor) Include(category string) {
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) Day() string {
-	excludedCategories := t.upkeep.ExcludedCategories
-
-	printer := infra.TerminalPrinter{}
-	printer.Print("@ %s", t.timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
-	printer.Green("%s", t.upkeep.Categories.String()).Newline()
-
-	for _, block := range t.timesheet.Blocks {
-		printer.White("%2d ", block.Id).
-			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour))
-
-		if excludedCategories.Contains(block.Category) {
-			printer.Print(" [%s] ", infra.FormatDuration(block.Duration())).
-				Yellow("%s", block.Category)
-		} else {
-			printer.Bold(" [%s] ", infra.FormatDuration(block.Duration())).
-				Green("%s", block.Category)
-		}
-
-		printer.Newline()
-	}
-
-	if t.timesheet.IsStarted() {
-		start := t.timesheet.LastStart
-		end := model.NewMoment().Start(time.Now())
-		dur := end.Sub(start)
-
-		printer.White(">> ").
-			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
-
-		if excludedCategories.Contains(t.upkeep.GetCategory()) {
-			printer.Print("[%s]", infra.FormatDuration(dur)).
-				Yellow(" %s", t.upkeep.GetCategory())
-		} else {
-			printer.Bold("[%s]", infra.FormatDuration(dur)).
-				Green(" %s", t.upkeep.GetCategory())
-		}
-
-		printer.Newline()
-	}
-
-	quotum := t.timesheet.Quotum
-	totalDuration := t.upkeep.TimesheetDuration(*t.timesheet)
-
-	if quotum == 0 {
-		printer.Print("                   ").
-			Bold("[%s]", infra.FormatDuration(totalDuration)).
-			Newline()
-	} else {
-		perc := (float64(totalDuration) / float64(quotum)) * 100
-
-		printer.Print("                   ").
-			Bold("[%s]", infra.FormatDuration(totalDuration)).
-			Print(" / [%s] (%0.1f%%)", infra.FormatDuration(quotum), perc).
-			Newline()
-	}
-
-	return printer.String()
-}
-
 func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
 	if dur == nil {
 		upkeep := t.upkeep.RemoveQuotumForDay(day)
@@ -182,4 +122,8 @@ func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
 		upkeep := t.upkeep.SetQuotumForDay(day, *dur)
 		t.upkeep = &upkeep
 	}
+}
+
+func (t *TimesheetEditor) View() string {
+	return ViewDay(*t.upkeep, *t.timesheet)
 }
