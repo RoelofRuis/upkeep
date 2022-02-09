@@ -7,7 +7,7 @@ import (
 	"upkeep/model"
 )
 
-func (r Repository) HandleView(args []string) (error, string) {
+func (r Repository) HandleViewSheet(args []string) (error, string) {
 	date := model.Today()
 	if len(args) > 0 {
 		switch args[0] {
@@ -35,10 +35,10 @@ func (r Repository) HandleView(args []string) (error, string) {
 		return err, ""
 	}
 
-	return nil, ViewDay(upkeep, timesheet)
+	return nil, ViewSheet(upkeep, timesheet)
 }
 
-func ViewDay(upkeep model.Upkeep, timesheet model.Timesheet) string {
+func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	excludedCategories := upkeep.ExcludedCategories
 
 	printer := infra.TerminalPrinter{}

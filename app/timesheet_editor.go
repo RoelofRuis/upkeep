@@ -125,5 +125,5 @@ func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
 }
 
 func (t *TimesheetEditor) View() string {
-	return ViewDay(*t.upkeep, *t.timesheet)
+	return ViewSheet(*t.upkeep, *t.timesheet)
 }
