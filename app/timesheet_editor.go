@@ -80,11 +80,11 @@ func (t *TimesheetEditor) Switch(category string) {
 	t.Start(category)
 }
 
-func (t *TimesheetEditor) Continue() {
+func (t *TimesheetEditor) Continue(category string) {
 	t.Stop()
 	upkeep := t.upkeep.UnshiftCategory()
 	t.upkeep = &upkeep
-	t.Start("")
+	t.Start(category)
 }
 
 func (t *TimesheetEditor) Remove(blockId int) {

@@ -45,7 +45,12 @@ func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
 }
 
 func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
-	editor.Continue()
+	category := ""
+	if len(args) > 0 {
+		category = args[0]
+	}
+
+	editor.Continue(category)
 
 	return nil, editor.View()
 }
