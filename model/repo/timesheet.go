@@ -12,7 +12,6 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
-	CreatedAt string      `json:"created_at"`
 	NextId    int         `json:"next_id"`
 	LastStart string      `json:"last_start"`
 	Blocks    []blockJson `json:"blocks"`
@@ -26,25 +25,19 @@ type blockJson struct {
 	Category string `json:"category"`
 }
 
-func (r *TimesheetRepository) GetForDay(t time.Time) (model.Timesheet, error) {
+func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, error) {
 	input := timesheetJson{
-		CreatedAt: t.Format(model.LayoutDateHour),
 		NextId:    0,
 		LastStart: "",
 		Blocks:    nil,
 		Quotum:    "",
 	}
 
-	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", t.Format(model.LayoutDate)), &input); err != nil {
+	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", date), &input); err != nil {
 		return model.Timesheet{}, err
 	}
 
-	createdTime, err := time.Parse(model.LayoutDateHour, input.CreatedAt)
-	if err != nil {
-		return model.Timesheet{}, err
-	}
-
-	sheet := model.NewTimesheet(createdTime)
+	sheet := model.NewTimesheet(date)
 	sheet.NextId = input.NextId
 
 	if input.Quotum != "" {
@@ -98,14 +91,13 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	}
 
 	output := timesheetJson{
-		CreatedAt: m.Created.Format(model.LayoutDateHour),
 		NextId:    m.NextId,
 		LastStart: m.LastStart.Format(model.LayoutDateHour),
 		Blocks:    blocks,
 		Quotum:    m.Quotum.String(),
 	}
 
-	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Created.Format(model.LayoutDate)), output); err != nil {
+	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Date), output); err != nil {
 		return err
 	}
 

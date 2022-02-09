@@ -5,16 +5,16 @@ import (
 )
 
 type Timesheet struct {
-	Created   time.Time
+	Date      Date
 	NextId    int
 	Blocks    []TimeBlock
 	LastStart Moment
 	Quotum    time.Duration
 }
 
-func NewTimesheet(created time.Time) Timesheet {
+func NewTimesheet(date Date) Timesheet {
 	return Timesheet{
-		Created:   created,
+		Date:      date,
 		NextId:    0,
 		Blocks:    []TimeBlock{},
 		LastStart: NewMoment(),

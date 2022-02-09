@@ -74,7 +74,7 @@ func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
 		}
 	}
 
-	if t.LastStart.IsStarted() && !s.ExcludedCategories.Contains(s.Categories.Peek()) {
+	if t.LastStart.IsStarted() && t.Date.IsToday() && !s.ExcludedCategories.Contains(s.Categories.Peek()) {
 		dur += time.Now().Sub(*t.LastStart.t)
 	}
 

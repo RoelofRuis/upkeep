@@ -1,31 +1,48 @@
 package app
 
 import (
+	"fmt"
 	"time"
 	"upkeep/infra"
 	"upkeep/model"
 )
 
-func (r Repository) HandleViewAt(time time.Time) infra.Handler {
-	return func(args []string) (error, string) {
-		upkeep, err := r.Upkeep.Get()
-		if err != nil {
-			return err, ""
+func (r Repository) HandleView(args []string) (error, string) {
+	date := model.Today()
+	if len(args) > 0 {
+		switch args[0] {
+		case "today":
+			break
+		case "yesterday":
+			date = date.DayBefore()
+			break
+		default:
+			parsedDate, err := model.NewDateFromString(args[0])
+			if err != nil {
+				return fmt.Errorf("invalid date value '%s'", args[0]), ""
+			}
+			date = parsedDate
+			break
 		}
-		timesheet, err := r.Timesheets.GetForDay(time)
-		if err != nil {
-			return err, ""
-		}
-
-		return nil, ViewDay(upkeep, timesheet)
 	}
+
+	upkeep, err := r.Upkeep.Get()
+	if err != nil {
+		return err, ""
+	}
+	timesheet, err := r.Timesheets.GetForDate(date)
+	if err != nil {
+		return err, ""
+	}
+
+	return nil, ViewDay(upkeep, timesheet)
 }
 
 func ViewDay(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	excludedCategories := upkeep.ExcludedCategories
 
 	printer := infra.TerminalPrinter{}
-	printer.Print("@ %s", timesheet.Created.Format("Monday 02 Jan 2006")).Newline()
+	printer.Print("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 	printer.Green("%s", upkeep.Categories.String()).Newline()
 
 	for _, block := range timesheet.Blocks {
@@ -45,21 +62,25 @@ func ViewDay(upkeep model.Upkeep, timesheet model.Timesheet) string {
 
 	if timesheet.IsStarted() {
 		start := timesheet.LastStart
-		end := model.NewMoment().Start(time.Now())
-		dur := end.Sub(start)
+		if timesheet.Date.IsToday() {
+			end := model.NewMoment().Start(time.Now())
+			dur := end.Sub(start)
 
-		printer.White(">> ").
-			Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
+			printer.White(">> ").
+				Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
 
-		if excludedCategories.Contains(upkeep.GetCategory()) {
-			printer.Print("[%s]", infra.FormatDuration(dur)).
-				Yellow(" %s", upkeep.GetCategory())
+			if excludedCategories.Contains(upkeep.GetCategory()) {
+				printer.Print("[%s]", infra.FormatDuration(dur)).
+					Yellow(" %s", upkeep.GetCategory())
+			} else {
+				printer.Bold("[%s]", infra.FormatDuration(dur)).
+					Green(" %s", upkeep.GetCategory())
+			}
+
+			printer.Newline()
 		} else {
-			printer.Bold("[%s]", infra.FormatDuration(dur)).
-				Green(" %s", upkeep.GetCategory())
+			printer.Red(">> [%s -   ?  ]", start.Format(model.LayoutHour)).Newline()
 		}
-
-		printer.Newline()
 	}
 
 	quotum := timesheet.Quotum

@@ -60,10 +60,6 @@ func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.View()
 }
 
-func HandleDay(args []string, editor *TimesheetEditor) (error, string) {
-	return nil, editor.View()
-}
-
 func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
 		return errors.New("no id given"), ""
