@@ -47,18 +47,23 @@ func main() {
 	mainRouter.Register("switch", "start a new block and put active category on the stack", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
 	mainRouter.Register("cat", "change active category", repository.Edit(app.HandleCategory))
+	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
+
+	// TODO: move exclude/include to settings and make advanced
 	mainRouter.Register("exclude", "exclude a category from counting towards total time", repository.Edit(app.HandleExclude))
 	mainRouter.Register("include", "include a category in counting towards total time", repository.Edit(app.HandleInclude))
 
-	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
-
 	confRouter := infra.NewRouter()
-	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 
-	mainRouter.Register("week", "show past week", repository.HandleViewWeek)
+	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 
-	mainRouter.Register("view", "show timesheet", repository.HandleViewSheet)
+	viewRouter := infra.NewRouter()
+	viewRouter.Register("week", "show times for past week", repository.HandleViewWeek)
+	viewRouter.Register("day", "show a day timesheet", repository.HandleViewSheet)
+	viewRouter.DefaultAction = "day"
+
+	mainRouter.Register("view", "view recorded times", viewRouter.Handle)
 	mainRouter.DefaultAction = "view"
 
 	err, msg := mainRouter.Handle(os.Args[1:])

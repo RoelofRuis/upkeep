@@ -1,4 +1,3 @@
-- view past week
 - create a monthly export
 - alter category for past blocks
 - show time per category (or tag?)
