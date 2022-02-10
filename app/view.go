@@ -43,7 +43,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
-	printer.Green("%s", upkeep.Categories.String()).Newline()
+	printer.BGGreen("%s", upkeep.Categories.String()).Newline()
 
 	for _, block := range timesheet.Blocks {
 		printer.White("%2d ", block.Id).
