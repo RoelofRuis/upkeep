@@ -56,6 +56,8 @@ func main() {
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 
+	mainRouter.Register("week", "show past week", repository.HandleViewWeek)
+
 	mainRouter.Register("view", "show timesheet", repository.HandleViewSheet)
 	mainRouter.DefaultAction = "view"
 

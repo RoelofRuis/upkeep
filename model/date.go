@@ -22,8 +22,21 @@ func Today() Date {
 	return NewDate(time.Now())
 }
 
-func (d Date) DayBefore() Date {
-	return Date(time.Time(d).AddDate(0, 0, -1))
+func (d Date) ShiftDay(days int) Date {
+	return Date(time.Time(d).AddDate(0, 0, days))
+}
+
+func (d Date) PreviousMonday() Date {
+	daysBack := int((time.Time(d).Weekday() + 6) % 7)
+	return Date(time.Time(d).AddDate(0, 0, -daysBack))
+}
+
+func (d Date) Week(upToDay int) []Date {
+	dates := make([]Date, upToDay)
+	for i := 0; i < upToDay; i++ {
+		dates[i] = d.ShiftDay(i)
+	}
+	return dates
 }
 
 func (d Date) Format(layout string) string {

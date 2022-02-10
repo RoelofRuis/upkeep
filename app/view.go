@@ -7,6 +7,43 @@ import (
 	"upkeep/model"
 )
 
+func (r Repository) HandleViewWeek(args []string) (error, string) {
+	date := model.Today().PreviousMonday()
+
+	upkeep, err := r.Upkeep.Get()
+	if err != nil {
+		return err, ""
+	}
+
+	sheets := make([]model.Timesheet, 5)
+	for i, day := range date.Week(5) {
+		sheet, err := r.Timesheets.GetForDate(day)
+		if err != nil {
+			return err, ""
+		}
+		sheets[i] = sheet
+	}
+
+	return nil, ViewWeek(upkeep, sheets)
+}
+
+func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
+	printer := infra.TerminalPrinter{}
+
+	totalDur := time.Duration(0)
+	for _, daySheet := range sheets {
+		dur := upkeep.TimesheetDuration(daySheet)
+		totalDur += dur
+		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006")).
+			Bold("[%s]", infra.FormatDuration(dur)).
+			Newline()
+	}
+
+	printer.Bold("                [%s]", infra.FormatDuration(totalDur))
+
+	return printer.String()
+}
+
 func (r Repository) HandleViewSheet(args []string) (error, string) {
 	date := model.Today()
 	if len(args) > 0 {
@@ -14,7 +51,7 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 		case "today":
 			break
 		case "yesterday":
-			date = date.DayBefore()
+			date = date.ShiftDay(-1)
 			break
 		default:
 			parsedDate, err := model.NewDateFromString(args[0])
