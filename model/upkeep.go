@@ -65,6 +65,20 @@ func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 	return quotum
 }
 
+func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
+	quotum := t.Quotum
+
+	if quotum == 0 {
+		weekdayQuotum, has := s.Quota[t.Date.Weekday()]
+		if !has {
+			return 0
+		}
+		return weekdayQuotum
+	}
+
+	return t.Quotum
+}
+
 func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
 	dur := time.Duration(0)
 

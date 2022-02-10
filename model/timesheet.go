@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"upkeep/infra"
 )
 
 type Timesheet struct {
@@ -62,11 +63,21 @@ func (s Timesheet) Abort() Timesheet {
 	return s
 }
 
+func (s Timesheet) SetQuotum(q time.Duration) Timesheet {
+	s.Quotum = q
+	return s
+}
+
 func (s Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }
 
-func (s Timesheet) SetQuotum(q time.Duration) Timesheet {
-	s.Quotum = q
-	return s
+func (s Timesheet) GetCategories() infra.Set {
+	var categories infra.Set
+	for _, block := range s.Blocks {
+		if block.Category != "" {
+			categories = categories.Add(block.Category)
+		}
+	}
+	return categories
 }

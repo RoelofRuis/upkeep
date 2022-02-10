@@ -30,16 +30,36 @@ func (r Repository) HandleViewWeek(args []string) (error, string) {
 func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	printer := infra.TerminalPrinter{}
 
-	totalDur := time.Duration(0)
+	weekDur := time.Duration(0)
+	weekQuotum := time.Duration(0)
 	for _, daySheet := range sheets {
-		dur := upkeep.TimesheetDuration(daySheet)
-		totalDur += dur
-		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006")).
-			Bold("[%s]", infra.FormatDuration(dur)).
-			Newline()
+		dayDur := upkeep.TimesheetDuration(daySheet)
+		weekDur += dayDur
+
+		dayQuotum := upkeep.TimesheetQuotum(daySheet)
+		weekQuotum += dayQuotum
+
+		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
+
+		if dayDur == 0 && dayQuotum == 0 {
+			printer.Newline()
+			continue;
+		}
+
+		if dayQuotum == 0 {
+				printer.Bold("[%s]", infra.FormatDuration(dayDur))
+		} else {
+			printer.Bold("[%s]", infra.FormatDuration(dayDur)).
+				Print(" / [%s] ", infra.FormatDuration(dayQuotum))
+		}
+
+		printer.Green("%s", daySheet.GetCategories().String()).Newline()
 	}
 
-	printer.Bold("                [%s]", infra.FormatDuration(totalDur))
+	weekPerc := (float64(weekDur) / float64(weekQuotum)) * 100
+
+	printer.Bold("                [%s]", infra.FormatDuration(weekDur)).
+		Print(" / [%s] (%0.1f%%)", infra.FormatDuration(weekQuotum), weekPerc)
 
 	return printer.String()
 }
@@ -120,7 +140,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 		}
 	}
 
-	quotum := timesheet.Quotum
+	quotum := upkeep.TimesheetQuotum(timesheet)
 	totalDuration := upkeep.TimesheetDuration(timesheet)
 
 	if quotum == 0 {

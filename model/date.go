@@ -39,6 +39,10 @@ func (d Date) Week(upToDay int) []Date {
 	return dates
 }
 
+func (d Date) Weekday() time.Weekday {
+	return time.Time(d).Weekday()
+}
+
 func (d Date) Format(layout string) string {
 	return time.Time(d).Format(layout)
 }
