@@ -49,20 +49,16 @@ func main() {
 	mainRouter.Register("cat", "change active category", repository.Edit(app.HandleCategory))
 	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 
-	// TODO: move exclude/include to settings and make advanced
-	mainRouter.Register("exclude", "exclude a category from counting towards total time", repository.Edit(app.HandleExclude))
-	mainRouter.Register("include", "include a category in counting towards total time", repository.Edit(app.HandleInclude))
-
 	confRouter := infra.NewRouter()
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
-
-	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
+	confRouter.Register("discount", "specify category discounts", repository.Edit(app.HandleDiscount))
 
 	viewRouter := infra.NewRouter()
 	viewRouter.Register("week", "show times for past week", repository.HandleViewWeek)
 	viewRouter.Register("day", "show a day timesheet", repository.HandleViewSheet)
 	viewRouter.DefaultAction = "day"
 
+	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	mainRouter.Register("view", "view recorded times", viewRouter.Handle)
 	mainRouter.DefaultAction = "view"
 

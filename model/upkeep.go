@@ -9,7 +9,7 @@ type Upkeep struct {
 	Version            string
 	Categories         infra.Stack
 	Quota              map[time.Weekday]time.Duration
-	ExcludedCategories infra.Set
+	Discounts          []Discount
 }
 
 func (s Upkeep) ShiftCategory() Upkeep {
@@ -34,15 +34,18 @@ func (s Upkeep) SetCategory(name string) Upkeep {
 	return s
 }
 
-func (s Upkeep) AddExcludedCategory(name string) Upkeep {
-	s.ExcludedCategories = s.ExcludedCategories.Add(name)
-
+func (s Upkeep) RemoveDiscount(category string) Upkeep {
+	for i, d := range s.Discounts {
+		if d.Category == category {
+			s.Discounts[i] = s.Discounts[len(s.Discounts)-1]
+			s.Discounts = s.Discounts[:len(s.Discounts)-1]
+		}
+	}
 	return s
 }
 
-func (s Upkeep) RemoveExcludedCategory(name string) Upkeep {
-	s.ExcludedCategories = s.ExcludedCategories.Remove(name)
-
+func (s Upkeep) SetDiscount(d Discount) Upkeep {
+	s.Discounts = append(s.Discounts, d)
 	return s
 }
 
@@ -65,6 +68,15 @@ func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 	return quotum
 }
 
+func (s Upkeep) DiscountApplies(cat string) bool {
+	for _, d := range s.Discounts {
+		if d.Category == cat {
+			return true
+		}
+	}
+	return false
+}
+
 func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
 	quotum := t.Quotum
 
@@ -82,14 +94,25 @@ func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
 func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
 	dur := time.Duration(0)
 
-	for _, block := range t.Blocks {
-		if !s.ExcludedCategories.Contains(block.Category) {
-			dur += block.Duration()
-		}
+	var discountMeasures []*Discounter
+	for _, d := range s.Discounts {
+		discountMeasures = append(discountMeasures, d.Measure())
 	}
 
-	if t.LastStart.IsStarted() && t.Date.IsToday() && !s.ExcludedCategories.Contains(s.Categories.Peek()) {
-		dur += time.Now().Sub(*t.LastStart.t)
+	for _, block := range t.Blocks {
+		blockDur := block.Duration()
+		for _, m := range discountMeasures {
+			blockDur = m.GetTimeRemaining(block.Category, blockDur)
+		}
+		dur += blockDur
+	}
+
+	if t.LastStart.IsStarted() && t.Date.IsToday() {
+		blockDur := time.Now().Sub(*t.LastStart.t)
+		for _, m := range discountMeasures {
+			blockDur = m.GetTimeRemaining(s.Categories.Peek(), blockDur)
+		}
+		dur += blockDur
 	}
 
 	return dur

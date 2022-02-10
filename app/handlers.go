@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"upkeep/model"
 	"upkeep/model/repo"
 )
 
@@ -80,22 +81,36 @@ func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.View()
 }
 
-func HandleExclude(args []string, editor *TimesheetEditor) (error, string) {
-	if len(args) == 0 {
-		return errors.New("no category given"), ""
+func HandleDiscount(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) < 2 {
+		return errors.New("invalid command, specify category, type and optional arguments"), ""
 	}
 
-	editor.Exclude(args[0])
+	cat := args[0]
+	tpe := args[1]
+	switch tpe {
+	case "none":
+		editor.RemoveDiscount(cat)
+		break
 
-	return nil, editor.View()
-}
+	case "all":
+		editor.AddDiscount(model.DiscountAll(cat))
+		break
 
-func HandleInclude(args []string, editor *TimesheetEditor) (error, string) {
-	if len(args) == 0 {
-		return errors.New("no category given"), ""
+	case "max":
+		if len(args) < 3 {
+			return errors.New("specify max duration"), ""
+		}
+		d, err := time.ParseDuration(args[2])
+		if err != nil {
+			return err, ""
+		}
+		editor.AddDiscount(model.DiscountMax(cat, d))
+		break
+
+	default:
+		return fmt.Errorf("unknown discount type '%s'", tpe), ""
 	}
-
-	editor.Include(args[0])
 
 	return nil, editor.View()
 }

@@ -1,5 +1,4 @@
 - create a monthly export
 - alter category for past blocks
 - show time per category (or tag?)
-- add rules for time discounts on categories
 - add holiday hours function (block has no point in time, but adds to quotum)

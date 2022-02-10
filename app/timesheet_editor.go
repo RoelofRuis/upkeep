@@ -104,13 +104,13 @@ func (t *TimesheetEditor) Category(category string) {
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) Exclude(category string) {
-	upkeep := t.upkeep.AddExcludedCategory(category)
+func (t *TimesheetEditor) AddDiscount(d model.Discount) {
+	upkeep := t.upkeep.SetDiscount(d)
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) Include(category string) {
-	upkeep := t.upkeep.RemoveExcludedCategory(category)
+func (t *TimesheetEditor) RemoveDiscount(cat string) {
+	upkeep := t.upkeep.RemoveDiscount(cat)
 	t.upkeep = &upkeep
 }
 

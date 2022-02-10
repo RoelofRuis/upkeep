@@ -96,8 +96,6 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 }
 
 func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
-	excludedCategories := upkeep.ExcludedCategories
-
 	printer := infra.TerminalPrinter{}
 	printer.Print("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 	printer.BGGreen("%s", upkeep.Categories.String()).Newline()
@@ -106,7 +104,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 		printer.White("%2d ", block.Id).
 			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour))
 
-		if excludedCategories.Contains(block.Category) {
+		if upkeep.DiscountApplies(block.Category) {
 			printer.Print(" [%s] ", infra.FormatDuration(block.Duration())).
 				Yellow("%s", block.Category)
 		} else {
@@ -126,7 +124,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 			printer.White(">> ").
 				Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
 
-			if excludedCategories.Contains(upkeep.GetCategory()) {
+			if upkeep.DiscountApplies(upkeep.GetCategory()) {
 				printer.Print("[%s]", infra.FormatDuration(dur)).
 					Yellow(" %s", upkeep.GetCategory())
 			} else {
