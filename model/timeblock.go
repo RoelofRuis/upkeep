@@ -18,6 +18,6 @@ func NewTimeBlock(id int, start Moment, end Moment, category string) TimeBlock {
 	}
 }
 
-func (b TimeBlock) Duration() time.Duration {
+func (b TimeBlock) BaseDuration() time.Duration {
 	return b.End.Sub(b.Start)
 }

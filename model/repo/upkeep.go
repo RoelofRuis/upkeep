@@ -11,15 +11,15 @@ type UpkeepRepository struct {
 }
 
 type upkeepJson struct {
-	Version        string         `json:"version"`
-	ActiveCategory string         `json:"active_category"`
-	Quota          map[int]string `json:"quota"`
-	Discounts      []discountJson `json:"discounts"`
+	Version            string         `json:"version"`
+	SelectedCategories string         `json:"selected_categories"`
+	Quota              map[int]string `json:"quota"`
+	Categories         []categoryJson `json:"categories"`
 }
 
-type discountJson struct {
-	Category string `json:"category"`
-	Argument string `json:"argument"`
+type categoryJson struct {
+	Name         string `json:"name"`
+	MaxDayQuotum string `json:"max_day_quotum"`
 }
 
 const VERSION = "0.2"
@@ -42,17 +42,24 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 		quotumMap[time.Weekday(weekday)] = duration
 	}
 
-	var discounts []model.Discount
-	for _, discountData := range input.Discounts {
-		newDiscount := model.NewDiscount(discountData.Category, discountData.Argument)
-		discounts = append(discounts, newDiscount)
+	var categories model.Categories
+	for _, categoryData := range input.Categories {
+		newCategory := model.NewCategory(categoryData.Name)
+		if categoryData.MaxDayQuotum != "" {
+			dur, err := time.ParseDuration(categoryData.MaxDayQuotum)
+			if err != nil {
+				return model.Upkeep{}, err
+			}
+			newCategory.MaxDayQuotum = &dur
+		}
+		categories = append(categories, newCategory)
 	}
 
 	upkeep := model.Upkeep{
-		Version:    input.Version,
-		Categories: infra.NewStackFromString(input.ActiveCategory),
-		Quota:      quotumMap,
-		Discounts:  discounts,
+		Version:            input.Version,
+		SelectedCategories: infra.NewStackFromString(input.SelectedCategories),
+		Quota:              quotumMap,
+		Categories:         categories,
 	}
 
 	upkeep.Version = VERSION
@@ -66,19 +73,23 @@ func (r *UpkeepRepository) Insert(m model.Upkeep) error {
 		quotumMap[int(weekday)] = dur.String()
 	}
 
-	var discounts []discountJson
-	for _, discount := range m.Discounts {
-		discounts = append(discounts, discountJson{
-			Category: discount.Category,
-			Argument: discount.Argument,
+	var categories []categoryJson
+	for _, category := range m.Categories {
+		var maxDayQuotum = ""
+		if category.MaxDayQuotum != nil {
+			maxDayQuotum = category.MaxDayQuotum.String()
+		}
+		categories = append(categories, categoryJson{
+			Name:         category.Name,
+			MaxDayQuotum: maxDayQuotum,
 		})
 	}
 
 	output := upkeepJson{
-		Version:        m.Version,
-		ActiveCategory: m.Categories.String(),
-		Quota:          quotumMap,
-		Discounts:      discounts,
+		Version:            m.Version,
+		SelectedCategories: m.SelectedCategories.String(),
+		Quota:              quotumMap,
+		Categories:         categories,
 	}
 
 	if err := r.FileIO.Write("upkeep.json", output); err != nil {

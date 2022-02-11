@@ -2,7 +2,6 @@ package model
 
 import (
 	"time"
-	"upkeep/infra"
 )
 
 type Timesheet struct {
@@ -72,12 +71,12 @@ func (s Timesheet) IsStarted() bool {
 	return s.LastStart.IsStarted()
 }
 
-func (s Timesheet) GetCategories() infra.Set {
-	var categories infra.Set
+func (s Timesheet) GetCategoryNames() []string {
+	var categories Categories
 	for _, block := range s.Blocks {
 		if block.Category != "" {
-			categories = categories.Add(block.Category)
+			categories = categories.Add(Category{Name: block.Category})
 		}
 	}
-	return categories
+	return categories.Names()
 }

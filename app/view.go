@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"upkeep/infra"
 	"upkeep/model"
@@ -33,7 +34,8 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	weekDur := time.Duration(0)
 	weekQuotum := time.Duration(0)
 	for _, daySheet := range sheets {
-		dayDur := upkeep.TimesheetDuration(daySheet)
+		blocks := upkeep.DiscountTimeBlocks(daySheet)
+		dayDur := blocks.TotalDuration()
 		weekDur += dayDur
 
 		dayQuotum := upkeep.TimesheetQuotum(daySheet)
@@ -47,13 +49,13 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 		}
 
 		if dayQuotum == 0 {
-				printer.Bold("[%s]", infra.FormatDuration(dayDur))
+			printer.Bold("[%s]", infra.FormatDuration(dayDur))
 		} else {
 			printer.Bold("[%s]", infra.FormatDuration(dayDur)).
 				Print(" / [%s] ", infra.FormatDuration(dayQuotum))
 		}
 
-		printer.Green("%s", daySheet.GetCategories().String()).Newline()
+		printer.Green("%s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
 	}
 
 	weekPerc := (float64(weekDur) / float64(weekQuotum)) * 100
@@ -97,49 +99,43 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 
 func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	printer := infra.TerminalPrinter{}
+
 	printer.Print("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
-	printer.BGGreen("%s", upkeep.Categories.String()).Newline()
+	printer.BGGreen("%s", strings.Join(upkeep.SelectedCategories, " | ")).Newline()
 
-	for _, block := range timesheet.Blocks {
-		printer.White("%2d ", block.Id).
-			Print("[%s - %s]", block.Start.Format(model.LayoutHour), block.End.Format(model.LayoutHour))
+	blocks := upkeep.DiscountTimeBlocks(timesheet)
 
-		if upkeep.DiscountApplies(block.Category) {
-			printer.Print(" [%s] ", infra.FormatDuration(block.Duration())).
-				Yellow("%s", block.Category)
+	for _, block := range blocks {
+		if block.Block.Id == -1 {
+			printer.White(">> ")
 		} else {
-			printer.Bold(" [%s] ", infra.FormatDuration(block.Duration())).
-				Green("%s", block.Category)
+			printer.White("%2d ", block.Block.Id)
 		}
+
+		if block.Block.End.IsStarted() {
+			printer.Print("[%s - %s]",
+				block.Block.Start.Format(model.LayoutHour),
+				block.Block.End.Format(model.LayoutHour),
+			)
+
+			if block.IsDiscounted {
+				printer.Yellow(" [%s] ", infra.FormatDuration(block.DiscountedDuration))
+			} else {
+				printer.Bold(" [%s] ", infra.FormatDuration(block.Block.BaseDuration()))
+			}
+		} else {
+			printer.Red("[%s -   ?  ]        ",
+				block.Block.Start.Format(model.LayoutHour),
+			)
+		}
+
+		printer.Green("%s", block.Block.Category)
 
 		printer.Newline()
 	}
 
-	if timesheet.IsStarted() {
-		start := timesheet.LastStart
-		if timesheet.Date.IsToday() {
-			end := model.NewMoment().Start(time.Now())
-			dur := end.Sub(start)
-
-			printer.White(">> ").
-				Print("[%s - %s] ", start.Format(model.LayoutHour), end.Format(model.LayoutHour))
-
-			if upkeep.DiscountApplies(upkeep.GetCategory()) {
-				printer.Print("[%s]", infra.FormatDuration(dur)).
-					Yellow(" %s", upkeep.GetCategory())
-			} else {
-				printer.Bold("[%s]", infra.FormatDuration(dur)).
-					Green(" %s", upkeep.GetCategory())
-			}
-
-			printer.Newline()
-		} else {
-			printer.Red(">> [%s -   ?  ]", start.Format(model.LayoutHour)).Newline()
-		}
-	}
-
 	quotum := upkeep.TimesheetQuotum(timesheet)
-	totalDuration := upkeep.TimesheetDuration(timesheet)
+	totalDuration := blocks.TotalDuration()
 
 	if quotum == 0 {
 		printer.Print("                   ").

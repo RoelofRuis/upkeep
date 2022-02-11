@@ -7,45 +7,38 @@ import (
 
 type Upkeep struct {
 	Version            string
-	Categories         infra.Stack
+	SelectedCategories infra.Stack
 	Quota              map[time.Weekday]time.Duration
-	Discounts          []Discount
+	Categories         Categories
 }
 
-func (s Upkeep) ShiftCategory() Upkeep {
-	s.Categories = s.Categories.Push("")
+func (s Upkeep) ShiftSelectedCategory() Upkeep {
+	s.SelectedCategories = s.SelectedCategories.Push("")
 	return s
 }
 
-func (s Upkeep) UnshiftCategory() Upkeep {
-	stack, _, _ := s.Categories.Pop()
-	s.Categories = stack
+func (s Upkeep) UnshiftSelectedCategory() Upkeep {
+	stack, _, _ := s.SelectedCategories.Pop()
+	s.SelectedCategories = stack
 	return s
 }
 
-func (s *Upkeep) GetCategory() string {
-	return s.Categories.Peek()
+func (s *Upkeep) GetSelectedCategory() Category {
+	selected := s.SelectedCategories.Peek()
+	return s.Categories.Get(selected)
 }
 
-func (s Upkeep) SetCategory(name string) Upkeep {
-	stack, _, _ := s.Categories.Pop()
-	s.Categories = stack.Push(name)
+func (s Upkeep) SetSelectedCategory(name string) Upkeep {
+	stack, _, _ := s.SelectedCategories.Pop()
+	s.SelectedCategories = stack.Push(name)
 
 	return s
 }
 
-func (s Upkeep) RemoveDiscount(category string) Upkeep {
-	for i, d := range s.Discounts {
-		if d.Category == category {
-			s.Discounts[i] = s.Discounts[len(s.Discounts)-1]
-			s.Discounts = s.Discounts[:len(s.Discounts)-1]
-		}
-	}
-	return s
-}
-
-func (s Upkeep) SetDiscount(d Discount) Upkeep {
-	s.Discounts = append(s.Discounts, d)
+func (s Upkeep) SetCategoryMaxDayQuotum(category string, dur *time.Duration) Upkeep {
+	cat := s.Categories.Get(category)
+	cat.MaxDayQuotum = dur
+	s.Categories = s.Categories.Add(cat)
 	return s
 }
 
@@ -68,15 +61,6 @@ func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
 	return quotum
 }
 
-func (s Upkeep) DiscountApplies(cat string) bool {
-	for _, d := range s.Discounts {
-		if d.Category == cat {
-			return true
-		}
-	}
-	return false
-}
-
 func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
 	quotum := t.Quotum
 
@@ -91,29 +75,74 @@ func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
 	return t.Quotum
 }
 
-func (s Upkeep) TimesheetDuration(t Timesheet) time.Duration {
-	dur := time.Duration(0)
-
-	var discountMeasures []*Discounter
-	for _, d := range s.Discounts {
-		discountMeasures = append(discountMeasures, d.Measure())
+func (s Upkeep) DiscountTimeBlocks(t Timesheet) DiscountedTimeBlocks {
+	categoryQuota := make(map[string]time.Duration)
+	for _, c := range s.Categories {
+		if c.MaxDayQuotum != nil {
+			categoryQuota[c.Name] = *c.MaxDayQuotum
+		}
 	}
+
+	var discountedBlocks []DiscountedTimeBlock
 
 	for _, block := range t.Blocks {
-		blockDur := block.Duration()
-		for _, m := range discountMeasures {
-			blockDur = m.GetTimeRemaining(block.Category, blockDur)
+		discountedDur := block.BaseDuration()
+		isDiscounted := false
+		remaining, has := categoryQuota[block.Category]
+		if has {
+			if remaining > discountedDur {
+				categoryQuota[block.Category] -= discountedDur
+			} else {
+				discountedDur = remaining
+				categoryQuota[block.Category] = 0
+				isDiscounted = true
+			}
 		}
-		dur += blockDur
+		discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
+			Block:              block,
+			IsDiscounted:       isDiscounted,
+			DiscountedDuration: discountedDur,
+		})
 	}
 
-	if t.LastStart.IsStarted() && t.Date.IsToday() {
-		blockDur := time.Now().Sub(*t.LastStart.t)
-		for _, m := range discountMeasures {
-			blockDur = m.GetTimeRemaining(s.Categories.Peek(), blockDur)
+	if t.LastStart.IsStarted() {
+		cat := s.SelectedCategories.Peek()
+		if t.Date.IsToday() {
+			discountedDur := time.Now().Sub(*t.LastStart.t)
+			isDiscounted := false
+			remaining, has := categoryQuota[cat]
+			if has {
+				if remaining > discountedDur {
+					categoryQuota[cat] -= discountedDur
+				} else {
+					discountedDur = remaining
+					categoryQuota[cat] = 0
+					isDiscounted = true
+				}
+			}
+			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
+				Block: TimeBlock{
+					Id:       -1,
+					Category: cat,
+					Start:    t.LastStart,
+					End:      NewMoment().Start(time.Now()),
+				},
+				IsDiscounted:       isDiscounted,
+				DiscountedDuration: discountedDur,
+			})
+		} else {
+			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
+				Block: TimeBlock{
+					Id:       -1,
+					Category: cat,
+					Start:    t.LastStart,
+					End:      NewMoment(),
+				},
+				IsDiscounted:       false,
+				DiscountedDuration: 0,
+			})
 		}
-		dur += blockDur
 	}
 
-	return dur
+	return discountedBlocks
 }

@@ -64,7 +64,7 @@ func (t *TimesheetEditor) Start(category string) {
 }
 
 func (t *TimesheetEditor) Stop() {
-	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetCategory())
+	sheet := t.timesheet.Stop(time.Now(), t.upkeep.GetSelectedCategory().Name)
 	t.timesheet = &sheet
 }
 
@@ -75,14 +75,14 @@ func (t *TimesheetEditor) Abort() {
 
 func (t *TimesheetEditor) Switch(category string) {
 	t.Stop()
-	upkeep := t.upkeep.ShiftCategory()
+	upkeep := t.upkeep.ShiftSelectedCategory()
 	t.upkeep = &upkeep
 	t.Start(category)
 }
 
 func (t *TimesheetEditor) Continue(category string) {
 	t.Stop()
-	upkeep := t.upkeep.UnshiftCategory()
+	upkeep := t.upkeep.UnshiftSelectedCategory()
 	t.upkeep = &upkeep
 	t.Start(category)
 }
@@ -100,17 +100,12 @@ func (t *TimesheetEditor) Category(category string) {
 	if !validCategory.MatchString(category) {
 		return
 	}
-	upkeep = upkeep.SetCategory(category)
+	upkeep = upkeep.SetSelectedCategory(category)
 	t.upkeep = &upkeep
 }
 
-func (t *TimesheetEditor) AddDiscount(d model.Discount) {
-	upkeep := t.upkeep.SetDiscount(d)
-	t.upkeep = &upkeep
-}
-
-func (t *TimesheetEditor) RemoveDiscount(cat string) {
-	upkeep := t.upkeep.RemoveDiscount(cat)
+func (t *TimesheetEditor) SetCategoryMaxDayQuotum(cat string, dur *time.Duration) {
+	upkeep := t.upkeep.SetCategoryMaxDayQuotum(cat, dur)
 	t.upkeep = &upkeep
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"upkeep/model"
 	"upkeep/model/repo"
 )
 
@@ -56,7 +55,7 @@ func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.View()
 }
 
-func HandleCategory(args []string, editor *TimesheetEditor) (error, string) {
+func HandleSet(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
 		return errors.New("no category specified"), ""
 	}
@@ -81,35 +80,20 @@ func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.View()
 }
 
-func HandleDiscount(args []string, editor *TimesheetEditor) (error, string) {
-	if len(args) < 2 {
-		return errors.New("invalid command, specify category, type and optional arguments"), ""
+func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) < 1 {
+		return errors.New("invalid command, specify category and optional quotum"), ""
 	}
 
 	cat := args[0]
-	tpe := args[1]
-	switch tpe {
-	case "none":
-		editor.RemoveDiscount(cat)
-		break
-
-	case "all":
-		editor.AddDiscount(model.DiscountAll(cat))
-		break
-
-	case "max":
-		if len(args) < 3 {
-			return errors.New("specify max duration"), ""
-		}
-		d, err := time.ParseDuration(args[2])
+	if len(args) == 1 {
+		editor.SetCategoryMaxDayQuotum(cat, nil)
+	} else {
+		d, err := time.ParseDuration(args[1])
 		if err != nil {
 			return err, ""
 		}
-		editor.AddDiscount(model.DiscountMax(cat, d))
-		break
-
-	default:
-		return fmt.Errorf("unknown discount type '%s'", tpe), ""
+		editor.SetCategoryMaxDayQuotum(cat, &d)
 	}
 
 	return nil, editor.View()

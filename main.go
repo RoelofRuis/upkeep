@@ -46,18 +46,21 @@ func main() {
 	mainRouter.Register("abort", "abort the active block without saving", repository.Edit(app.HandleAbort))
 	mainRouter.Register("switch", "start a new block and put active category on the stack", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
-	mainRouter.Register("cat", "change active category", repository.Edit(app.HandleCategory))
+	mainRouter.Register("set", "set the active category", repository.Edit(app.HandleSet))
 	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
 
 	confRouter := infra.NewRouter()
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
-	confRouter.Register("discount", "specify category discounts", repository.Edit(app.HandleDiscount))
+
+	catRouter := infra.NewRouter()
+	catRouter.Register("quotum", "set the maximum daily quotum for a category", repository.Edit(app.HandleCategoryQuotum))
 
 	viewRouter := infra.NewRouter()
 	viewRouter.Register("week", "show times for past week", repository.HandleViewWeek)
 	viewRouter.Register("day", "show a day timesheet", repository.HandleViewSheet)
 	viewRouter.DefaultAction = "day"
 
+	mainRouter.Register("cat", "edit category settings", catRouter.Handle)
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	mainRouter.Register("view", "view recorded times", viewRouter.Handle)
 	mainRouter.DefaultAction = "view"
