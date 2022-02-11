@@ -43,7 +43,7 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 
 		if dayDur == 0 && dayQuotum == 0 {
 			printer.Newline()
-			continue;
+			continue
 		}
 
 		if dayQuotum == 0 {

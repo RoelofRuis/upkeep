@@ -1,4 +1,7 @@
 - create a monthly export
+
 - alter category for past blocks
-- show time per category (or tag?)
+- option to stop forgotten end time on past day
+
+- show time per category
 - add holiday hours function (block has no point in time, but adds to quotum)
