@@ -1,5 +1,7 @@
 # Goland IDE folder
 .idea/
 
+bin/
+
 # executable
 upkeep
