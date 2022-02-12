@@ -3,7 +3,6 @@ package infra
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
 type Handler = func(args []string) (error, string)
@@ -56,7 +55,8 @@ func (r *Router) Handle(args []string) (error, string) {
 }
 
 func (r *Router) HelpMessage() string {
-	lines := []string{fmt.Sprintf("available actions:")}
+	printer := TerminalPrinter{}
+	printer.Print("available actions:").Newline()
 
 	actions := make([]string, 0, len(r.descriptions))
 	for action := range r.descriptions {
@@ -65,7 +65,11 @@ func (r *Router) HelpMessage() string {
 	sort.Strings(actions)
 
 	for _, action := range actions {
-		lines = append(lines, fmt.Sprintf("  - %s\n  %s", action, r.descriptions[action]))
+		printer.Print("> ").
+			Bold("%s", action).
+			Newline().
+			White("  %s", r.descriptions[action]).
+			Newline()
 	}
-	return strings.Join(lines, "\n")
+	return printer.String()
 }

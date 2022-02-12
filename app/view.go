@@ -100,7 +100,7 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	printer := infra.TerminalPrinter{}
 
-	printer.Print("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
+	printer.Bold("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 	printer.BGGreen("%s", strings.Join(upkeep.SelectedCategories, " | ")).Newline()
 
 	blocks := upkeep.DiscountTimeBlocks(timesheet)
