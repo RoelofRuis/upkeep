@@ -2,7 +2,6 @@ package repo
 
 import (
 	"fmt"
-	"time"
 	"upkeep/infra"
 	"upkeep/model"
 )
@@ -12,25 +11,25 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
-	NextId    int         `json:"next_id"`
-	LastStart string      `json:"last_start"`
-	Blocks    []blockJson `json:"blocks"`
-	Quotum    string      `json:"quotum"`
+	NextId    int                `json:"next_id"`
+	LastStart model.Moment       `json:"last_start"`
+	Blocks    []blockJson        `json:"blocks"`
+	Quotum    infra.JSONDuration `json:"quotum"`
 }
 
 type blockJson struct {
-	Id       int    `json:"id"`
-	Start    string `json:"start"`
-	End      string `json:"end"`
-	Category string `json:"category"`
+	Id       int          `json:"id"`
+	Start    model.Moment `json:"start"`
+	End      model.Moment `json:"end"`
+	Category string       `json:"category"`
 }
 
 func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, error) {
 	input := timesheetJson{
 		NextId:    0,
-		LastStart: "",
+		LastStart: model.NewMoment(),
 		Blocks:    nil,
-		Quotum:    "",
+		Quotum:    infra.NewDuration(),
 	}
 
 	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", date), &input); err != nil {
@@ -39,38 +38,17 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 
 	sheet := model.NewTimesheet(date)
 	sheet.NextId = input.NextId
-
-	if input.Quotum != "" {
-		quotum, err := time.ParseDuration(input.Quotum)
-		if err != nil {
-			return model.Timesheet{}, err
-		}
-		sheet.Quotum = quotum
-	}
-
-	lastStart, err := model.NewMomentFromString(input.LastStart)
-	if err != nil {
-		return model.Timesheet{}, err
-	}
-	sheet.LastStart = lastStart
+	sheet.Quotum = input.Quotum.Unpack()
+	sheet.LastStart = input.LastStart
 
 	var blocks []model.TimeBlock
 	for _, blockData := range input.Blocks {
-		start, err := model.NewMomentFromString(blockData.Start)
-		if err != nil {
-			return model.Timesheet{}, err
-		}
-		end, err := model.NewMomentFromString(blockData.End)
-		if err != nil {
-			return model.Timesheet{}, err
-		}
-		block := model.TimeBlock{
+		blocks = append(blocks, model.TimeBlock{
 			Id:       blockData.Id,
-			Start:    start,
-			End:      end,
+			Start:    blockData.Start,
+			End:      blockData.End,
 			Category: blockData.Category,
-		}
-		blocks = append(blocks, block)
+		})
 	}
 
 	sheet.Blocks = blocks
@@ -84,17 +62,17 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	for _, block := range m.Blocks {
 		blocks = append(blocks, blockJson{
 			Id:       block.Id,
-			Start:    block.Start.Format(model.LayoutDateHour),
-			End:      block.End.Format(model.LayoutDateHour),
+			Start:    block.Start,
+			End:      block.End,
 			Category: block.Category,
 		})
 	}
 
 	output := timesheetJson{
 		NextId:    m.NextId,
-		LastStart: m.LastStart.Format(model.LayoutDateHour),
+		LastStart: m.LastStart,
 		Blocks:    blocks,
-		Quotum:    m.Quotum.String(),
+		Quotum:    infra.JSONDuration(m.Quotum),
 	}
 
 	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Date), output); err != nil {

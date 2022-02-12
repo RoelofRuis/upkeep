@@ -11,10 +11,10 @@ type UpkeepRepository struct {
 }
 
 type upkeepJson struct {
-	Version            string         `json:"version"`
-	SelectedCategories string         `json:"selected_categories"`
-	Quota              map[int]string `json:"quota"`
-	Categories         []categoryJson `json:"categories"`
+	Version            string                     `json:"version"`
+	SelectedCategories string                     `json:"selected_categories"`
+	Quota              map[int]infra.JSONDuration `json:"quota"`
+	Categories         []categoryJson             `json:"categories"`
 }
 
 type categoryJson struct {
@@ -35,11 +35,7 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 
 	quotumMap := make(map[time.Weekday]time.Duration)
 	for weekday, dur := range input.Quota {
-		duration, err := time.ParseDuration(dur)
-		if err != nil {
-			return model.Upkeep{}, err
-		}
-		quotumMap[time.Weekday(weekday)] = duration
+		quotumMap[time.Weekday(weekday)] = dur.Unpack()
 	}
 
 	var categories model.Categories
@@ -68,9 +64,9 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 }
 
 func (r *UpkeepRepository) Insert(m model.Upkeep) error {
-	quotumMap := make(map[int]string)
+	quotumMap := make(map[int]infra.JSONDuration)
 	for weekday, dur := range m.Quota {
-		quotumMap[int(weekday)] = dur.String()
+		quotumMap[int(weekday)] = infra.JSONDuration(dur)
 	}
 
 	var categories []categoryJson

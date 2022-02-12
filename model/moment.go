@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
 
 const LayoutDateHour = "2006-01-02 15:04 -0700 MST"
 const LayoutHour = "15:04"
@@ -11,18 +15,6 @@ type Moment struct {
 
 func NewMoment() Moment {
 	return Moment{}
-}
-
-func NewMomentFromString(timeString string) (Moment, error) {
-	if timeString == "" {
-		return NewMoment(), nil
-	} else {
-		t, err := time.Parse(LayoutDateHour, timeString)
-		if err != nil {
-			return Moment{}, err
-		}
-		return NewMoment().Start(t), nil
-	}
 }
 
 func (m Moment) Start(t time.Time) Moment {
@@ -47,4 +39,30 @@ func (m Moment) Sub(that Moment) time.Duration {
 	}
 
 	return m.t.Sub(*that.t)
+}
+
+func (m Moment) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.Format(LayoutDateHour))
+}
+
+func (m *Moment) UnmarshalJSON(data []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case string:
+		if value == "" {
+			*m = NewMoment()
+			return nil
+		}
+		t, err := time.Parse(LayoutDateHour, value)
+		if err != nil {
+			return err
+		}
+		*m = NewMoment().Start(t)
+		return nil
+	default:
+		return errors.New("invalid time")
+	}
 }
