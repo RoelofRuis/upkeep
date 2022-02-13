@@ -9,7 +9,7 @@ type Timesheet struct {
 	NextId    int
 	Blocks    []TimeBlock
 	LastStart Moment
-	Quotum    time.Duration
+	Quotum    Duration
 }
 
 func NewTimesheet(date Date) Timesheet {
@@ -18,7 +18,7 @@ func NewTimesheet(date Date) Timesheet {
 		NextId:    0,
 		Blocks:    []TimeBlock{},
 		LastStart: NewMoment(),
-		Quotum:    0,
+		Quotum:    NewDuration(),
 	}
 }
 
@@ -62,8 +62,8 @@ func (s Timesheet) Abort() Timesheet {
 	return s
 }
 
-func (s Timesheet) SetQuotum(q time.Duration) Timesheet {
-	s.Quotum = q
+func (s Timesheet) SetQuotum(d Duration) Timesheet {
+	s.Quotum = d
 	return s
 }
 

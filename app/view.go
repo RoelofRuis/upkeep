@@ -32,36 +32,36 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	printer := infra.TerminalPrinter{}
 
 	weekDur := time.Duration(0)
-	weekQuotum := time.Duration(0)
+	weekQuotum := model.NewDuration()
 	for _, daySheet := range sheets {
 		blocks := upkeep.DiscountTimeBlocks(daySheet)
 		dayDur := blocks.TotalDuration()
 		weekDur += dayDur
 
 		dayQuotum := upkeep.TimesheetQuotum(daySheet)
-		weekQuotum += dayQuotum
+		weekQuotum = weekQuotum.Add(dayQuotum)
 
 		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
 
-		if dayDur == 0 && dayQuotum == 0 {
+		if dayDur == 0 && !dayQuotum.IsDefined() {
 			printer.Newline()
 			continue
 		}
 
-		if dayQuotum == 0 {
+		if !dayQuotum.IsDefined() {
 			printer.Bold("[%s]", infra.FormatDuration(dayDur))
 		} else {
 			printer.Bold("[%s]", infra.FormatDuration(dayDur)).
-				Print(" / [%s] ", infra.FormatDuration(dayQuotum))
+				Print(" / [%s] ", infra.FormatDuration(dayQuotum.Get()))
 		}
 
 		printer.Green("%s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
 	}
 
-	weekPerc := (float64(weekDur) / float64(weekQuotum)) * 100
+	weekPerc := (float64(weekDur) / float64(weekQuotum.Get())) * 100
 
 	printer.Bold("                [%s]", infra.FormatDuration(weekDur)).
-		Print(" / [%s] (%0.1f%%)", infra.FormatDuration(weekQuotum), weekPerc)
+		Print(" / [%s] (%0.1f%%)", infra.FormatDuration(weekQuotum.Get()), weekPerc)
 
 	return printer.String()
 }
@@ -137,16 +137,16 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	quotum := upkeep.TimesheetQuotum(timesheet)
 	totalDuration := blocks.TotalDuration()
 
-	if quotum == 0 {
+	if !quotum.IsDefined() {
 		printer.Print("                   ").
 			Bold("[%s]", infra.FormatDuration(totalDuration)).
 			Newline()
 	} else {
-		perc := (float64(totalDuration) / float64(quotum)) * 100
+		perc := (float64(totalDuration) / float64(quotum.Get())) * 100
 
 		printer.Print("                   ").
 			Bold("[%s]", infra.FormatDuration(totalDuration)).
-			Print(" / [%s] (%0.1f%%)", infra.FormatDuration(quotum), perc).
+			Print(" / [%s] (%0.1f%%)", infra.FormatDuration(quotum.Get()), perc).
 			Newline()
 	}
 

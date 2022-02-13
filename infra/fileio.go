@@ -12,8 +12,8 @@ type FileIO struct {
 	PrettyJson   bool
 	DebugEnabled bool
 
-	HomePath     string
-	DataFolder   string
+	HomePath   string
+	DataFolder string
 }
 
 func (fio FileIO) Read(fname string, dst interface{}) error {

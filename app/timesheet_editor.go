@@ -52,9 +52,7 @@ func (t *TimesheetEditor) Start(category string) {
 	sheet := t.timesheet.Start(now)
 
 	quotum := t.upkeep.GetQuotumForDay(now.Weekday())
-	if quotum != 0 {
-		sheet = sheet.SetQuotum(quotum)
-	}
+	sheet = sheet.SetQuotum(quotum)
 
 	t.timesheet = &sheet
 

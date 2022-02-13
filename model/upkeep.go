@@ -8,7 +8,7 @@ import (
 type Upkeep struct {
 	Version            string
 	SelectedCategories infra.Stack
-	Quota              map[time.Weekday]time.Duration
+	Quota              map[time.Weekday]Duration
 	Categories         Categories
 }
 
@@ -37,13 +37,19 @@ func (s Upkeep) SetSelectedCategory(name string) Upkeep {
 
 func (s Upkeep) SetCategoryMaxDayQuotum(category string, dur *time.Duration) Upkeep {
 	cat := s.Categories.Get(category)
-	cat.MaxDayQuotum = dur
+
+	newDur := NewDuration()
+	if dur != nil {
+		newDur.Set(*dur)
+	}
+	cat.MaxDayQuotum = newDur
+
 	s.Categories = s.Categories.Add(cat)
 	return s
 }
 
 func (s Upkeep) SetQuotumForDay(day time.Weekday, quotum time.Duration) Upkeep {
-	s.Quota[day] = quotum
+	s.Quota[day] = NewDuration().Set(quotum)
 	return s
 }
 
@@ -52,22 +58,22 @@ func (s Upkeep) RemoveQuotumForDay(day time.Weekday) Upkeep {
 	return s
 }
 
-func (s Upkeep) GetQuotumForDay(day time.Weekday) time.Duration {
+func (s Upkeep) GetQuotumForDay(day time.Weekday) Duration {
 	quotum, has := s.Quota[day]
 	if !has {
-		return 0
+		return NewDuration()
 	}
 
 	return quotum
 }
 
-func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
+func (s Upkeep) TimesheetQuotum(t Timesheet) Duration {
 	quotum := t.Quotum
 
-	if quotum == 0 {
+	if !quotum.IsDefined() {
 		weekdayQuotum, has := s.Quota[t.Date.Weekday()]
 		if !has {
-			return 0
+			return NewDuration()
 		}
 		return weekdayQuotum
 	}
@@ -78,8 +84,8 @@ func (s Upkeep) TimesheetQuotum(t Timesheet) time.Duration {
 func (s Upkeep) DiscountTimeBlocks(t Timesheet) DiscountedTimeBlocks {
 	categoryQuota := make(map[string]time.Duration)
 	for _, c := range s.Categories {
-		if c.MaxDayQuotum != nil {
-			categoryQuota[c.Name] = *c.MaxDayQuotum
+		if c.MaxDayQuotum.IsDefined() {
+			categoryQuota[c.Name] = *c.MaxDayQuotum.d
 		}
 	}
 

@@ -11,15 +11,15 @@ type UpkeepRepository struct {
 }
 
 type upkeepJson struct {
-	Version            string                     `json:"version"`
-	SelectedCategories string                     `json:"selected_categories"`
-	Quota              map[int]infra.JSONDuration `json:"quota"`
-	Categories         []categoryJson             `json:"categories"`
+	Version            string                 `json:"version"`
+	SelectedCategories string                 `json:"selected_categories"`
+	Quota              map[int]model.Duration `json:"quota"`
+	Categories         []categoryJson         `json:"categories"`
 }
 
 type categoryJson struct {
-	Name         string `json:"name"`
-	MaxDayQuotum string `json:"max_day_quotum"`
+	Name         string         `json:"name"`
+	MaxDayQuotum model.Duration `json:"max_day_quotum"`
 }
 
 const VERSION = "0.2"
@@ -33,21 +33,15 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 		return model.Upkeep{}, err
 	}
 
-	quotumMap := make(map[time.Weekday]time.Duration)
+	quotumMap := make(map[time.Weekday]model.Duration)
 	for weekday, dur := range input.Quota {
-		quotumMap[time.Weekday(weekday)] = dur.Unpack()
+		quotumMap[time.Weekday(weekday)] = dur
 	}
 
 	var categories model.Categories
 	for _, categoryData := range input.Categories {
 		newCategory := model.NewCategory(categoryData.Name)
-		if categoryData.MaxDayQuotum != "" {
-			dur, err := time.ParseDuration(categoryData.MaxDayQuotum)
-			if err != nil {
-				return model.Upkeep{}, err
-			}
-			newCategory.MaxDayQuotum = &dur
-		}
+		newCategory.MaxDayQuotum = categoryData.MaxDayQuotum
 		categories = append(categories, newCategory)
 	}
 
@@ -64,20 +58,16 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 }
 
 func (r *UpkeepRepository) Insert(m model.Upkeep) error {
-	quotumMap := make(map[int]infra.JSONDuration)
+	quotumMap := make(map[int]model.Duration)
 	for weekday, dur := range m.Quota {
-		quotumMap[int(weekday)] = infra.JSONDuration(dur)
+		quotumMap[int(weekday)] = dur
 	}
 
 	var categories []categoryJson
 	for _, category := range m.Categories {
-		var maxDayQuotum = ""
-		if category.MaxDayQuotum != nil {
-			maxDayQuotum = category.MaxDayQuotum.String()
-		}
 		categories = append(categories, categoryJson{
 			Name:         category.Name,
-			MaxDayQuotum: maxDayQuotum,
+			MaxDayQuotum: category.MaxDayQuotum,
 		})
 	}
 
