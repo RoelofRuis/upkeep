@@ -51,7 +51,7 @@ func (t *TimesheetEditor) Start(category string) {
 	now := time.Now()
 	sheet := t.timesheet.Start(now)
 
-	quotum := t.upkeep.GetQuotumForDay(now.Weekday())
+	quotum := t.upkeep.GetWeekdayQuotum(now.Weekday())
 	sheet = sheet.SetQuotum(quotum)
 
 	t.timesheet = &sheet
@@ -95,8 +95,8 @@ func (t *TimesheetEditor) Update(blockId int, category string) {
 	t.timesheet = &timesheet
 }
 
-func (t *TimesheetEditor) Write(cat string, dur time.Duration) {
-	timesheet := t.timesheet.Write(cat, model.NewDuration().Set(dur))
+func (t *TimesheetEditor) Write(cat string, dur model.Duration) {
+	timesheet := t.timesheet.Write(cat, dur)
 	t.timesheet = &timesheet
 }
 

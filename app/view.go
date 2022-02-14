@@ -38,7 +38,7 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 		dayDur := blocks.TotalDuration()
 		weekDur += dayDur
 
-		dayQuotum := upkeep.TimesheetQuotum(daySheet)
+		dayQuotum := upkeep.GetTimesheetQuotum(daySheet)
 		weekQuotum = weekQuotum.Add(dayQuotum)
 
 		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
@@ -142,7 +142,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 		printer.Newline()
 	}
 
-	quotum := upkeep.TimesheetQuotum(timesheet)
+	quotum := upkeep.GetTimesheetQuotum(timesheet)
 	totalDuration := blocks.TotalDuration()
 
 	if !quotum.IsDefined() {

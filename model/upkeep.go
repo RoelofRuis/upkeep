@@ -58,7 +58,7 @@ func (s Upkeep) RemoveQuotumForDay(day time.Weekday) Upkeep {
 	return s
 }
 
-func (s Upkeep) GetQuotumForDay(day time.Weekday) Duration {
+func (s Upkeep) GetWeekdayQuotum(day time.Weekday) Duration {
 	quotum, has := s.Quota[day]
 	if !has {
 		return NewDuration()
@@ -67,7 +67,7 @@ func (s Upkeep) GetQuotumForDay(day time.Weekday) Duration {
 	return quotum
 }
 
-func (s Upkeep) TimesheetQuotum(t Timesheet) Duration {
+func (s Upkeep) GetTimesheetQuotum(t Timesheet) Duration {
 	quotum := t.Quotum
 
 	if !quotum.IsDefined() {

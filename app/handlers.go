@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"upkeep/model"
 	"upkeep/model/repo"
 )
 
@@ -101,12 +102,17 @@ func HandleWrite(args []string, editor *TimesheetEditor) (string, error) {
 	}
 
 	cat := args[0]
-	duration, err := time.ParseDuration(args[1])
-	if err != nil {
-		return "", err
-	}
+	if args[1] == "fill" {
+		quotum := editor.upkeep.GetTimesheetQuotum(*editor.timesheet)
+		editor.Write(cat, quotum)
+	} else {
+		duration, err := time.ParseDuration(args[1])
+		if err != nil {
+			return "", err
+		}
 
-	editor.Write(cat, duration)
+		editor.Write(cat, model.NewDuration().Set(duration))
+	}
 
 	return editor.View(), nil
 }

@@ -3,4 +3,3 @@
 - option to stop forgotten end time on past day
 
 - show time per category
-- add holiday hours function (block has no point in time, but adds to quotum)
