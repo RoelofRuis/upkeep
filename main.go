@@ -69,7 +69,7 @@ func main() {
 	mainRouter.Register("edit", "edit completed time blocks", editRouter.Handle)
 	mainRouter.DefaultAction = "view"
 
-	err, msg := mainRouter.Handle(os.Args[1:])
+	msg, err := mainRouter.Handle(os.Args[1:])
 	if err != nil {
 		printer := infra.TerminalPrinter{}
 		printer.Red("error: %s", err.Error()).Newline()

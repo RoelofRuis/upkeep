@@ -12,36 +12,36 @@ type TimesheetEditor struct {
 	timesheet *model.Timesheet
 }
 
-func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (error, string)) infra.Handler {
-	return func(args []string) (error, string) {
+func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (string, error)) infra.Handler {
+	return func(args []string) (string, error) {
 		upkeep, err := r.Upkeep.Get()
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 		timesheet, err := r.Timesheets.GetForDate(model.NewDate(time.Now()))
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 
 		editor := &TimesheetEditor{upkeep: &upkeep, timesheet: &timesheet}
 
-		err, s := f(args, editor)
+		s, err := f(args, editor)
 		if err != nil {
-			return err, s
+			return s, err
 		}
 
 		if editor.upkeep != &upkeep {
 			if err := r.Upkeep.Insert(*editor.upkeep); err != nil {
-				return err, ""
+				return "", err
 			}
 		}
 		if editor.timesheet != &timesheet {
 			if err := r.Timesheets.Insert(*editor.timesheet); err != nil {
-				return err, ""
+				return "", err
 			}
 		}
 
-		return nil, s
+		return s, nil
 	}
 }
 

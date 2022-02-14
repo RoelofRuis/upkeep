@@ -10,7 +10,7 @@ import (
 
 type Repository repo.Repository
 
-func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
+func HandleStart(args []string, editor *TimesheetEditor) (string, error) {
 	category := ""
 	if len(args) > 0 {
 		category = args[0]
@@ -18,22 +18,22 @@ func HandleStart(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Start(category)
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleStop(args []string, editor *TimesheetEditor) (error, string) {
+func HandleStop(args []string, editor *TimesheetEditor) (string, error) {
 	editor.Stop()
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleAbort(args []string, editor *TimesheetEditor) (error, string) {
+func HandleAbort(args []string, editor *TimesheetEditor) (string, error) {
 	editor.Abort()
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
+func HandleSwitch(args []string, editor *TimesheetEditor) (string, error) {
 	category := ""
 	if len(args) > 0 {
 		category = args[0]
@@ -41,10 +41,10 @@ func HandleSwitch(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Switch(category)
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
+func HandleContinue(args []string, editor *TimesheetEditor) (string, error) {
 	category := ""
 	if len(args) > 0 {
 		category = args[0]
@@ -52,52 +52,52 @@ func HandleContinue(args []string, editor *TimesheetEditor) (error, string) {
 
 	editor.Continue(category)
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleSet(args []string, editor *TimesheetEditor) (error, string) {
+func HandleSet(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) == 0 {
-		return errors.New("no category specified"), ""
+		return "", errors.New("no category specified")
 	}
 
 	editor.Category(args[0])
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleUpdate(args []string, editor *TimesheetEditor) (error, string) {
+func HandleUpdate(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) < 2 {
-		return errors.New("invalid command, specify block id and category"), ""
+		return "", errors.New("invalid command, specify block id and category")
 	}
 
 	id, err := strconv.ParseInt(args[0], 10, 64)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	editor.Update(int(id), args[1])
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
+func HandleRemove(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) == 0 {
-		return errors.New("invalid command, specify block id"), ""
+		return "", errors.New("invalid command, specify block id")
 	}
 
 	id, err := strconv.ParseInt(args[0], 10, 64)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	editor.Remove(int(id))
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (error, string) {
+func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) < 1 {
-		return errors.New("invalid command, specify category and optional quotum"), ""
+		return "", errors.New("invalid command, specify category and optional quotum")
 	}
 
 	cat := args[0]
@@ -106,35 +106,35 @@ func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (error, string
 	} else {
 		d, err := time.ParseDuration(args[1])
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 		editor.SetCategoryMaxDayQuotum(cat, &d)
 	}
 
-	return nil, editor.View()
+	return editor.View(), nil
 }
 
-func HandleQuotum(args []string, editor *TimesheetEditor) (error, string) {
+func HandleQuotum(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) == 0 {
-		return errors.New("too few arguments"), ""
+		return "", errors.New("too few arguments")
 	}
 	weekday, err := strconv.ParseInt(args[0], 10, 64)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 	if len(args) == 1 {
 		editor.AdjustQuotum(time.Weekday(weekday), nil)
-		return nil, fmt.Sprintf("removed quotum")
+		return fmt.Sprintf("removed quotum"), nil
 	}
 
 	duration, err := time.ParseDuration(args[1])
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 	editor.AdjustQuotum(time.Weekday(weekday), &duration)
-	return nil, fmt.Sprintf("updated quotum")
+	return fmt.Sprintf("updated quotum"), nil
 }
 
-func HandleVersion(args []string, editor *TimesheetEditor) (error, string) {
-	return nil, fmt.Sprintf("Version: %s", editor.upkeep.Version)
+func HandleVersion(args []string, editor *TimesheetEditor) (string, error) {
+	return fmt.Sprintf("Version: %s", editor.upkeep.Version), nil
 }

@@ -8,24 +8,24 @@ import (
 	"upkeep/model"
 )
 
-func (r Repository) HandleViewWeek(args []string) (error, string) {
+func (r Repository) HandleViewWeek(args []string) (string, error) {
 	date := model.NewDate(time.Now()).PreviousMonday()
 
 	upkeep, err := r.Upkeep.Get()
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	sheets := make([]model.Timesheet, 5)
 	for i, day := range date.IterateNext(5) {
 		sheet, err := r.Timesheets.GetForDate(day)
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 		sheets[i] = sheet
 	}
 
-	return nil, ViewWeek(upkeep, sheets)
+	return ViewWeek(upkeep, sheets), nil
 }
 
 func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
@@ -66,7 +66,7 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	return printer.String()
 }
 
-func (r Repository) HandleViewSheet(args []string) (error, string) {
+func (r Repository) HandleViewSheet(args []string) (string, error) {
 	date := model.NewDate(time.Now())
 	if len(args) > 0 {
 		switch args[0] {
@@ -78,7 +78,7 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 		default:
 			parsedDate, err := model.NewDateFromString(args[0])
 			if err != nil {
-				return fmt.Errorf("invalid date value '%s'", args[0]), ""
+				return "", fmt.Errorf("invalid date value '%s'", args[0])
 			}
 			date = parsedDate
 			break
@@ -87,14 +87,14 @@ func (r Repository) HandleViewSheet(args []string) (error, string) {
 
 	upkeep, err := r.Upkeep.Get()
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 	timesheet, err := r.Timesheets.GetForDate(date)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	return nil, ViewSheet(upkeep, timesheet)
+	return ViewSheet(upkeep, timesheet), nil
 }
 
 func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
