@@ -44,6 +44,14 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 	return s
 }
 
+func (s Timesheet) Write(category string, dur Duration) Timesheet {
+	newBlock := NewBlockWithDuration(s.NextId, category, dur)
+	s.NextId += 1
+
+	s.Blocks = append(s.Blocks, newBlock)
+	return s
+}
+
 func (s Timesheet) UpdateBlockCategory(blockId int, category string) Timesheet {
 	for i, block := range s.Blocks {
 		if block.Id == blockId {

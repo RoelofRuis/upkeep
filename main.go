@@ -47,6 +47,7 @@ func main() {
 	mainRouter.Register("switch", "start a new block and put active category on the stack", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
 	mainRouter.Register("set", "set the active category", repository.Edit(app.HandleSet))
+	mainRouter.Register("write", "write duration-only block", repository.Edit(app.HandleWrite))
 
 	editRouter := infra.NewRouter()
 	editRouter.Register("remove", "remove a block", repository.Edit(app.HandleRemove))

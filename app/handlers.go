@@ -95,6 +95,22 @@ func HandleRemove(args []string, editor *TimesheetEditor) (string, error) {
 	return editor.View(), nil
 }
 
+func HandleWrite(args []string, editor *TimesheetEditor) (string, error) {
+	if len(args) < 2 {
+		return "", errors.New("invalid command, specify category and duration")
+	}
+
+	cat := args[0]
+	duration, err := time.ParseDuration(args[1])
+	if err != nil {
+		return "", err
+	}
+
+	editor.Write(cat, duration)
+
+	return editor.View(), nil
+}
+
 func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) < 1 {
 		return "", errors.New("invalid command, specify category and optional quotum")
@@ -116,7 +132,7 @@ func HandleCategoryQuotum(args []string, editor *TimesheetEditor) (string, error
 
 func HandleQuotum(args []string, editor *TimesheetEditor) (string, error) {
 	if len(args) == 0 {
-		return "", errors.New("too few arguments")
+		return "", errors.New("invalid command, specify weekday (0 = sunday) and optional quotum")
 	}
 	weekday, err := strconv.ParseInt(args[0], 10, 64)
 	if err != nil {

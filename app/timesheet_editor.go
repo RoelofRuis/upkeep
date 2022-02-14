@@ -95,6 +95,11 @@ func (t *TimesheetEditor) Update(blockId int, category string) {
 	t.timesheet = &timesheet
 }
 
+func (t *TimesheetEditor) Write(cat string, dur time.Duration) {
+	timesheet := t.timesheet.Write(cat, model.NewDuration().Set(dur))
+	t.timesheet = &timesheet
+}
+
 var validCategory = regexp.MustCompile(`^[a-z0-9_]+$`)
 
 func (t *TimesheetEditor) Category(category string) {
