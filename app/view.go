@@ -17,7 +17,7 @@ func (r Repository) HandleViewWeek(args []string) (error, string) {
 	}
 
 	sheets := make([]model.Timesheet, 5)
-	for i, day := range date.Week(5) {
+	for i, day := range date.IterateNext(5) {
 		sheet, err := r.Timesheets.GetForDate(day)
 		if err != nil {
 			return err, ""

@@ -11,6 +11,7 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
+	Date      model.Date     `json:"date"`
 	NextId    int            `json:"next_id"`
 	LastStart model.Moment   `json:"last_start"`
 	Blocks    []blockJson    `json:"blocks"`
@@ -32,7 +33,7 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 		Quotum:    model.NewDuration(),
 	}
 
-	if err := r.FileIO.Read(fmt.Sprintf("/sheet/%s.json", date), &input); err != nil {
+	if err := r.FileIO.Read(pathForDate(date), &input); err != nil {
 		return model.Timesheet{}, err
 	}
 
@@ -69,15 +70,20 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	}
 
 	output := timesheetJson{
+		Date:      m.Date,
 		NextId:    m.NextId,
 		LastStart: m.LastStart,
 		Blocks:    blocks,
 		Quotum:    m.Quotum,
 	}
 
-	if err := r.FileIO.Write(fmt.Sprintf("/sheet/%s.json", m.Date), output); err != nil {
+	if err := r.FileIO.Write(pathForDate(m.Date), output); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func pathForDate(date model.Date) string {
+	return fmt.Sprintf(fmt.Sprintf("/sheet/%s.json", date))
 }
