@@ -19,10 +19,12 @@ type timesheetJson struct {
 }
 
 type blockJson struct {
-	Id       int          `json:"id"`
-	Start    model.Moment `json:"start"`
-	End      model.Moment `json:"end"`
-	Category string       `json:"category"`
+	Id       int            `json:"id"`
+	Category string         `json:"category"`
+	Type     string         `json:"type"`
+	Start    model.Moment   `json:"start"`
+	End      model.Moment   `json:"end"`
+	Duration model.Duration `json:"duration"`
 }
 
 func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, error) {
@@ -44,12 +46,24 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 
 	var blocks []model.TimeBlock
 	for _, blockData := range input.Blocks {
-		blocks = append(blocks, model.TimeBlock{
-			Id:       blockData.Id,
-			Start:    blockData.Start,
-			End:      blockData.End,
-			Category: blockData.Category,
-		})
+		switch blockData.Type {
+		case model.TypeTime:
+			blocks = append(blocks, model.NewBlockWithTime(
+				blockData.Id,
+				blockData.Category,
+				blockData.Start,
+				blockData.End,
+			))
+		case model.TypeDuration:
+			blocks = append(blocks, model.NewBlockWithDuration(
+				blockData.Id,
+				blockData.Category,
+				blockData.Duration,
+			))
+		default:
+			return model.Timesheet{}, fmt.Errorf("unknown block type '%s'", blockData.Type)
+		}
+
 	}
 
 	sheet.Blocks = blocks
@@ -63,8 +77,10 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	for _, block := range m.Blocks {
 		blocks = append(blocks, blockJson{
 			Id:       block.Id,
-			Start:    block.Start,
-			End:      block.End,
+			Type:     block.Type,
+			Start:    block.WithTime.Start,
+			End:      block.WithTime.End,
+			Duration: block.WithDuration.Duration,
 			Category: block.Category,
 		})
 	}

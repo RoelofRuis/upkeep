@@ -112,11 +112,15 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 			printer.White("%2d ", block.Block.Id)
 		}
 
-		if block.Block.End.IsStarted() {
-			printer.Print("[%s - %s]",
-				block.Block.Start.Format(model.LayoutHour),
-				block.Block.End.Format(model.LayoutHour),
-			)
+		if block.Block.HasEnded() {
+			if block.Block.Type == model.TypeTime {
+				printer.Print("[%s - %s]",
+					block.Block.WithTime.Start.Format(model.LayoutHour),
+					block.Block.WithTime.End.Format(model.LayoutHour),
+				)
+			} else {
+				printer.Print( "               ")
+			}
 
 			if block.IsDiscounted {
 				if block.DiscountedDuration != 0 {
@@ -129,7 +133,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 			}
 		} else {
 			printer.Red("[%s -   ?  ]        ",
-				block.Block.Start.Format(model.LayoutHour),
+				block.Block.WithTime.Start.Format(model.LayoutHour),
 			)
 		}
 

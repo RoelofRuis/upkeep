@@ -22,7 +22,7 @@ func (m Moment) Start(t time.Time) Moment {
 	return Moment{t: &minuteRounded}
 }
 
-func (m Moment) IsStarted() bool {
+func (m Moment) IsDefined() bool {
 	return m.t != nil
 }
 

@@ -111,7 +111,7 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 		})
 	}
 
-	if t.LastStart.IsStarted() {
+	if t.LastStart.IsDefined() {
 		cat := s.SelectedCategories.Peek()
 		if t.Date.OnSameDateAs(at) {
 			discountedDur := at.Sub(*t.LastStart.t)
@@ -127,23 +127,13 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 				}
 			}
 			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
-				Block: TimeBlock{
-					Id:       -1,
-					Category: cat,
-					Start:    t.LastStart,
-					End:      NewMoment().Start(at),
-				},
+				Block:              NewBlockWithTime(-1, cat, t.LastStart, NewMoment().Start(at)),
 				IsDiscounted:       isDiscounted,
 				DiscountedDuration: discountedDur,
 			})
 		} else {
 			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
-				Block: TimeBlock{
-					Id:       -1,
-					Category: cat,
-					Start:    t.LastStart,
-					End:      NewMoment(),
-				},
+				Block: NewBlockWithTime(-1, cat, t.LastStart, NewMoment()),
 				IsDiscounted:       false,
 				DiscountedDuration: 0,
 			})

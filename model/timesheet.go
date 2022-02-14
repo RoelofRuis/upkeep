@@ -36,7 +36,7 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 		return s
 	}
 
-	newBlock := NewTimeBlock(s.NextId, s.LastStart, NewMoment().Start(t), category)
+	newBlock := NewBlockWithTime(s.NextId, category, s.LastStart, NewMoment().Start(t))
 	s.NextId += 1
 
 	s.Blocks = append(s.Blocks, newBlock)
@@ -77,7 +77,7 @@ func (s Timesheet) SetQuotum(d Duration) Timesheet {
 }
 
 func (s Timesheet) IsStarted() bool {
-	return s.LastStart.IsStarted()
+	return s.LastStart.IsDefined()
 }
 
 func (s Timesheet) GetCategoryNames() []string {
