@@ -119,7 +119,11 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 			)
 
 			if block.IsDiscounted {
-				printer.Yellow(" [%s] ", infra.FormatDuration(block.DiscountedDuration))
+				if block.DiscountedDuration != 0 {
+					printer.Yellow(" [%s] ", infra.FormatDuration(block.DiscountedDuration))
+				} else {
+					printer.Print("        ")
+				}
 			} else {
 				printer.Bold(" [%s] ", infra.FormatDuration(block.Block.BaseDuration()))
 			}
