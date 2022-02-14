@@ -9,7 +9,7 @@ import (
 )
 
 func (r Repository) HandleViewWeek(args []string) (error, string) {
-	date := model.Today().PreviousMonday()
+	date := model.NewDate(time.Now()).PreviousMonday()
 
 	upkeep, err := r.Upkeep.Get()
 	if err != nil {
@@ -34,7 +34,7 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	weekDur := time.Duration(0)
 	weekQuotum := model.NewDuration()
 	for _, daySheet := range sheets {
-		blocks := upkeep.DiscountTimeBlocks(daySheet)
+		blocks := upkeep.DiscountTimeBlocks(daySheet, time.Now())
 		dayDur := blocks.TotalDuration()
 		weekDur += dayDur
 
@@ -67,7 +67,7 @@ func ViewWeek(upkeep model.Upkeep, sheets []model.Timesheet) string {
 }
 
 func (r Repository) HandleViewSheet(args []string) (error, string) {
-	date := model.Today()
+	date := model.NewDate(time.Now())
 	if len(args) > 0 {
 		switch args[0] {
 		case "today":
@@ -103,7 +103,7 @@ func ViewSheet(upkeep model.Upkeep, timesheet model.Timesheet) string {
 	printer.Bold("@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 	printer.BGGreen("%s", strings.Join(upkeep.SelectedCategories, " | ")).Newline()
 
-	blocks := upkeep.DiscountTimeBlocks(timesheet)
+	blocks := upkeep.DiscountTimeBlocks(timesheet, time.Now())
 
 	for _, block := range blocks {
 		if block.Block.Id == -1 {

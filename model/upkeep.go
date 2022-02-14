@@ -81,7 +81,7 @@ func (s Upkeep) TimesheetQuotum(t Timesheet) Duration {
 	return t.Quotum
 }
 
-func (s Upkeep) DiscountTimeBlocks(t Timesheet) DiscountedTimeBlocks {
+func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBlocks {
 	categoryQuota := make(map[string]time.Duration)
 	for _, c := range s.Categories {
 		if c.MaxDayQuotum.IsDefined() {
@@ -113,8 +113,8 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet) DiscountedTimeBlocks {
 
 	if t.LastStart.IsStarted() {
 		cat := s.SelectedCategories.Peek()
-		if t.Date.IsToday() {
-			discountedDur := time.Now().Sub(*t.LastStart.t)
+		if t.Date.OnSameDateAs(at) {
+			discountedDur := at.Sub(*t.LastStart.t)
 			isDiscounted := false
 			remaining, has := categoryQuota[cat]
 			if has {
@@ -131,7 +131,7 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet) DiscountedTimeBlocks {
 					Id:       -1,
 					Category: cat,
 					Start:    t.LastStart,
-					End:      NewMoment().Start(time.Now()),
+					End:      NewMoment().Start(at),
 				},
 				IsDiscounted:       isDiscounted,
 				DiscountedDuration: discountedDur,

@@ -18,10 +18,6 @@ func NewDate(t time.Time) Date {
 	return Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC))
 }
 
-func Today() Date {
-	return NewDate(time.Now())
-}
-
 func (d Date) ShiftDay(days int) Date {
 	return Date(time.Time(d).AddDate(0, 0, days))
 }
@@ -51,6 +47,6 @@ func (d Date) String() string {
 	return d.Format("2006-01-02")
 }
 
-func (d Date) IsToday() bool {
-	return time.Time(d).Equal(time.Time(Today()))
+func (d Date) OnSameDateAs(t time.Time) bool {
+	return time.Time(d).Equal(time.Time(NewDate(t)))
 }
