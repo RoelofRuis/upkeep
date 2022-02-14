@@ -47,13 +47,6 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 	var blocks []model.TimeBlock
 	for _, blockData := range input.Blocks {
 		switch blockData.Type {
-		case model.TypeTime:
-			blocks = append(blocks, model.NewBlockWithTime(
-				blockData.Id,
-				blockData.Category,
-				blockData.Start,
-				blockData.End,
-			))
 		case model.TypeDuration:
 			blocks = append(blocks, model.NewBlockWithDuration(
 				blockData.Id,
@@ -61,7 +54,12 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 				blockData.Duration,
 			))
 		default:
-			return model.Timesheet{}, fmt.Errorf("unknown block type '%s'", blockData.Type)
+			blocks = append(blocks, model.NewBlockWithTime(
+				blockData.Id,
+				blockData.Category,
+				blockData.Start,
+				blockData.End,
+			))
 		}
 
 	}
