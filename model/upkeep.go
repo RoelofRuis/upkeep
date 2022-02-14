@@ -40,7 +40,7 @@ func (s Upkeep) SetCategoryMaxDayQuotum(category string, dur *time.Duration) Upk
 
 	newDur := NewDuration()
 	if dur != nil {
-		newDur.Set(*dur)
+		newDur = newDur.Set(*dur)
 	}
 	cat.MaxDayQuotum = newDur
 
