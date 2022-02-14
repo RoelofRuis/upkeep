@@ -65,9 +65,24 @@ func HandleSet(args []string, editor *TimesheetEditor) (error, string) {
 	return nil, editor.View()
 }
 
+func HandleUpdate(args []string, editor *TimesheetEditor) (error, string) {
+	if len(args) < 2 {
+		return errors.New("invalid command, specify block id and category"), ""
+	}
+
+	id, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return err, ""
+	}
+
+	editor.Update(int(id), args[1])
+
+	return nil, editor.View()
+}
+
 func HandleRemove(args []string, editor *TimesheetEditor) (error, string) {
 	if len(args) == 0 {
-		return errors.New("no id given"), ""
+		return errors.New("invalid command, specify block id"), ""
 	}
 
 	id, err := strconv.ParseInt(args[0], 10, 64)

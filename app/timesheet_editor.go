@@ -86,7 +86,12 @@ func (t *TimesheetEditor) Continue(category string) {
 }
 
 func (t *TimesheetEditor) Remove(blockId int) {
-	timesheet := t.timesheet.Remove(blockId)
+	timesheet := t.timesheet.RemoveBlock(blockId)
+	t.timesheet = &timesheet
+}
+
+func (t *TimesheetEditor) Update(blockId int, category string) {
+	timesheet := t.timesheet.UpdateBlockCategory(blockId, category)
 	t.timesheet = &timesheet
 }
 

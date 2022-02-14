@@ -59,6 +59,7 @@ func (d *Duration) UnmarshalJSON(data []byte) error {
 	case string:
 		if value == "" {
 			*d = NewDuration()
+			return nil
 		}
 		dur, err := time.ParseDuration(value)
 		if err != nil {

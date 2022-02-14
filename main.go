@@ -47,7 +47,10 @@ func main() {
 	mainRouter.Register("switch", "start a new block and put active category on the stack", repository.Edit(app.HandleSwitch))
 	mainRouter.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
 	mainRouter.Register("set", "set the active category", repository.Edit(app.HandleSet))
-	mainRouter.Register("remove", "remove a time block", repository.Edit(app.HandleRemove))
+
+	editRouter := infra.NewRouter()
+	editRouter.Register("remove", "remove a block", repository.Edit(app.HandleRemove))
+	editRouter.Register("update", "update block category", repository.Edit(app.HandleUpdate))
 
 	confRouter := infra.NewRouter()
 	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
@@ -63,6 +66,7 @@ func main() {
 	mainRouter.Register("cat", "edit category settings", catRouter.Handle)
 	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
 	mainRouter.Register("view", "view recorded times", viewRouter.Handle)
+	mainRouter.Register("edit", "edit completed time blocks", editRouter.Handle)
 	mainRouter.DefaultAction = "view"
 
 	err, msg := mainRouter.Handle(os.Args[1:])

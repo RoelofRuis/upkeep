@@ -44,7 +44,16 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 	return s
 }
 
-func (s Timesheet) Remove(blockId int) Timesheet {
+func (s Timesheet) UpdateBlockCategory(blockId int, category string) Timesheet {
+	for i, block := range s.Blocks {
+		if block.Id == blockId {
+			s.Blocks[i].Category = category
+		}
+	}
+	return s
+}
+
+func (s Timesheet) RemoveBlock(blockId int) Timesheet {
 	for i, block := range s.Blocks {
 		if block.Id == blockId {
 			s.Blocks = append(s.Blocks[:i], s.Blocks[i+1:]...)
