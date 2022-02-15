@@ -53,7 +53,7 @@ func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string
 			return "", err
 		}
 
-		dateParam, err := params.GetNamed("date")
+		dateParam, err := params.GetNamed("d")
 		if err != nil {
 			return "", err
 		}

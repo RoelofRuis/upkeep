@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -101,16 +102,38 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 func IterDates(dateDef string) ([]Date, error) {
 	date := NewDate(time.Now())
 	numDays := 1
+
+	shifts := 0
+	for {
+		if strings.HasPrefix(dateDef, "-") {
+			dateDef = strings.TrimPrefix(dateDef, "-")
+			shifts -= 1
+		} else if strings.HasPrefix(dateDef, "+") {
+			dateDef = strings.TrimPrefix(dateDef, "+")
+			shifts += 1
+		} else {
+			break
+		}
+	}
+
 	switch dateDef {
-	case "today":
+	case "day":
+	case "d":
+		date = date.ShiftDay(shifts)
 		break
-	case "yesterday":
-		date = date.ShiftDay(-1)
-		break
+
 	case "week":
-		date = NewDate(time.Now()).PreviousMonday()
+	case "w":
+		date = NewDate(time.Now()).PreviousMonday().ShiftDay(shifts * 7)
 		numDays = 5
 		break
+
+	case "weekfull":
+	case "wf":
+		date = NewDate(time.Now()).PreviousMonday().ShiftDay(shifts * 7)
+		numDays = 7
+		break
+
 	default:
 		parsedDate, err := NewDateFromString(dateDef)
 		if err != nil {

@@ -2,6 +2,7 @@ package infra
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -12,18 +13,22 @@ type Args struct {
 	Params   Params
 }
 
+var namedArgument = regexp.MustCompile("^([a-z]+):([-+]*[a-zA-Z0-9_]+)$")
+
 func ParseArgs(a []string) Args {
 	args := Args{
 		ProgName: a[0],
-		Params:   Params{NamedParams: map[string]string{"date": "today"}},
+		Params:   Params{NamedParams: map[string]string{"d": "day"}},
 	}
 
 	for _, s := range a[1:] {
-		if strings.HasPrefix(s, "-d") {
-			args.Params.NamedParams["date"] = strings.TrimPrefix(s, "-d")
-		} else {
-			args.Args = append(args.Args, s)
+		matches := namedArgument.FindStringSubmatch(s)
+		if len(matches) == 3 {
+			args.Params.NamedParams[matches[1]] = matches[2]
+			continue
 		}
+
+		args.Args = append(args.Args, s)
 	}
 
 	return args
@@ -45,7 +50,7 @@ func (a Args) Len() int {
 }
 
 func (a Args) Path(len int) string {
-	return strings.Join(a.Args[:len], "/")
+	return strings.Join(a.Args[:len], " ")
 }
 
 type Params struct {
