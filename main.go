@@ -62,6 +62,7 @@ func main() {
 	viewRouter := infra.NewRouter()
 	viewRouter.Register("week", "show times for past week", repository.HandleViewWeek)
 	viewRouter.Register("day", "show a day timesheet", repository.HandleViewSheet)
+	viewRouter.Register("cats", "show totals by category", repository.HandleViewCategories)
 	viewRouter.DefaultAction = "day"
 
 	mainRouter.Register("cat", "edit category settings", catRouter.Handle)

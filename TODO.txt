@@ -1,5 +1,4 @@
+- (option to stop forgotten end time on past day)
+
 - create a monthly export
-
-- option to stop forgotten end time on past day
-
-- show time per category
+- rework argument input to make reuse easier and commands more powerful
