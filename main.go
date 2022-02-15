@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"upkeep/app"
+	"upkeep/app/view"
 	"upkeep/infra"
 	"upkeep/model/repo"
 )
@@ -48,30 +49,16 @@ func main() {
 	mainRouter.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
 	mainRouter.Register("set", "set the active category", repository.Edit(app.HandleSet))
 	mainRouter.Register("write", "write duration-only block", repository.Edit(app.HandleWrite))
+	mainRouter.Register("edit/remove", "remove a block", repository.Edit(app.HandleRemove))
+	mainRouter.Register("edit/update", "update block category", repository.Edit(app.HandleUpdate))
+	mainRouter.Register("conf/quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
+	mainRouter.Register("cat/quotum", "set the maximum daily quotum for a category", repository.Edit(app.HandleCategoryQuotum))
+	mainRouter.Register("view/sheet", "view timesheet", repository.HandleView(view.ViewSheets))
+	mainRouter.Register("view/day", "view totals by day", repository.HandleView(view.ViewDays))
+	mainRouter.Register("view/cat", "view totals by category", repository.HandleView(view.ViewCategories))
+	mainRouter.DefaultAction = "view/sheet"
 
-	editRouter := infra.NewRouter()
-	editRouter.Register("remove", "remove a block", repository.Edit(app.HandleRemove))
-	editRouter.Register("update", "update block category", repository.Edit(app.HandleUpdate))
-
-	confRouter := infra.NewRouter()
-	confRouter.Register("quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
-
-	catRouter := infra.NewRouter()
-	catRouter.Register("quotum", "set the maximum daily quotum for a category", repository.Edit(app.HandleCategoryQuotum))
-
-	viewRouter := infra.NewRouter()
-	viewRouter.Register("week", "show times for past week", repository.HandleViewWeek)
-	viewRouter.Register("day", "show a day timesheet", repository.HandleViewSheet)
-	viewRouter.Register("cats", "show totals by category", repository.HandleViewCategories)
-	viewRouter.DefaultAction = "day"
-
-	mainRouter.Register("cat", "edit category settings", catRouter.Handle)
-	mainRouter.Register("conf", "edit configuration values", confRouter.Handle)
-	mainRouter.Register("view", "view recorded times", viewRouter.Handle)
-	mainRouter.Register("edit", "edit completed time blocks", editRouter.Handle)
-	mainRouter.DefaultAction = "view"
-
-	msg, err := mainRouter.Handle(os.Args[1:])
+	msg, err := mainRouter.Handle(infra.ParseArgs(os.Args))
 	if err != nil {
 		printer := infra.TerminalPrinter{}
 		printer.Red("error: %s", err.Error()).Newline()

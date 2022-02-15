@@ -3,6 +3,7 @@ package app
 import (
 	"regexp"
 	"time"
+	"upkeep/app/view"
 	"upkeep/infra"
 	"upkeep/model"
 )
@@ -12,8 +13,8 @@ type TimesheetEditor struct {
 	timesheet *model.Timesheet
 }
 
-func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (string, error)) infra.Handler {
-	return func(args []string) (string, error) {
+func (r Repository) Edit(f func(params infra.Params, editor *TimesheetEditor) (string, error)) infra.Handler {
+	return func(params infra.Params) (string, error) {
 		upkeep, err := r.Upkeep.Get()
 		if err != nil {
 			return "", err
@@ -25,7 +26,7 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (string,
 
 		editor := &TimesheetEditor{upkeep: &upkeep, timesheet: &timesheet}
 
-		s, err := f(args, editor)
+		s, err := f(params, editor)
 		if err != nil {
 			return s, err
 		}
@@ -42,6 +43,36 @@ func (r Repository) Edit(f func(args []string, editor *TimesheetEditor) (string,
 		}
 
 		return s, nil
+	}
+}
+
+func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string) func(params infra.Params) (string, error) {
+	return func(params infra.Params) (string, error) {
+		upkeep, err := r.Upkeep.Get()
+		if err != nil {
+			return "", err
+		}
+
+		dateParam, err := params.GetNamed("date")
+		if err != nil {
+			return "", err
+		}
+
+		dates, err := model.IterDates(dateParam)
+		if err != nil {
+			return "", err
+		}
+
+		timesheets := make([]model.Timesheet, len(dates))
+		for i, day := range dates {
+			sheet, err := r.Timesheets.GetForDate(day)
+			if err != nil {
+				return "", err
+			}
+			timesheets[i] = sheet
+		}
+
+		return view(upkeep, timesheets), nil
 	}
 }
 
@@ -128,5 +159,5 @@ func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
 }
 
 func (t *TimesheetEditor) View() string {
-	return ViewSheet(*t.upkeep, *t.timesheet)
+	return view.ViewSheets(*t.upkeep, []model.Timesheet{*t.timesheet})
 }

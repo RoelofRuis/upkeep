@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-type Handler = func(args []string) (string, error)
+type Handler = func(params Params) (string, error)
 
 type Router struct {
 	NoCommandGivenMsg    string
@@ -33,25 +33,27 @@ func (r *Router) Register(action string, description string, handler Handler) {
 	r.descriptions[action] = description
 }
 
-func (r *Router) Handle(args []string) (string, error) {
-	if len(args) == 0 {
+func (r *Router) Handle(args Args) (string, error) {
+	if args.Len() == 0 {
 		if r.DefaultAction == "" {
 			return r.HelpMessage(), fmt.Errorf(r.NoCommandGivenMsg)
 		}
 
-		args = append(args, r.DefaultAction)
+		args = args.Set([]string{r.DefaultAction})
 	}
 
-	if args[0] == "help" {
+	if args.Path(1) == "help" {
 		return r.HelpMessage(), nil
 	}
 
-	h, has := r.actions[args[0]]
-	if !has {
-		return r.HelpMessage(), fmt.Errorf(r.NoMatchingHandlerMsg, args[0])
+	for i := args.Len(); i > 0; i-- {
+		handler, has := r.actions[args.Path(i)]
+		if has {
+			return handler(args.GetParamsRemaining(i))
+		}
 	}
 
-	return h(args[1:])
+	return r.HelpMessage(), fmt.Errorf(r.NoMatchingHandlerMsg, args.Path(args.Len()))
 }
 
 func (r *Router) HelpMessage() string {

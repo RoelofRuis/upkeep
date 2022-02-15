@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -95,4 +96,29 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 		return errors.New("invalid date")
 	}
 	return nil
+}
+
+func IterDates(dateDef string) ([]Date, error) {
+	date := NewDate(time.Now())
+	numDays := 1
+	switch dateDef {
+	case "today":
+		break
+	case "yesterday":
+		date = date.ShiftDay(-1)
+		break
+	case "week":
+		date = NewDate(time.Now()).PreviousMonday()
+		numDays = 5
+		break
+	default:
+		parsedDate, err := NewDateFromString(dateDef)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date value '%s'", dateDef)
+		}
+		date = parsedDate
+		break
+	}
+
+	return date.IterateNext(numDays), nil
 }
