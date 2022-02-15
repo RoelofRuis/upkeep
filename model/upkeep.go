@@ -70,7 +70,7 @@ func (s Upkeep) GetWeekdayQuotum(day time.Weekday) Duration {
 func (s Upkeep) GetTimesheetQuotum(t Timesheet) Duration {
 	quotum := t.Quotum
 
-	if !quotum.IsDefined() {
+	if quotum.IsZero() {
 		weekdayQuotum, has := s.Quota[t.Date.Weekday()]
 		if !has {
 			return NewDuration()
@@ -133,7 +133,7 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 			})
 		} else {
 			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
-				Block: NewBlockWithTime(-1, cat, t.LastStart, NewMoment()),
+				Block:              NewBlockWithTime(-1, cat, t.LastStart, NewMoment()),
 				IsDiscounted:       false,
 				DiscountedDuration: 0,
 			})

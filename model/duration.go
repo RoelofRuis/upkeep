@@ -19,7 +19,11 @@ func (d Duration) Set(dur time.Duration) Duration {
 }
 
 func (d Duration) IsDefined() bool {
-	return d.d != nil && *d.d != 0
+	return d.d != nil
+}
+
+func (d Duration) IsZero() bool {
+	return !d.IsDefined() || *d.d == 0
 }
 
 func (d Duration) Add(other Duration) Duration {
