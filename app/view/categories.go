@@ -2,13 +2,15 @@ package view
 
 import (
 	"fmt"
+	"sort"
 	"time"
 	"upkeep/infra"
 	"upkeep/model"
 )
 
 func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) string {
-	categoryDurations := make(map[string]time.Duration)
+	var categories []string
+	durations := make(map[string]time.Duration)
 	nameLength := 0
 
 	for _, sheet := range sheets {
@@ -17,21 +19,26 @@ func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) string {
 			category := block.Block.Category
 			nameLength = infra.Max(len(category), nameLength)
 
-			dur, has := categoryDurations[category]
+			dur, has := durations[category]
 			if !has {
 				dur = time.Duration(0)
+				categories = append(categories, category)
 			}
 			dur += block.DiscountedDuration
-			categoryDurations[category] = dur
+			durations[category] = dur
 		}
 	}
 
+	sort.Slice(categories, func(i, j int) bool {
+		return durations[categories[i]] > durations[categories[j]]
+	})
+
 	printer := infra.TerminalPrinter{}
 
-	for cat, dur := range categoryDurations {
+	for _, cat := range categories {
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.Green(format, cat).
-			Print(" %s", infra.FormatDuration(dur)).
+			Print(" %s", infra.FormatDuration(durations[cat])).
 			Newline()
 	}
 
