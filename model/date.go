@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
+	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -99,21 +100,24 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+var quickDateRegex = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
+
 func IterDates(dateDef string) ([]Date, error) {
 	date := NewDate(time.Now())
+	shifts := 0
 	numDays := 1
 
-	shifts := 0
-	for {
-		if strings.HasPrefix(dateDef, "-") {
-			dateDef = strings.TrimPrefix(dateDef, "-")
-			shifts -= 1
-		} else if strings.HasPrefix(dateDef, "+") {
-			dateDef = strings.TrimPrefix(dateDef, "+")
-			shifts += 1
-		} else {
-			break
+	matches := quickDateRegex.FindStringSubmatch(dateDef)
+	if len(matches) == 3 {
+		fmt.Printf("%+v\n", matches)
+		if matches[1] != "" {
+			i, err := strconv.ParseInt(matches[1], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			shifts = int(i)
 		}
+		dateDef = matches[2]
 	}
 
 	switch dateDef {

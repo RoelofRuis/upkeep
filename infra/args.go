@@ -13,7 +13,7 @@ type Args struct {
 	Params   Params
 }
 
-var namedArgument = regexp.MustCompile("^([a-z]+):([-+]*[a-zA-Z0-9_]+)$")
+var namedArgument = regexp.MustCompile("^([a-z]+):([a-zA-Z0-9_-]+)$")
 
 func ParseArgs(a []string) Args {
 	args := Args{
