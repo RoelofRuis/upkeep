@@ -1,7 +1,6 @@
 package infra
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -77,10 +76,10 @@ func (p Params) GetInt(index int) (int, error) {
 	return int(i), nil
 }
 
-func (p Params) GetNamed(name string) (string, error) {
+func (p Params) GetNamed(name string, fallback string) string {
 	val, has := p.NamedParams[name]
 	if !has {
-		return "", fmt.Errorf("no named parameter '%s'", name)
+		return fallback
 	}
-	return val, nil
+	return val
 }

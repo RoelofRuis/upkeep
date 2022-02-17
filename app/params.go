@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"upkeep/infra"
 	"upkeep/model"
 )
 
 var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
 
-// MakeDateRange shifts the given date based on the date selection definition given.
+// MakeDateRange shifts the given date based on the date parameter provided.
 // It returns the shifted date and the number of selected days.
 // A date definition can be one of the following:
 // - An exact date given in the format yyyy-MM-DD
@@ -22,7 +23,9 @@ var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
 //    1w  = next workweek starting monday (length 5)
 //     wf = current workweek starting monday (length 7)
 //   -3m  = three months ago starting first of month (length <number of days in that month>)
-func MakeDateRange(baseDate model.Date, dateDef string) (model.Date, int, error) {
+func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, error) {
+	dateDef := params.GetNamed("date", "day")
+
 	shifts := 0
 	numDays := 1
 

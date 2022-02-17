@@ -20,12 +20,7 @@ func (r Repository) Edit(f func(params infra.Params, editor *TimesheetEditor) (s
 			return "", err
 		}
 
-		dateParam, err := params.GetNamed("d")
-		if err != nil {
-			return "", err
-		}
-
-		date, _, err := MakeDateRange(model.NewDate(time.Now()), dateParam)
+		date, _, err := MakeDateRange(model.NewDate(time.Now()), params)
 		if err != nil {
 			return "", err
 		}
@@ -64,12 +59,7 @@ func (r Repository) Read(view func(model.Upkeep, []model.Timesheet) (string, err
 			return "", err
 		}
 
-		dateParam, err := params.GetNamed("d")
-		if err != nil {
-			return "", err
-		}
-
-		date, numDays, err := MakeDateRange(model.NewDate(time.Now()), dateParam)
+		date, numDays, err := MakeDateRange(model.NewDate(time.Now()), params)
 		if err != nil {
 			return "", err
 		}
