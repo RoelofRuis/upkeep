@@ -8,7 +8,7 @@ import (
 	"upkeep/model"
 )
 
-func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) string {
+func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) (string, error) {
 	var categories []string
 	durations := make(map[string]time.Duration)
 	nameLength := 0
@@ -38,9 +38,9 @@ func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	for _, cat := range categories {
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.Green(format, cat).
-			Bold(" %s", infra.FormatDuration(durations[cat])).
+			Bold(" %s", infra.FormatDurationBracketed(durations[cat])).
 			Newline()
 	}
 
-	return printer.String()
+	return printer.String(), nil
 }

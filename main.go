@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"upkeep/app"
+	"upkeep/app/export"
 	"upkeep/app/view"
 	"upkeep/infra"
 	"upkeep/model/repo"
@@ -49,14 +50,15 @@ func main() {
 	router.Register("continue", "start new block and pop active category from stack", repository.Edit(app.HandleContinue))
 	router.Register("set", "set the active category", repository.Edit(app.HandleSet))
 	router.Register("write", "write duration-only block", repository.Edit(app.HandleWrite))
+	router.Register("export", "write an export file", repository.Read(export.Export))
 	router.Register("edit remove", "remove a block", repository.Edit(app.HandleRemove))
 	router.Register("edit restore", "restore a removed block", repository.Edit(app.HandleRestore))
 	router.Register("edit update", "update block category", repository.Edit(app.HandleUpdate))
 	router.Register("conf quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 	router.Register("cat quotum", "set the maximum daily quotum for a category", repository.Edit(app.HandleCategoryQuotum))
-	router.Register("view sheet", "view timesheet", repository.HandleView(view.ViewSheets))
-	router.Register("view day", "view totals by day", repository.HandleView(view.ViewDays))
-	router.Register("view cat", "view totals by category", repository.HandleView(view.ViewCategories))
+	router.Register("view sheet", "view timesheet", repository.Read(view.ViewSheets))
+	router.Register("view day", "view totals by day", repository.Read(view.ViewDays))
+	router.Register("view cat", "view totals by category", repository.Read(view.ViewCategories))
 	router.DefaultAction = "view sheet"
 
 	msg, err := router.Handle(infra.ParseArgs(os.Args))

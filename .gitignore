@@ -5,3 +5,5 @@ bin/
 
 # executable
 upkeep
+
+*.csv

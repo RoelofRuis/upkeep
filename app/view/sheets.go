@@ -7,7 +7,7 @@ import (
 	"upkeep/model"
 )
 
-func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) string {
+func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) (string, error) {
 	printer := infra.TerminalPrinter{}
 	printer.BGGreen("%s", strings.Join(upkeep.SelectedCategories, " | ")).Newline()
 
@@ -35,12 +35,12 @@ func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) string {
 
 				if block.IsDiscounted {
 					if block.DiscountedDuration != 0 {
-						printer.Yellow(" %s ", infra.FormatDuration(block.DiscountedDuration))
+						printer.Yellow(" %s ", infra.FormatDurationBracketed(block.DiscountedDuration))
 					} else {
 						printer.Print("         ")
 					}
 				} else {
-					printer.Bold(" %s ", infra.FormatDuration(block.Block.BaseDuration()))
+					printer.Bold(" %s ", infra.FormatDurationBracketed(block.Block.BaseDuration()))
 				}
 			} else {
 				printer.Red("[%s -   ?  ]         ",
@@ -58,17 +58,17 @@ func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) string {
 
 		if !quotum.IsDefined() {
 			printer.Print("                   ").
-				Bold("%s", infra.FormatDuration(totalDuration)).
+				Bold("%s", infra.FormatDurationBracketed(totalDuration)).
 				Newline()
 		} else {
 			perc := (float64(totalDuration) / float64(quotum.Get())) * 100
 
 			printer.Print("                   ").
-				Bold("%s", infra.FormatDuration(totalDuration)).
-				Print(" / %s (%0.1f%%)", infra.FormatDuration(quotum.Get()), perc).
+				Bold("%s", infra.FormatDurationBracketed(totalDuration)).
+				Print(" / %s (%0.1f%%)", infra.FormatDurationBracketed(quotum.Get()), perc).
 				Newline()
 		}
 	}
 
-	return printer.String()
+	return printer.String(), nil
 }

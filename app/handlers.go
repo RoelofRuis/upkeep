@@ -14,31 +14,31 @@ type Repository repo.Repository
 func HandleStart(params infra.Params, editor *TimesheetEditor) (string, error) {
 	editor.Start(params.Get(0))
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleStop(params infra.Params, editor *TimesheetEditor) (string, error) {
 	editor.Stop()
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleAbort(params infra.Params, editor *TimesheetEditor) (string, error) {
 	editor.Abort()
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleSwitch(params infra.Params, editor *TimesheetEditor) (string, error) {
 	editor.Switch(params.Get(0))
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleContinue(params infra.Params, editor *TimesheetEditor) (string, error) {
 	editor.Continue(params.Get(0))
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleSet(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -48,7 +48,7 @@ func HandleSet(params infra.Params, editor *TimesheetEditor) (string, error) {
 
 	editor.Category(params.Get(0))
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleUpdate(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -63,7 +63,7 @@ func HandleUpdate(params infra.Params, editor *TimesheetEditor) (string, error) 
 
 	editor.Update(id, params.Get(1))
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleRestore(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -78,7 +78,7 @@ func HandleRestore(params infra.Params, editor *TimesheetEditor) (string, error)
 
 	editor.Restore(id)
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleRemove(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -93,7 +93,7 @@ func HandleRemove(params infra.Params, editor *TimesheetEditor) (string, error) 
 
 	editor.Remove(id)
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleWrite(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -114,7 +114,7 @@ func HandleWrite(params infra.Params, editor *TimesheetEditor) (string, error) {
 		editor.Write(cat, model.NewDuration().Set(duration))
 	}
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleCategoryQuotum(params infra.Params, editor *TimesheetEditor) (string, error) {
@@ -133,7 +133,7 @@ func HandleCategoryQuotum(params infra.Params, editor *TimesheetEditor) (string,
 		editor.SetCategoryMaxDayQuotum(cat, &d)
 	}
 
-	return editor.View(), nil
+	return editor.View()
 }
 
 func HandleQuotum(params infra.Params, editor *TimesheetEditor) (string, error) {

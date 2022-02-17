@@ -57,7 +57,7 @@ func (r Repository) Edit(f func(params infra.Params, editor *TimesheetEditor) (s
 	}
 }
 
-func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string) func(params infra.Params) (string, error) {
+func (r Repository) Read(view func(model.Upkeep, []model.Timesheet) (string, error)) func(params infra.Params) (string, error) {
 	return func(params infra.Params) (string, error) {
 		upkeep, err := r.Upkeep.Get()
 		if err != nil {
@@ -84,7 +84,7 @@ func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string
 			timesheets[i] = sheet
 		}
 
-		return view(upkeep, timesheets), nil
+		return view(upkeep, timesheets)
 	}
 }
 
@@ -175,6 +175,6 @@ func (t *TimesheetEditor) AdjustQuotum(day time.Weekday, dur *time.Duration) {
 	}
 }
 
-func (t *TimesheetEditor) View() string {
+func (t *TimesheetEditor) View() (string, error) {
 	return view.ViewSheets(*t.upkeep, []model.Timesheet{*t.timesheet})
 }
