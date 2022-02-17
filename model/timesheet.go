@@ -36,7 +36,7 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 		return s
 	}
 
-	newBlock := NewBlockWithTime(s.NextId, category, s.LastStart, NewMoment().Start(t))
+	newBlock := NewBlockWithTime(s.NextId, category, false, s.LastStart, NewMoment().Start(t))
 	s.NextId += 1
 
 	s.Blocks = append(s.Blocks, newBlock)
@@ -45,7 +45,7 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 }
 
 func (s Timesheet) Write(category string, dur Duration) Timesheet {
-	newBlock := NewBlockWithDuration(s.NextId, category, dur)
+	newBlock := NewBlockWithDuration(s.NextId, category, false, dur)
 	s.NextId += 1
 
 	s.Blocks = append(s.Blocks, newBlock)
@@ -64,7 +64,18 @@ func (s Timesheet) UpdateBlockCategory(blockId int, category string) Timesheet {
 func (s Timesheet) RemoveBlock(blockId int) Timesheet {
 	for i, block := range s.Blocks {
 		if block.Id == blockId {
-			s.Blocks = append(s.Blocks[:i], s.Blocks[i+1:]...)
+			s.Blocks[i].Deleted = true
+			break
+		}
+	}
+	return s
+}
+
+func (s Timesheet) RestoreBlock(blockId int) Timesheet {
+	for i, block := range s.Blocks {
+		if block.Id == blockId {
+			s.Blocks[i].Deleted = false
+			break
 		}
 	}
 	return s

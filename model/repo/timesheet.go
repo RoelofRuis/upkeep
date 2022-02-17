@@ -21,6 +21,7 @@ type timesheetJson struct {
 type blockJson struct {
 	Id       int            `json:"id"`
 	Category string         `json:"category"`
+	Deleted  bool           `json:"deleted"`
 	Type     string         `json:"type"`
 	Start    model.Moment   `json:"start"`
 	End      model.Moment   `json:"end"`
@@ -51,12 +52,14 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 			blocks = append(blocks, model.NewBlockWithDuration(
 				blockData.Id,
 				blockData.Category,
+				blockData.Deleted,
 				blockData.Duration,
 			))
 		default:
 			blocks = append(blocks, model.NewBlockWithTime(
 				blockData.Id,
 				blockData.Category,
+				blockData.Deleted,
 				blockData.Start,
 				blockData.End,
 			))
@@ -80,6 +83,7 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 			End:      block.WithTime.End,
 			Duration: block.WithDuration.Duration,
 			Category: block.Category,
+			Deleted:  block.Deleted,
 		})
 	}
 

@@ -50,6 +50,7 @@ func main() {
 	router.Register("set", "set the active category", repository.Edit(app.HandleSet))
 	router.Register("write", "write duration-only block", repository.Edit(app.HandleWrite))
 	router.Register("edit remove", "remove a block", repository.Edit(app.HandleRemove))
+	router.Register("edit restore", "restore a removed block", repository.Edit(app.HandleRestore))
 	router.Register("edit update", "update block category", repository.Edit(app.HandleUpdate))
 	router.Register("conf quotum", "edit daily quotum", repository.Edit(app.HandleQuotum))
 	router.Register("cat quotum", "set the maximum daily quotum for a category", repository.Edit(app.HandleCategoryQuotum))

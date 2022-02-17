@@ -133,6 +133,11 @@ func (t *TimesheetEditor) Remove(blockId int) {
 	t.timesheet = &timesheet
 }
 
+func (t *TimesheetEditor) Restore(blockId int) {
+	timesheet := t.timesheet.RestoreBlock(blockId)
+	t.timesheet = &timesheet
+}
+
 func (t *TimesheetEditor) Update(blockId int, category string) {
 	timesheet := t.timesheet.UpdateBlockCategory(blockId, category)
 	t.timesheet = &timesheet

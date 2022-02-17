@@ -12,6 +12,7 @@ const (
 type TimeBlock struct {
 	Id           int
 	Category     string
+	Deleted      bool
 	Type         BlockType
 	WithTime     WithTime
 	WithDuration WithDuration
@@ -26,19 +27,21 @@ type WithDuration struct {
 	Duration Duration
 }
 
-func NewBlockWithTime(id int, category string, start Moment, end Moment) TimeBlock {
+func NewBlockWithTime(id int, category string, deleted bool, start Moment, end Moment) TimeBlock {
 	return TimeBlock{
 		Id:       id,
 		Category: category,
+		Deleted:  deleted,
 		Type:     TypeTime,
 		WithTime: WithTime{Start: start, End: end},
 	}
 }
 
-func NewBlockWithDuration(id int, category string, dur Duration) TimeBlock {
+func NewBlockWithDuration(id int, category string, deleted bool, dur Duration) TimeBlock {
 	return TimeBlock{
 		Id:           id,
 		Category:     category,
+		Deleted:      deleted,
 		Type:         TypeDuration,
 		WithDuration: WithDuration{Duration: dur},
 	}

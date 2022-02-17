@@ -66,6 +66,21 @@ func HandleUpdate(params infra.Params, editor *TimesheetEditor) (string, error) 
 	return editor.View(), nil
 }
 
+func HandleRestore(params infra.Params, editor *TimesheetEditor) (string, error) {
+	if params.Len() == 0 {
+		return "", errors.New("invalid command, specify block id")
+	}
+
+	id, err := params.GetInt(0)
+	if err != nil {
+		return "", err
+	}
+
+	editor.Restore(id)
+
+	return editor.View(), nil
+}
+
 func HandleRemove(params infra.Params, editor *TimesheetEditor) (string, error) {
 	if params.Len() == 0 {
 		return "", errors.New("invalid command, specify block id")

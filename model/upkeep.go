@@ -92,6 +92,9 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 	var discountedBlocks []DiscountedTimeBlock
 
 	for _, block := range t.Blocks {
+		if block.Deleted {
+			 continue
+		}
 		discountedDur := block.BaseDuration()
 		isDiscounted := false
 		remaining, has := categoryQuota[block.Category]
@@ -127,13 +130,13 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 				}
 			}
 			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
-				Block:              NewBlockWithTime(-1, cat, t.LastStart, NewMoment().Start(at)),
+				Block:              NewBlockWithTime(-1, cat, false, t.LastStart, NewMoment().Start(at)),
 				IsDiscounted:       isDiscounted,
 				DiscountedDuration: discountedDur,
 			})
 		} else {
 			discountedBlocks = append(discountedBlocks, DiscountedTimeBlock{
-				Block:              NewBlockWithTime(-1, cat, t.LastStart, NewMoment()),
+				Block:              NewBlockWithTime(-1, cat, false, t.LastStart, NewMoment()),
 				IsDiscounted:       false,
 				DiscountedDuration: 0,
 			})
