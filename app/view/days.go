@@ -28,18 +28,18 @@ func ViewDays(upkeep model.Upkeep, timesheets []model.Timesheet) (string, error)
 		}
 
 		if !dayQuotum.IsDefined() {
-			printer.Bold("%s", infra.FormatDurationBracketed(dayDur))
+			printer.PrintC(infra.Bold,"%s", infra.FormatDurationBracketed(dayDur))
 		} else {
-			printer.Bold("%s", infra.FormatDurationBracketed(dayDur)).
+			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
 				Print(" / %s ", infra.FormatDurationBracketed(dayQuotum.Get()))
 		}
 
-		printer.Green(" %s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
+		printer.PrintC(infra.Green, " %s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
 	}
 
 	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
 
-	printer.Bold("                %s", infra.FormatDurationBracketed(totalDur)).
+	printer.PrintC(infra.Bold,"                %s", infra.FormatDurationBracketed(totalDur)).
 		Print(" / %s (%0.1f%%)", infra.FormatDurationBracketed(totalQuotum.Get()), totalPerc)
 
 	return printer.String(), nil

@@ -6,48 +6,25 @@ import (
 	"time"
 )
 
-var (
-	Reset  = "\033[0m"
-	Bold   = "\033[1m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
-	White  = "\033[37m"
+type EscapeCode string
 
-	BGGreen = "\033[42m"
+var (
+	Reset  EscapeCode = "\033[0m"
+	Bold   EscapeCode = "\033[1m"
+	Red    EscapeCode = "\033[31m"
+	Green  EscapeCode = "\033[32m"
+	Yellow EscapeCode = "\033[33m"
+	White  EscapeCode = "\033[37m"
+
+	BGGreen EscapeCode = "\033[42m"
 )
 
 type TerminalPrinter struct {
 	lines []string
 }
 
-func (t *TerminalPrinter) Red(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(Red+s+Reset, args...)
-	return t
-}
-
-func (t *TerminalPrinter) Green(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(Green+s+Reset, args...)
-	return t
-}
-
-func (t *TerminalPrinter) Yellow(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(Yellow+s+Reset, args...)
-	return t
-}
-
-func (t *TerminalPrinter) White(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(White+s+Reset, args...)
-	return t
-}
-
-func (t *TerminalPrinter) BGGreen(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(BGGreen+s+Reset, args...)
-	return t
-}
-
-func (t *TerminalPrinter) Bold(s string, args ...interface{}) *TerminalPrinter {
-	t.addToBuffer(Bold+s+Reset, args...)
+func (t *TerminalPrinter) PrintC(code EscapeCode, s string, args ...interface{}) *TerminalPrinter {
+	t.addToBuffer(string(code)+s+string(Reset), args...)
 	return t
 }
 

@@ -68,9 +68,9 @@ func (r *Router) HelpMessage() string {
 
 	for _, action := range actions {
 		printer.Print("> ").
-			Bold("%s", action).
+			PrintC(Bold,"%s", action).
 			Newline().
-			White("  %s", r.descriptions[action]).
+			PrintC(White, "  %s", r.descriptions[action]).
 			Newline()
 	}
 	return printer.String()

@@ -64,7 +64,7 @@ func main() {
 	msg, err := router.Handle(infra.ParseArgs(os.Args))
 	if err != nil {
 		printer := infra.TerminalPrinter{}
-		printer.Red("error: %s", err.Error()).Newline()
+		printer.PrintC(infra.Red, "error: %s", err.Error()).Newline()
 		fmt.Print(printer.String())
 	}
 	fmt.Printf("%s\n", msg)
