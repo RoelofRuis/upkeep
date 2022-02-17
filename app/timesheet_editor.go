@@ -19,7 +19,18 @@ func (r Repository) Edit(f func(params infra.Params, editor *TimesheetEditor) (s
 		if err != nil {
 			return "", err
 		}
-		timesheet, err := r.Timesheets.GetForDate(model.NewDate(time.Now()))
+
+		dateParam, err := params.GetNamed("d")
+		if err != nil {
+			return "", err
+		}
+
+		date, _, err := MakeDateRange(model.NewDate(time.Now()), dateParam)
+		if err != nil {
+			return "", err
+		}
+
+		timesheet, err := r.Timesheets.GetForDate(date)
 		if err != nil {
 			return "", err
 		}
@@ -58,11 +69,12 @@ func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string
 			return "", err
 		}
 
-		dates, err := model.IterDates(model.NewDate(time.Now()), dateParam)
+		date, numDays, err := MakeDateRange(model.NewDate(time.Now()), dateParam)
 		if err != nil {
 			return "", err
 		}
 
+		dates := date.IterateNext(numDays)
 		timesheets := make([]model.Timesheet, len(dates))
 		for i, day := range dates {
 			sheet, err := r.Timesheets.GetForDate(day)

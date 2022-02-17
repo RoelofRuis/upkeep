@@ -1,3 +1,1 @@
-- (option to stop forgotten end time on past day)
-
 - create a monthly export

@@ -3,9 +3,6 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"regexp"
-	"strconv"
 	"time"
 )
 
@@ -102,58 +99,4 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 		return errors.New("invalid date")
 	}
 	return nil
-}
-
-var quickDateRegex = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
-
-func IterDates(date Date, dateDef string) ([]Date, error) {
-	shifts := 0
-	numDays := 1
-
-	matches := quickDateRegex.FindStringSubmatch(dateDef)
-	if len(matches) == 3 {
-		if matches[1] != "" {
-			i, err := strconv.ParseInt(matches[1], 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			shifts = int(i)
-		}
-		dateDef = matches[2]
-	}
-
-	switch dateDef {
-	case "day":
-	case "d":
-		date = date.ShiftDay(shifts)
-		break
-
-	case "week":
-	case "w":
-		date = date.PreviousMonday().ShiftDay(shifts * 7)
-		numDays = 5
-		break
-
-	case "weekfull":
-	case "wf":
-		date = date.PreviousMonday().ShiftDay(shifts * 7)
-		numDays = 7
-		break
-
-	case "month":
-	case "m":
-		date = date.FirstOfMonth().ShiftMonth(shifts)
-		numDays = date.DaysInMonth()
-		break
-
-	default:
-		parsedDate, err := NewDateFromString(dateDef)
-		if err != nil {
-			return nil, fmt.Errorf("invalid date value '%s'", dateDef)
-		}
-		date = parsedDate
-		break
-	}
-
-	return date.IterateNext(numDays), nil
 }
