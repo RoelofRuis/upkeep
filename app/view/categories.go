@@ -38,7 +38,7 @@ func ViewCategories(upkeep model.Upkeep, sheets []model.Timesheet) string {
 	for _, cat := range categories {
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.Green(format, cat).
-			Print(" %s", infra.FormatDuration(durations[cat])).
+			Bold(" %s", infra.FormatDuration(durations[cat])).
 			Newline()
 	}
 

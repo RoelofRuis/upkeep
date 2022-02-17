@@ -78,5 +78,5 @@ func FormatDuration(d time.Duration) string {
 	hours := int(d.Hours())
 	minutes := int(d.Minutes()) - (hours * 60)
 
-	return fmt.Sprintf("%01d:%02d", hours, minutes)
+	return fmt.Sprintf("(%2d:%02d)", hours, minutes)
 }

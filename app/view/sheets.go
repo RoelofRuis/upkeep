@@ -35,15 +35,15 @@ func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) string {
 
 				if block.IsDiscounted {
 					if block.DiscountedDuration != 0 {
-						printer.Yellow(" [%s] ", infra.FormatDuration(block.DiscountedDuration))
+						printer.Yellow(" %s ", infra.FormatDuration(block.DiscountedDuration))
 					} else {
-						printer.Print("        ")
+						printer.Print("         ")
 					}
 				} else {
-					printer.Bold(" [%s] ", infra.FormatDuration(block.Block.BaseDuration()))
+					printer.Bold(" %s ", infra.FormatDuration(block.Block.BaseDuration()))
 				}
 			} else {
-				printer.Red("[%s -   ?  ]        ",
+				printer.Red("[%s -   ?  ]         ",
 					block.Block.WithTime.Start.Format(model.LayoutHour),
 				)
 			}
@@ -58,14 +58,14 @@ func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) string {
 
 		if !quotum.IsDefined() {
 			printer.Print("                   ").
-				Bold("[%s]", infra.FormatDuration(totalDuration)).
+				Bold("%s", infra.FormatDuration(totalDuration)).
 				Newline()
 		} else {
 			perc := (float64(totalDuration) / float64(quotum.Get())) * 100
 
 			printer.Print("                   ").
-				Bold("[%s]", infra.FormatDuration(totalDuration)).
-				Print(" / [%s] (%0.1f%%)", infra.FormatDuration(quotum.Get()), perc).
+				Bold("%s", infra.FormatDuration(totalDuration)).
+				Print(" / %s (%0.1f%%)", infra.FormatDuration(quotum.Get()), perc).
 				Newline()
 		}
 	}

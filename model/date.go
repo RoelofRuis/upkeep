@@ -27,6 +27,10 @@ func (d Date) ShiftDay(days int) Date {
 	return Date(time.Time(d).AddDate(0, 0, days))
 }
 
+func (d Date) ShiftMonth(months int) Date {
+	return Date(time.Time(d).AddDate(0, months, 0))
+}
+
 func (d Date) PreviousMonday() Date {
 	daysBack := int((time.Time(d).Weekday() + 6) % 7)
 	return Date(time.Time(d).AddDate(0, 0, -daysBack))
@@ -102,8 +106,7 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 
 var quickDateRegex = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
 
-func IterDates(dateDef string) ([]Date, error) {
-	date := NewDate(time.Now())
+func IterDates(date Date, dateDef string) ([]Date, error) {
 	shifts := 0
 	numDays := 1
 
@@ -127,14 +130,20 @@ func IterDates(dateDef string) ([]Date, error) {
 
 	case "week":
 	case "w":
-		date = NewDate(time.Now()).PreviousMonday().ShiftDay(shifts * 7)
+		date = date.PreviousMonday().ShiftDay(shifts * 7)
 		numDays = 5
 		break
 
 	case "weekfull":
 	case "wf":
-		date = NewDate(time.Now()).PreviousMonday().ShiftDay(shifts * 7)
+		date = date.PreviousMonday().ShiftDay(shifts * 7)
 		numDays = 7
+		break
+
+	case "month":
+	case "m":
+		date = date.FirstOfMonth().ShiftMonth(shifts)
+		numDays = date.DaysInMonth()
 		break
 
 	default:

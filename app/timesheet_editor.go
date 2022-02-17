@@ -58,7 +58,7 @@ func (r Repository) HandleView(view func(model.Upkeep, []model.Timesheet) string
 			return "", err
 		}
 
-		dates, err := model.IterDates(dateParam)
+		dates, err := model.IterDates(model.NewDate(time.Now()), dateParam)
 		if err != nil {
 			return "", err
 		}
