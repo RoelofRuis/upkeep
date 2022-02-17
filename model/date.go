@@ -109,7 +109,6 @@ func IterDates(dateDef string) ([]Date, error) {
 
 	matches := quickDateRegex.FindStringSubmatch(dateDef)
 	if len(matches) == 3 {
-		fmt.Printf("%+v\n", matches)
 		if matches[1] != "" {
 			i, err := strconv.ParseInt(matches[1], 10, 64)
 			if err != nil {
