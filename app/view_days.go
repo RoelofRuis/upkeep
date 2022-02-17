@@ -1,4 +1,4 @@
-package view
+package app
 
 import (
 	"strings"
@@ -7,17 +7,17 @@ import (
 	"upkeep/model"
 )
 
-func ViewDays(upkeep model.Upkeep, timesheets []model.Timesheet) (string, error) {
+func ViewDays(app *App) (string, error) {
 	printer := infra.TerminalPrinter{}
 
 	totalDur := time.Duration(0)
 	totalQuotum := model.NewDuration()
-	for _, daySheet := range timesheets {
-		blocks := upkeep.DiscountTimeBlocks(daySheet, time.Now())
+	for _, daySheet := range app.Timesheets {
+		blocks := app.Upkeep.DiscountTimeBlocks(*daySheet, time.Now())
 		dayDur := blocks.TotalDuration()
 		totalDur += dayDur
 
-		dayQuotum := upkeep.GetTimesheetQuotum(daySheet)
+		dayQuotum := app.Upkeep.GetTimesheetQuotum(*daySheet)
 		totalQuotum = totalQuotum.Add(dayQuotum)
 
 		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006"))

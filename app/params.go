@@ -24,7 +24,7 @@ var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
 //     wf = current workweek starting monday (length 7)
 //   -3m  = three months ago starting first of month (length <number of days in that month>)
 func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, error) {
-	dateDef := params.GetNamed("date", "day")
+	dateDef := params.GetNamed("d", "day")
 
 	shifts := 0
 	numDays := 1
@@ -68,7 +68,7 @@ func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, e
 	default:
 		parsedDate, err := model.NewDateFromString(dateDef)
 		if err != nil {
-			return baseDate, 0, fmt.Errorf("invalid baseDate value '%s'", dateDef)
+			return baseDate, 0, fmt.Errorf("invalid date value '%s'", dateDef)
 		}
 		baseDate = parsedDate
 		break

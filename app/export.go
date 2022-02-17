@@ -1,4 +1,4 @@
-package export
+package app
 
 import (
 	"encoding/csv"
@@ -9,14 +9,14 @@ import (
 	"upkeep/model"
 )
 
-func Export(upkeep model.Upkeep, sheets []model.Timesheet) (string, error) {
+func Export(app *App) (string, error) {
 	categoryTotals := make(map[string]time.Duration)
 	allDays := make(map[model.Date]map[string]time.Duration)
 
-	for _, sheet := range sheets {
+	for _, sheet := range app.Timesheets {
 		dateDurs := make(map[string]time.Duration)
 
-		blocks := upkeep.DiscountTimeBlocks(sheet, time.Now())
+		blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
 		for _, block := range blocks {
 			category := block.Block.Category
 			dur, has := dateDurs[category]
@@ -51,7 +51,7 @@ func Export(upkeep model.Upkeep, sheets []model.Timesheet) (string, error) {
 	headers = append(headers, "TOTALS")
 	records = append(records, headers)
 
-	for _, sheet := range sheets {
+	for _, sheet := range app.Timesheets {
 		record := []string{sheet.Date.String()}
 		dayCategories := allDays[sheet.Date]
 		var sumDur = time.Duration(0)

@@ -1,4 +1,4 @@
-package view
+package app
 
 import (
 	"strings"
@@ -7,14 +7,14 @@ import (
 	"upkeep/model"
 )
 
-func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) (string, error) {
+func ViewSheets(app *App) (string, error) {
 	printer := infra.TerminalPrinter{}
-	printer.PrintC(infra.BGGreen, "%s", strings.Join(upkeep.SelectedCategories, " | ")).Newline()
+	printer.PrintC(infra.BGGreen, "%s", strings.Join(app.Upkeep.SelectedCategories, " | ")).Newline()
 
-	for _, timesheet := range timesheets {
+	for _, timesheet := range app.Timesheets {
 		printer.PrintC(infra.Bold,"@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 
-		blocks := upkeep.DiscountTimeBlocks(timesheet, time.Now())
+		blocks := app.Upkeep.DiscountTimeBlocks(*timesheet, time.Now())
 
 		for _, block := range blocks {
 			if block.Block.Id == -1 {
@@ -53,7 +53,7 @@ func ViewSheets(upkeep model.Upkeep, timesheets []model.Timesheet) (string, erro
 			printer.Newline()
 		}
 
-		quotum := upkeep.GetTimesheetQuotum(timesheet)
+		quotum := app.Upkeep.GetTimesheetQuotum(*timesheet)
 		totalDuration := blocks.TotalDuration()
 
 		if !quotum.IsDefined() {

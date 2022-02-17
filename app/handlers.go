@@ -3,160 +3,212 @@ package app
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"time"
-	"upkeep/infra"
 	"upkeep/model"
 	"upkeep/model/repo"
 )
 
 type Repository repo.Repository
 
-func HandleStart(params infra.Params, editor *TimesheetEditor) (string, error) {
-	editor.Start(params.Get(0))
+func HandleStart(app *App) (string, error) {
+	category := app.Params.Get(0)
 
-	return editor.View()
+	_, err := HandleStop(app)
+	if err != nil {
+		return "", err
+	}
+
+	now := time.Now()
+	sheet := app.Timesheets[0].Start(now)
+
+	quotum := app.Upkeep.GetWeekdayQuotum(now.Weekday())
+	sheet = sheet.SetQuotum(quotum)
+
+	app.Timesheets[0] = &sheet
+
+	if category != "" {
+		_, err := HandleSet(app)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return ViewSheets(app)
 }
 
-func HandleStop(params infra.Params, editor *TimesheetEditor) (string, error) {
-	editor.Stop()
+func HandleStop(app *App) (string, error) {
+	sheet := app.Timesheets[0].Stop(time.Now(), app.Upkeep.GetSelectedCategory().Name)
+	app.Timesheets[0] = &sheet
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleAbort(params infra.Params, editor *TimesheetEditor) (string, error) {
-	editor.Abort()
+func HandleAbort(app *App) (string, error) {
+	sheet := app.Timesheets[0].Abort()
+	app.Timesheets[0] = &sheet
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleSwitch(params infra.Params, editor *TimesheetEditor) (string, error) {
-	editor.Switch(params.Get(0))
+func HandleSwitch(app *App) (string, error) {
+	_, err := HandleStop(app)
+	if err != nil {
+		return "", err
+	}
 
-	return editor.View()
+	upkeep := app.Upkeep.ShiftSelectedCategory()
+	app.Upkeep = &upkeep
+
+	return HandleStart(app)
 }
 
-func HandleContinue(params infra.Params, editor *TimesheetEditor) (string, error) {
-	editor.Continue(params.Get(0))
+func HandleContinue(app *App) (string, error) {
+	_, err := HandleStop(app)
+	if err != nil {
+		return "", err
+	}
 
-	return editor.View()
+	upkeep := app.Upkeep.UnshiftSelectedCategory()
+	app.Upkeep = &upkeep
+	return HandleStart(app)
 }
 
-func HandleSet(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() == 0 {
+var validCategory = regexp.MustCompile(`^[a-z0-9_]+$`)
+
+func HandleSet(app *App) (string, error) {
+	if app.Params.Len() == 0 {
 		return "", errors.New("no category specified")
 	}
 
-	editor.Category(params.Get(0))
+	upkeep := *app.Upkeep
+	category := app.Params.Get(0)
 
-	return editor.View()
+	if !validCategory.MatchString(category) {
+		return ViewSheets(app)
+	}
+
+	upkeep = upkeep.SetSelectedCategory(category)
+	app.Upkeep = &upkeep
+
+	return ViewSheets(app)
 }
 
-func HandleUpdate(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() < 2 {
+func HandleUpdate(app *App) (string, error) {
+	if app.Params.Len() < 2 {
 		return "", errors.New("invalid command, specify block id and category")
 	}
 
-	id, err := params.GetInt(0)
+	id, err := app.Params.GetInt(0)
 	if err != nil {
 		return "", err
 	}
 
-	editor.Update(id, params.Get(1))
+	timesheet := app.Timesheets[0].UpdateBlockCategory(id, app.Params.Get(1))
+	app.Timesheets[0] = &timesheet
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleRestore(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() == 0 {
+func HandleRestore(app *App) (string, error) {
+	if app.Params.Len() == 0 {
 		return "", errors.New("invalid command, specify block id")
 	}
 
-	id, err := params.GetInt(0)
+	id, err := app.Params.GetInt(0)
 	if err != nil {
 		return "", err
 	}
 
-	editor.Restore(id)
+	timesheet := app.Timesheets[0].RestoreBlock(id)
+	app.Timesheets[0] = &timesheet
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleRemove(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() == 0 {
+func HandleRemove(app *App) (string, error) {
+	if app.Params.Len() == 0 {
 		return "", errors.New("invalid command, specify block id")
 	}
 
-	id, err := params.GetInt(0)
+	id, err := app.Params.GetInt(0)
 	if err != nil {
 		return "", err
 	}
 
-	editor.Remove(id)
+	timesheet := app.Timesheets[0].RemoveBlock(id)
+	app.Timesheets[0] = &timesheet
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleWrite(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() < 2 {
+func HandleWrite(app *App) (string, error) {
+	if app.Params.Len() < 2 {
 		return "", errors.New("invalid command, specify category and duration")
 	}
 
-	cat := params.Get(0)
-	if params.Get(1) == "fill" {
-		quotum := editor.upkeep.GetTimesheetQuotum(*editor.timesheet)
-		editor.Write(cat, quotum)
+	cat := app.Params.Get(0)
+	if app.Params.Get(1) == "fill" {
+		quotum := app.Upkeep.GetTimesheetQuotum(*app.Timesheets[0])
+		timesheet := app.Timesheets[0].Write(cat, quotum)
+		app.Timesheets[0] = &timesheet
 	} else {
-		duration, err := time.ParseDuration(params.Get(1))
+		duration, err := time.ParseDuration(app.Params.Get(1))
 		if err != nil {
 			return "", err
 		}
 
-		editor.Write(cat, model.NewDuration().Set(duration))
+		timesheet := app.Timesheets[0].Write(cat, model.NewDuration().Set(duration))
+		app.Timesheets[0] = &timesheet
 	}
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleCategoryQuotum(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() < 1 {
+func HandleCategoryQuotum(app *App) (string, error) {
+	if app.Params.Len() < 1 {
 		return "", errors.New("invalid command, specify category and optional quotum")
 	}
 
-	cat := params.Get(0)
-	if params.Len() == 1 {
-		editor.SetCategoryMaxDayQuotum(cat, nil)
+	cat := app.Params.Get(0)
+	if app.Params.Len() == 1 {
+		upkeep := app.Upkeep.SetCategoryMaxDayQuotum(cat, nil)
+		app.Upkeep = &upkeep
 	} else {
-		d, err := time.ParseDuration(params.Get(1))
+		d, err := time.ParseDuration(app.Params.Get(1))
 		if err != nil {
 			return "", err
 		}
-		editor.SetCategoryMaxDayQuotum(cat, &d)
+		upkeep := app.Upkeep.SetCategoryMaxDayQuotum(cat, &d)
+		app.Upkeep = &upkeep
 	}
 
-	return editor.View()
+	return ViewSheets(app)
 }
 
-func HandleQuotum(params infra.Params, editor *TimesheetEditor) (string, error) {
-	if params.Len() == 0 {
+func HandleQuotum(app *App) (string, error) {
+	if app.Params.Len() == 0 {
 		return "", errors.New("invalid command, specify weekday (0 = sunday) and optional quotum")
 	}
-	weekday, err := params.GetInt(0)
+	weekday, err := app.Params.GetInt(0)
 	if err != nil {
 		return "", err
 	}
-	if params.Len() == 1 {
-		editor.AdjustQuotum(time.Weekday(weekday), nil)
+	if app.Params.Len() == 1 {
+		upkeep := app.Upkeep.RemoveQuotumForDay(time.Weekday(weekday))
+		app.Upkeep = &upkeep
 		return fmt.Sprintf("removed quotum"), nil
 	}
 
-	duration, err := time.ParseDuration(params.Get(1))
+	duration, err := time.ParseDuration(app.Params.Get(1))
 	if err != nil {
 		return "", err
 	}
-	editor.AdjustQuotum(time.Weekday(weekday), &duration)
+	upkeep := app.Upkeep.SetQuotumForDay(time.Weekday(weekday), duration)
+	app.Upkeep = &upkeep
 	return fmt.Sprintf("updated quotum"), nil
 }
 
-func HandleVersion(params infra.Params, editor *TimesheetEditor) (string, error) {
-	return fmt.Sprintf("Version: %s", editor.upkeep.Version), nil
+func HandleVersion(app *App) (string, error) {
+	return fmt.Sprintf("Version: %s", app.Upkeep.Version), nil
 }
