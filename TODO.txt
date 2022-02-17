@@ -1,1 +1,1 @@
-- create a monthly export
+- write proper readme
