@@ -23,14 +23,13 @@ func Export(app *App) (string, error) {
 			if !has {
 				dur = time.Duration(0)
 			}
+			dateDurs[category] = dur + block.DiscountedDuration
+
 			catDur, has := categoryTotals[category]
 			if !has {
 				catDur = time.Duration(0)
 			}
-			categoryTotals[category] = catDur + dur
-
-			dur += block.DiscountedDuration
-			dateDurs[category] = dur
+			categoryTotals[category] = catDur + block.DiscountedDuration
 		}
 
 		allDays[sheet.Date] = dateDurs
