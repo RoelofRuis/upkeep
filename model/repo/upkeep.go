@@ -22,12 +22,10 @@ type categoryJson struct {
 	MaxDayQuotum model.Duration `json:"max_day_quotum"`
 }
 
-const VERSION = "0.2"
+const VERSION = "1.0"
 
 func (r *UpkeepRepository) Get() (model.Upkeep, error) {
-	input := upkeepJson{
-		Version: "0.1",
-	}
+	input := upkeepJson{}
 
 	if err := r.FileIO.Read("upkeep.json", &input); err != nil {
 		return model.Upkeep{}, err
@@ -46,13 +44,11 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 	}
 
 	upkeep := model.Upkeep{
-		Version:            input.Version,
+		Version:            VERSION,
 		SelectedCategories: infra.NewStackFromString(input.SelectedCategories),
 		Quota:              quotumMap,
 		Categories:         categories,
 	}
-
-	upkeep.Version = VERSION
 
 	return upkeep, nil
 }
