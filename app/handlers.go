@@ -210,5 +210,5 @@ func HandleQuotum(app *App) (string, error) {
 }
 
 func HandleVersion(app *App) (string, error) {
-	return fmt.Sprintf("Version: %s", app.Upkeep.Version), nil
+	return fmt.Sprintf("This is Upkeep version [%s]\n", app.Upkeep.Version), nil
 }
