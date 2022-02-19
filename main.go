@@ -48,7 +48,7 @@ func main() {
 	router.Register("continue", infra.Description{Base: "Start new block and pop active category from stack", Extra: "Only first day of selection"}, repository.Handle(app.HandleContinue))
 	router.Register("set", infra.Description{Base: "Set the active category"}, repository.Handle(app.HandleSet))
 	router.Register("write", infra.Description{Base: "Write duration-only block", Extra: "Only first day of selection"}, repository.Handle(app.HandleWrite))
-	router.Register("export", infra.Description{Base: "Write an export file"}, repository.Handle(app.Export))
+	router.Register("export", infra.Description{Base: "Write an export file to the current working directory"}, repository.Handle(app.Export(fileIO)))
 	router.Register("edit remove", infra.Description{Base: "Remove a block", Extra: "Only first day of selection"}, repository.Handle(app.HandleRemove))
 	router.Register("edit restore", infra.Description{Base: "Restore a removed block", Extra: "Only first day of selection"}, repository.Handle(app.HandleRestore))
 	router.Register("edit update", infra.Description{Base: "Update block category", Extra: "Only first day of selection"}, repository.Handle(app.HandleUpdate))

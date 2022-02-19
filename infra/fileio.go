@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -80,6 +81,23 @@ func (fio FileIO) Delete(fname string) error {
 	}
 
 	if err := os.Remove(fpath); !os.IsNotExist(err) {
+		return err
+	}
+
+	return nil
+}
+
+func (fio FileIO) Export(fname string, records [][]string) error {
+	file, err := os.Create(fname)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	csvWriter := csv.NewWriter(file)
+
+	err = csvWriter.WriteAll(records)
+	if err != nil {
 		return err
 	}
 
