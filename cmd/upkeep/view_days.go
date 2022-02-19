@@ -35,7 +35,7 @@ func ViewDays(app *App) (string, error) {
 				Print(" / %s ", infra.FormatDurationBracketed(dayQuotum.Get()))
 		}
 
-		printer.PrintC(infra.Green, " %s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
+		printer.PrintC(infra.Green, "%s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
 	}
 
 	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
