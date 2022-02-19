@@ -2,8 +2,9 @@ package repo
 
 import (
 	"fmt"
-	"upkeep/infra"
-	"upkeep/model"
+
+	"github.com/roelofruis/upkeep/internal/infra"
+	"github.com/roelofruis/upkeep/internal/model"
 )
 
 type TimesheetRepository struct {

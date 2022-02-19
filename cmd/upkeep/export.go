@@ -1,10 +1,11 @@
-package app
+package main
 
 import (
 	"sort"
 	"time"
-	"upkeep/infra"
-	"upkeep/model"
+
+	"github.com/roelofruis/upkeep/internal/infra"
+	"github.com/roelofruis/upkeep/internal/model"
 )
 
 func Export(io infra.FileIO) func(app *App) (string, error) {
@@ -36,7 +37,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		}
 
 		var categoryNames []string
-		for name, _ := range categoryTotals {
+		for name := range categoryTotals {
 			categoryNames = append(categoryNames, name)
 		}
 

@@ -2,7 +2,8 @@ package model
 
 import (
 	"time"
-	"upkeep/infra"
+
+	"github.com/roelofruis/upkeep/internal/infra"
 )
 
 type Upkeep struct {
@@ -93,7 +94,7 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 
 	for _, block := range t.Blocks {
 		if block.Deleted {
-			 continue
+			continue
 		}
 		discountedDur := block.BaseDuration()
 		isDiscounted := false

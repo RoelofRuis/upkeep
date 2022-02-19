@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"upkeep/infra"
+	"github.com/roelofruis/upkeep/internal/infra"
 )
 
 type Repository struct {

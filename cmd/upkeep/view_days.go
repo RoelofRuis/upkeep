@@ -1,10 +1,11 @@
-package app
+package main
 
 import (
 	"strings"
 	"time"
-	"upkeep/infra"
-	"upkeep/model"
+
+	"github.com/roelofruis/upkeep/internal/infra"
+	"github.com/roelofruis/upkeep/internal/model"
 )
 
 func ViewDays(app *App) (string, error) {
@@ -28,7 +29,7 @@ func ViewDays(app *App) (string, error) {
 		}
 
 		if !dayQuotum.IsDefined() {
-			printer.PrintC(infra.Bold,"%s", infra.FormatDurationBracketed(dayDur))
+			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur))
 		} else {
 			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
 				Print(" / %s ", infra.FormatDurationBracketed(dayQuotum.Get()))
@@ -39,7 +40,7 @@ func ViewDays(app *App) (string, error) {
 
 	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
 
-	printer.PrintC(infra.Bold,"                %s", infra.FormatDurationBracketed(totalDur)).
+	printer.PrintC(infra.Bold, "                %s", infra.FormatDurationBracketed(totalDur)).
 		Print(" / %s (%0.1f%%)", infra.FormatDurationBracketed(totalQuotum.Get()), totalPerc)
 
 	return printer.String(), nil

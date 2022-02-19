@@ -1,10 +1,11 @@
-package app
+package main
 
 import (
 	"fmt"
 	"sort"
 	"time"
-	"upkeep/infra"
+
+	"github.com/roelofruis/upkeep/internal/infra"
 )
 
 func ViewCategories(app *App) (string, error) {

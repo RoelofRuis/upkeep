@@ -1,10 +1,11 @@
-package app
+package main
 
 import (
 	"strings"
 	"time"
-	"upkeep/infra"
-	"upkeep/model"
+
+	"github.com/roelofruis/upkeep/internal/infra"
+	"github.com/roelofruis/upkeep/internal/model"
 )
 
 func ViewSheets(app *App) (string, error) {
@@ -12,7 +13,7 @@ func ViewSheets(app *App) (string, error) {
 	printer.PrintC(infra.BGGreen, "%s", strings.Join(app.Upkeep.SelectedCategories, " | ")).Newline()
 
 	for _, timesheet := range app.Timesheets {
-		printer.PrintC(infra.Bold,"@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
+		printer.PrintC(infra.Bold, "@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 
 		blocks := app.Upkeep.DiscountTimeBlocks(*timesheet, time.Now())
 
@@ -40,7 +41,7 @@ func ViewSheets(app *App) (string, error) {
 						printer.Print("         ")
 					}
 				} else {
-					printer.PrintC(infra.Bold," %s ", infra.FormatDurationBracketed(block.Block.BaseDuration()))
+					printer.PrintC(infra.Bold, " %s ", infra.FormatDurationBracketed(block.Block.BaseDuration()))
 				}
 			} else {
 				printer.PrintC(infra.Red, "[%s -   ?  ]         ",
@@ -58,7 +59,7 @@ func ViewSheets(app *App) (string, error) {
 
 		if !quotum.IsDefined() {
 			printer.Print("                   ").
-				PrintC(infra.Bold,"%s", infra.FormatDurationBracketed(totalDuration)).
+				PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(totalDuration)).
 				Newline()
 		} else {
 			perc := (float64(totalDuration) / float64(quotum.Get())) * 100

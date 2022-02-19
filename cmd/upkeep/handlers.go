@@ -1,12 +1,13 @@
-package app
+package main
 
 import (
 	"errors"
 	"fmt"
 	"regexp"
 	"time"
-	"upkeep/model"
-	"upkeep/model/repo"
+
+	"github.com/roelofruis/upkeep/internal/model"
+	"github.com/roelofruis/upkeep/internal/model/repo"
 )
 
 type Repository repo.Repository

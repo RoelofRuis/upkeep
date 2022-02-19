@@ -1,11 +1,12 @@
-package app
+package main
 
 import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"upkeep/infra"
-	"upkeep/model"
+
+	"github.com/roelofruis/upkeep/internal/infra"
+	"github.com/roelofruis/upkeep/internal/model"
 )
 
 var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
@@ -34,7 +35,7 @@ func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, e
 		if matches[1] != "" {
 			i, err := strconv.ParseInt(matches[1], 10, 64)
 			if err != nil {
-				return baseDate, 0,  err
+				return baseDate, 0, err
 			}
 			shifts = int(i)
 		}
