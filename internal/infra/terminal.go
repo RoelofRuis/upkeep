@@ -10,6 +10,7 @@ type EscapeCode string
 
 var (
 	Reset  EscapeCode = "\033[0m"
+	None   EscapeCode = ""
 	Bold   EscapeCode = "\033[1m"
 	Red    EscapeCode = "\033[31m"
 	Green  EscapeCode = "\033[32m"

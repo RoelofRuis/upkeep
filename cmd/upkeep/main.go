@@ -49,6 +49,8 @@ func main() {
 	router.Register("set", infra.Description{Base: "Set the active category"}, repository.Handle(HandleSet))
 	router.Register("write", infra.Description{Base: "Write duration-only block", Extra: "Only first day of selection"}, repository.Handle(HandleWrite))
 	router.Register("export", infra.Description{Base: "Write an export file to the current working directory"}, repository.Handle(Export(fileIO)))
+	router.Register("finalise", infra.Description{Base: "Mark timesheets as done, preventing further editing"}, repository.Handle(HandleFinalise))
+	router.Register("unfinalise", infra.Description{Base: "Unmark timesheets as done"}, repository.Handle(HandleUnfinalise))
 	router.Register("edit remove", infra.Description{Base: "Remove a block", Extra: "Only first day of selection"}, repository.Handle(HandleRemove))
 	router.Register("edit restore", infra.Description{Base: "Restore a removed block", Extra: "Only first day of selection"}, repository.Handle(HandleRestore))
 	router.Register("edit update", infra.Description{Base: "Update block category", Extra: "Only first day of selection"}, repository.Handle(HandleUpdate))

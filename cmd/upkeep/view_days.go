@@ -21,7 +21,11 @@ func ViewDays(app *App) (string, error) {
 		dayQuotum := app.Upkeep.GetTimesheetQuotum(*daySheet)
 		totalQuotum = totalQuotum.Add(dayQuotum)
 
-		printer.Print("%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
+		code := infra.Bold
+		if daySheet.Finalised {
+			code += infra.Green
+		}
+		printer.PrintC(code, "%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
 
 		if dayDur == 0 && !dayQuotum.IsDefined() {
 			printer.Newline()

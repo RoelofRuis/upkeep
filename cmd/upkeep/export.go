@@ -2,6 +2,7 @@ package main
 
 import (
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/roelofruis/upkeep/internal/infra"
@@ -44,7 +45,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		sort.Strings(categoryNames)
 
 		var records [][]string
-		headers := []string{""}
+		headers := []string{"FINALISED", "DATE"}
 		for _, name := range categoryNames {
 			headers = append(headers, name)
 		}
@@ -52,7 +53,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		records = append(records, headers)
 
 		for _, sheet := range app.Timesheets {
-			record := []string{sheet.Date.String()}
+			record := []string{strconv.FormatBool(sheet.Finalised), sheet.Date.String()}
 			dayCategories := allDays[sheet.Date]
 			var sumDur = time.Duration(0)
 			for _, name := range categoryNames {
@@ -73,7 +74,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 			}
 		}
 
-		totals := []string{"TOTALS"}
+		totals := []string{"", "TOTALS"}
 		var sumDur = time.Duration(0)
 		for _, name := range categoryNames {
 			dur, _ := categoryTotals[name]

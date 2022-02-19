@@ -213,3 +213,21 @@ func HandleQuotum(app *App) (string, error) {
 func HandleVersion(app *App) (string, error) {
 	return fmt.Sprintf("This is Upkeep version [%s]\n", app.Upkeep.Version), nil
 }
+
+func HandleFinalise(app *App) (string, error) {
+	for i, t := range app.Timesheets {
+		finalisedSheet := t.Finalise()
+		app.Timesheets[i] = &finalisedSheet
+	}
+
+	return ViewDays(app)
+}
+
+func HandleUnfinalise(app *App) (string, error) {
+	for i, t := range app.Timesheets {
+		unfinalisedSheet := t.Unfinalise()
+		app.Timesheets[i] = &unfinalisedSheet
+	}
+
+	return ViewDays(app)
+}

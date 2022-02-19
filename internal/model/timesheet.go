@@ -10,6 +10,7 @@ type Timesheet struct {
 	Blocks    []TimeBlock
 	LastStart Moment
 	Quotum    Duration
+	Finalised bool
 }
 
 func NewTimesheet(date Date) Timesheet {
@@ -19,11 +20,12 @@ func NewTimesheet(date Date) Timesheet {
 		Blocks:    []TimeBlock{},
 		LastStart: NewMoment(),
 		Quotum:    NewDuration(),
+		Finalised: false,
 	}
 }
 
 func (s Timesheet) Start(t time.Time) Timesheet {
-	if s.IsStarted() {
+	if s.Finalised || s.IsStarted() {
 		return s
 	}
 
@@ -32,7 +34,7 @@ func (s Timesheet) Start(t time.Time) Timesheet {
 }
 
 func (s Timesheet) Stop(t time.Time, category string) Timesheet {
-	if !s.IsStarted() {
+	if s.Finalised || !s.IsStarted() {
 		return s
 	}
 
@@ -45,6 +47,10 @@ func (s Timesheet) Stop(t time.Time, category string) Timesheet {
 }
 
 func (s Timesheet) Write(category string, dur Duration) Timesheet {
+	if s.Finalised {
+		return s
+	}
+
 	newBlock := NewBlockWithDuration(s.NextId, category, false, dur)
 	s.NextId += 1
 
@@ -62,6 +68,10 @@ func (s Timesheet) UpdateBlockCategory(blockId int, category string) Timesheet {
 }
 
 func (s Timesheet) RemoveBlock(blockId int) Timesheet {
+	if s.Finalised {
+		return s
+	}
+
 	for i, block := range s.Blocks {
 		if block.Id == blockId {
 			s.Blocks[i].Deleted = true
@@ -72,6 +82,10 @@ func (s Timesheet) RemoveBlock(blockId int) Timesheet {
 }
 
 func (s Timesheet) RestoreBlock(blockId int) Timesheet {
+	if s.Finalised {
+		return s
+	}
+
 	for i, block := range s.Blocks {
 		if block.Id == blockId {
 			s.Blocks[i].Deleted = false
@@ -82,11 +96,22 @@ func (s Timesheet) RestoreBlock(blockId int) Timesheet {
 }
 
 func (s Timesheet) Abort() Timesheet {
-	if !s.IsStarted() {
+	if s.Finalised || !s.IsStarted() {
 		return s
 	}
 
 	s.LastStart = NewMoment()
+	return s
+}
+
+func (s Timesheet) Finalise() Timesheet {
+	aborted := s.Abort()
+	aborted.Finalised = true
+	return aborted
+}
+
+func (s Timesheet) Unfinalise() Timesheet {
+	s.Finalised = false
 	return s
 }
 

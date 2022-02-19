@@ -17,6 +17,7 @@ type timesheetJson struct {
 	LastStart model.Moment   `json:"last_start"`
 	Blocks    []blockJson    `json:"blocks"`
 	Quotum    model.Duration `json:"quotum"`
+	Finalised bool           `json:"finalised"`
 }
 
 type blockJson struct {
@@ -35,6 +36,7 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 		LastStart: model.NewMoment(),
 		Blocks:    nil,
 		Quotum:    model.NewDuration(),
+		Finalised: false,
 	}
 
 	if err := r.FileIO.Read(pathForDate(date), &input); err != nil {
@@ -45,6 +47,7 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 	sheet.NextId = input.NextId
 	sheet.Quotum = input.Quotum
 	sheet.LastStart = input.LastStart
+	sheet.Finalised = input.Finalised
 
 	var blocks []model.TimeBlock
 	for _, blockData := range input.Blocks {
@@ -94,6 +97,7 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 		LastStart: m.LastStart,
 		Blocks:    blocks,
 		Quotum:    m.Quotum,
+		Finalised: m.Finalised,
 	}
 
 	if err := r.FileIO.Write(pathForDate(m.Date), output); err != nil {

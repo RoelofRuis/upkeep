@@ -13,7 +13,11 @@ func ViewSheets(app *App) (string, error) {
 	printer.PrintC(infra.BGGreen, "%s", strings.Join(app.Upkeep.SelectedCategories, " | ")).Newline()
 
 	for _, timesheet := range app.Timesheets {
-		printer.PrintC(infra.Bold, "@ %s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
+		code := infra.Bold
+		if timesheet.Finalised {
+			code += infra.Green
+		}
+		printer.PrintC(code, "%s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 
 		blocks := app.Upkeep.DiscountTimeBlocks(*timesheet, time.Now())
 
