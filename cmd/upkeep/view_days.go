@@ -33,7 +33,8 @@ func ViewDays(app *App) (string, error) {
 		}
 
 		if !dayQuotum.IsDefined() {
-			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur))
+			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
+				Print("           ")
 		} else {
 			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
 				Print(" / %s ", infra.FormatDurationBracketed(dayQuotum.Get()))
