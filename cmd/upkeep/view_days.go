@@ -11,8 +11,11 @@ import (
 func ViewDays(app *App) (string, error) {
 	printer := infra.TerminalPrinter{}
 
+	upToRecentDur := time.Duration(0)
 	totalDur := time.Duration(0)
+	upToRecentQuotum := model.NewDuration()
 	totalQuotum := model.NewDuration()
+
 	for _, daySheet := range app.Timesheets {
 		blocks := app.Upkeep.DiscountTimeBlocks(*daySheet, time.Now())
 		dayDur := blocks.TotalDuration()
@@ -25,6 +28,12 @@ func ViewDays(app *App) (string, error) {
 		if daySheet.Finalised {
 			code += infra.Green
 		}
+		if !daySheet.Date.After(time.Now()) {
+			upToRecentDur += dayDur
+			upToRecentQuotum = upToRecentQuotum.Add(dayQuotum)
+		} else {
+			code += infra.White
+		}
 		printer.PrintC(code, "%s ", daySheet.Date.Format("Mon 02 Jan 2006"))
 
 		if dayDur == 0 && !dayQuotum.IsDefined() {
@@ -36,17 +45,27 @@ func ViewDays(app *App) (string, error) {
 			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
 				Print("           ")
 		} else {
-			printer.PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(dayDur)).
-				Print(" / %s ", infra.FormatDurationBracketed(dayQuotum.Get()))
+			printer.PrintC(infra.Bold, "%s / %s ", infra.FormatDurationBracketed(dayDur), infra.FormatDurationBracketed(dayQuotum.Get()))
 		}
 
 		printer.PrintC(infra.Green, "%s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
 	}
 
+	upToRecentPerc := (float64(upToRecentDur) / float64(upToRecentQuotum.Get())) * 100
+
+	printer.PrintC(infra.Bold, "                %s / %s (%0.1f%%)",
+		infra.FormatDurationBracketed(upToRecentDur),
+		infra.FormatDurationBracketed(upToRecentQuotum.Get()),
+		upToRecentPerc,
+	).Newline()
+
 	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
 
-	printer.PrintC(infra.Bold, "                %s", infra.FormatDurationBracketed(totalDur)).
-		Print(" / %s (%0.1f%%)", infra.FormatDurationBracketed(totalQuotum.Get()), totalPerc)
+	printer.PrintC(infra.White + infra.Bold, "                %s / %s (%0.1f%%)",
+		infra.FormatDurationBracketed(totalDur),
+		infra.FormatDurationBracketed(totalQuotum.Get()),
+		totalPerc,
+	)
 
 	return printer.String(), nil
 }

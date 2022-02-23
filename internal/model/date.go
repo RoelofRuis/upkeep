@@ -67,6 +67,10 @@ func (d Date) OnSameDateAs(t time.Time) bool {
 	return time.Time(d).Equal(time.Time(NewDate(t)))
 }
 
+func (d Date) After(t time.Time) bool {
+	return time.Time(d).After(time.Time(NewDate(t)))
+}
+
 func (d Date) Year() int {
 	return time.Time(d).Year()
 }
