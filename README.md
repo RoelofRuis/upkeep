@@ -70,4 +70,6 @@ The letter/word inputs can be prefixed with (negative) numbers to shift their ti
 
 ## Development
 
-Build development executable with `make build` or a debug executable with `make build-dbg`. 
+Build development executable with `make build` or a debug executable with `make build-dbg`.
+
+The development version will use the `./data` folder to read and write its data.
