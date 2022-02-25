@@ -19,11 +19,11 @@ var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
 //   The keyword defines the base unit of time and selected duration.
 //   The integer number defines how much to shift the base date through time.
 //   Examples relative to an input date of today:
-//     d  = today (length 1)
-//   -1d  = yesterday (length 1)
-//    1w  = next workweek starting monday (length 5)
-//     wf = current workweek starting monday (length 7)
-//   -3m  = three months ago starting first of month (length <number of days in that month>)
+//     d = today (length 1)
+//   -1d = yesterday (length 1)
+//    1w = next workweek starting monday (length 5)
+//     W = current workweek starting monday (length 7)
+//   -3m = three months ago starting first of month (length <number of days in that month>)
 func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, error) {
 	dateDef := params.GetNamed("d", "day")
 
@@ -54,8 +54,8 @@ func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, e
 		numDays = 5
 		break
 
-	case "weekfull":
-	case "wf":
+	case "Week":
+	case "W":
 		baseDate = baseDate.PreviousMonday().ShiftDay(shifts * 7)
 		numDays = 7
 		break

@@ -63,7 +63,7 @@ Here `<date>` can be one of the following:
 - Any date in the form of `YYYY-MM-DD` to select that specific date.
 - `d` or `day` to select a day.
 - `w` or `week` to select a week, monday to friday.
-- `wf` or `weekfull` to select a week, monday to sunday.
+- `W` or `Week` to select a week, monday to sunday.
 - `m` or `month` to select a month.
 
 The letter/word inputs can be prefixed with (negative) numbers to shift their time range. For instance to select two weeks ago, use `d:-2w`.
