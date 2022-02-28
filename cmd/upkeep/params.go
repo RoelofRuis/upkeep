@@ -9,7 +9,7 @@ import (
 	"github.com/roelofruis/upkeep/internal/model"
 )
 
-var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-z]+)$")
+var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-zA-Z]+)$")
 
 // MakeDateRange shifts the given date based on the date parameter provided.
 // It returns the shifted date and the number of selected days.
