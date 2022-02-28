@@ -11,7 +11,7 @@ const (
 
 type TimeBlock struct {
 	Id           int
-	Category     string
+	Category     Category
 	Deleted      bool
 	Type         BlockType
 	WithTime     WithTime
@@ -30,7 +30,7 @@ type WithDuration struct {
 func NewBlockWithTime(id int, category string, deleted bool, start Moment, end Moment) TimeBlock {
 	return TimeBlock{
 		Id:       id,
-		Category: category,
+		Category: NewCategoryFromString(category),
 		Deleted:  deleted,
 		Type:     TypeTime,
 		WithTime: WithTime{Start: start, End: end},
@@ -40,7 +40,7 @@ func NewBlockWithTime(id int, category string, deleted bool, start Moment, end M
 func NewBlockWithDuration(id int, category string, deleted bool, dur Duration) TimeBlock {
 	return TimeBlock{
 		Id:           id,
-		Category:     category,
+		Category:     NewCategoryFromString(category),
 		Deleted:      deleted,
 		Type:         TypeDuration,
 		WithDuration: WithDuration{Duration: dur},

@@ -37,9 +37,9 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 		quotumMap[time.Weekday(weekday)] = dur
 	}
 
-	var categories model.Categories
+	var categories model.CategorySettings
 	for _, categoryData := range input.Categories {
-		newCategory := model.NewCategory(categoryData.Name)
+		newCategory := model.NewCategorySetting(categoryData.Name)
 		newCategory.MaxDayQuotum = categoryData.MaxDayQuotum
 		categories = append(categories, newCategory)
 	}
@@ -48,7 +48,7 @@ func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 		Version:            VERSION,
 		SelectedCategories: infra.NewStackFromString(input.SelectedCategories),
 		Quota:              quotumMap,
-		Categories:         categories,
+		CategorySettings:   categories,
 	}
 
 	return upkeep, nil
@@ -61,7 +61,7 @@ func (r *UpkeepRepository) Insert(m model.Upkeep) error {
 	}
 
 	var categories []categoryJson
-	for _, category := range m.Categories {
+	for _, category := range m.CategorySettings {
 		categories = append(categories, categoryJson{
 			Name:         category.Name,
 			MaxDayQuotum: category.MaxDayQuotum,

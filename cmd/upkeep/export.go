@@ -20,7 +20,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 
 			blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
 			for _, block := range blocks {
-				category := block.Block.Category
+				category := block.Block.Category.GroupName()
 				dur, has := dateDurs[category]
 				if !has {
 					dur = time.Duration(0)

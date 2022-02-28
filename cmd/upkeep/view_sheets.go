@@ -53,7 +53,7 @@ func ViewSheets(app *App) (string, error) {
 				)
 			}
 
-			printer.PrintC(infra.Green, "%s", block.Block.Category)
+			printer.PrintC(infra.Green, "%s", block.Block.Category.GroupName())
 
 			printer.Newline()
 		}

@@ -10,7 +10,7 @@ type Upkeep struct {
 	Version            string
 	SelectedCategories infra.Stack
 	Quota              map[time.Weekday]Duration
-	Categories         Categories
+	CategorySettings   CategorySettings
 }
 
 func (s Upkeep) ShiftSelectedCategory() Upkeep {
@@ -24,9 +24,9 @@ func (s Upkeep) UnshiftSelectedCategory() Upkeep {
 	return s
 }
 
-func (s *Upkeep) GetSelectedCategory() Category {
+func (s *Upkeep) GetSelectedCategory() CategorySetting {
 	selected := s.SelectedCategories.Peek()
-	return s.Categories.Get(selected)
+	return s.CategorySettings.Get(selected)
 }
 
 func (s Upkeep) SetSelectedCategory(name string) Upkeep {
@@ -37,7 +37,7 @@ func (s Upkeep) SetSelectedCategory(name string) Upkeep {
 }
 
 func (s Upkeep) SetCategoryMaxDayQuotum(category string, dur *time.Duration) Upkeep {
-	cat := s.Categories.Get(category)
+	cat := s.CategorySettings.Get(category)
 
 	newDur := NewDuration()
 	if dur != nil {
@@ -45,7 +45,7 @@ func (s Upkeep) SetCategoryMaxDayQuotum(category string, dur *time.Duration) Upk
 	}
 	cat.MaxDayQuotum = newDur
 
-	s.Categories = s.Categories.Add(cat)
+	s.CategorySettings = s.CategorySettings.Add(cat)
 	return s
 }
 
@@ -84,7 +84,7 @@ func (s Upkeep) GetTimesheetQuotum(t Timesheet) Duration {
 
 func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBlocks {
 	categoryQuota := make(map[string]time.Duration)
-	for _, c := range s.Categories {
+	for _, c := range s.CategorySettings {
 		if c.MaxDayQuotum.IsDefined() {
 			categoryQuota[c.Name] = *c.MaxDayQuotum.d
 		}
@@ -98,13 +98,13 @@ func (s Upkeep) DiscountTimeBlocks(t Timesheet, at time.Time) DiscountedTimeBloc
 		}
 		discountedDur := block.BaseDuration()
 		isDiscounted := false
-		remaining, has := categoryQuota[block.Category]
+		remaining, has := categoryQuota[block.Category.String()]
 		if has {
 			if remaining > discountedDur {
-				categoryQuota[block.Category] -= discountedDur
+				categoryQuota[block.Category.String()] -= discountedDur
 			} else {
 				discountedDur = remaining
-				categoryQuota[block.Category] = 0
+				categoryQuota[block.Category.String()] = 0
 				isDiscounted = true
 			}
 		}

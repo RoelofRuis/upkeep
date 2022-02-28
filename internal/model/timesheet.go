@@ -61,7 +61,7 @@ func (s Timesheet) Write(category string, dur Duration) Timesheet {
 func (s Timesheet) UpdateBlockCategory(blockId int, category string) Timesheet {
 	for i, block := range s.Blocks {
 		if block.Id == blockId {
-			s.Blocks[i].Category = category
+			s.Blocks[i].Category = NewCategoryFromString(category)
 		}
 	}
 	return s
@@ -125,11 +125,17 @@ func (s Timesheet) IsStarted() bool {
 }
 
 func (s Timesheet) GetCategoryNames() []string {
-	var categories Categories
+	names := make(map[string]bool)
 	for _, block := range s.Blocks {
-		if block.Category != "" {
-			categories = categories.Add(Category{Name: block.Category})
+		if block.Category.GroupName() != "" {
+			names[block.Category.String()] = true
 		}
 	}
-	return categories.Names()
+
+	var res []string
+	for name, _ := range names {
+		res = append(res, name)
+	}
+
+	return res
 }

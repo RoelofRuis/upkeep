@@ -13,10 +13,17 @@ func ViewCategories(app *App) (string, error) {
 	durations := make(map[string]time.Duration)
 	nameLength := 0
 
+	byGroup := app.Params.GetNamed("g", "c") == "g"
+
 	for _, sheet := range app.Timesheets {
 		blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
 		for _, block := range blocks {
-			category := block.Block.Category
+			var category string
+			if byGroup {
+				category = block.Block.Category.GroupName()
+			} else {
+				category = block.Block.Category.String()
+			}
 			nameLength = infra.Max(len(category), nameLength)
 
 			dur, has := durations[category]

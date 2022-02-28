@@ -86,7 +86,7 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 			Start:    block.WithTime.Start,
 			End:      block.WithTime.End,
 			Duration: block.WithDuration.Duration,
-			Category: block.Category,
+			Category: block.Category.String(),
 			Deleted:  block.Deleted,
 		})
 	}
