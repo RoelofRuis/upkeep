@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/roelofruis/upkeep/internal/infra"
@@ -46,7 +46,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		sort.Strings(categoryNames)
 
 		var records [][]string
-		headers := []string{"FINALISED", "DATE"}
+		headers := []string{"DATE"}
 		for _, name := range categoryNames {
 			headers = append(headers, name)
 		}
@@ -54,7 +54,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		records = append(records, headers)
 
 		for _, sheet := range app.Timesheets {
-			record := []string{strconv.FormatBool(sheet.Finalised), sheet.Date.String()}
+			record := []string{sheet.Date.String()}
 			dayCategories := allDays[sheet.Date]
 			var sumDur = time.Duration(0)
 			for _, name := range categoryNames {
@@ -75,8 +75,9 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 			}
 		}
 
-		totals := []string{"", "TOTALS"}
+		totals := []string{"TOTALS"}
 		var sumDur = time.Duration(0)
+
 		for _, name := range categoryNames {
 			dur, _ := categoryTotals[name]
 			sumDur += dur
@@ -84,6 +85,14 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		}
 		totals = append(totals, infra.FormatDuration(sumDur))
 		records = append(records, totals)
+
+		percentages := []string{"PERCENTAGES"}
+		for _, name := range categoryNames {
+			dur, _ := categoryTotals[name]
+			perc := float64(dur) / float64(sumDur) * 100
+			percentages = append(percentages, fmt.Sprintf("%0.2f%%", perc))
+		}
+		records = append(records, percentages)
 
 		// export records
 		if err := io.Export("export.csv", records); err != nil {
