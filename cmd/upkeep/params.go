@@ -11,6 +11,13 @@ import (
 
 var dateDefinition = regexp.MustCompile("^(-?[0-9]+)?([a-zA-Z]+)$")
 
+// GroupCategories determines whether to group categories or use the full category names
+// Specify g:g if you want to group by category group
+// specify g:c if you want to group by individual category
+func GroupCategories(params infra.Params) bool {
+	return params.GetNamed("g", "c") == "g"
+}
+
 // MakeDateRange shifts the given date based on the date parameter provided.
 // It returns the shifted date and the number of selected days.
 // A date definition can be one of the following:

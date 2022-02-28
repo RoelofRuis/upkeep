@@ -11,6 +11,8 @@ import (
 func ViewDays(app *App) (string, error) {
 	printer := infra.TerminalPrinter{}
 
+	groupCategories := GroupCategories(app.Params)
+
 	upToRecentDur := time.Duration(0)
 	totalDur := time.Duration(0)
 	upToRecentQuotum := model.NewDuration()
@@ -48,7 +50,7 @@ func ViewDays(app *App) (string, error) {
 			printer.PrintC(infra.Bold, "%s / %s ", infra.FormatDurationBracketed(dayDur), infra.FormatDurationBracketed(dayQuotum.Get()))
 		}
 
-		printer.PrintC(infra.Green, "%s", strings.Join(daySheet.GetCategoryNames(), " ")).Newline()
+		printer.PrintC(infra.Green, "%s", strings.Join(daySheet.GetCategoryNames(groupCategories), " ")).Newline()
 	}
 
 	upToRecentPerc := (float64(upToRecentDur) / float64(upToRecentQuotum.Get())) * 100
@@ -61,7 +63,7 @@ func ViewDays(app *App) (string, error) {
 
 	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
 
-	printer.PrintC(infra.White + infra.Bold, "                %s / %s (%0.1f%%)",
+	printer.PrintC(infra.White+infra.Bold, "                %s / %s (%0.1f%%)",
 		infra.FormatDurationBracketed(totalDur),
 		infra.FormatDurationBracketed(totalQuotum.Get()),
 		totalPerc,

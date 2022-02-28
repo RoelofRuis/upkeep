@@ -25,9 +25,9 @@ func NewCategoryFromString(s string) Category {
 	}
 }
 
-func (c Category) GroupName() string {
-	if c.Group == "" {
-		return c.Name
+func (c Category) GetName(byGroup bool) string {
+	if !byGroup || c.Group == "" {
+		return c.String()
 	}
 
 	return c.Group

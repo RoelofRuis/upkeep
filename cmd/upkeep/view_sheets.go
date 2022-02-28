@@ -12,6 +12,8 @@ func ViewSheets(app *App) (string, error) {
 	printer := infra.TerminalPrinter{}
 	printer.PrintC(infra.BGGreen, "%s", strings.Join(app.Upkeep.SelectedCategories, " | ")).Newline()
 
+	groupCategories := GroupCategories(app.Params)
+
 	for _, timesheet := range app.Timesheets {
 		code := infra.Bold
 		if timesheet.Finalised {
@@ -53,7 +55,7 @@ func ViewSheets(app *App) (string, error) {
 				)
 			}
 
-			printer.PrintC(infra.Green, "%s", block.Block.Category.GroupName())
+			printer.PrintC(infra.Green, "%s", block.Block.Category.GetName(groupCategories))
 
 			printer.Newline()
 		}

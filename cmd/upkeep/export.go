@@ -11,6 +11,7 @@ import (
 
 func Export(io infra.FileIO) func(app *App) (string, error) {
 	return func(app *App) (string, error) {
+		groupCategories := GroupCategories(app.Params)
 
 		categoryTotals := make(map[string]time.Duration)
 		allDays := make(map[model.Date]map[string]time.Duration)
@@ -20,7 +21,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 
 			blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
 			for _, block := range blocks {
-				category := block.Block.Category.GroupName()
+				category := block.Block.Category.GetName(groupCategories)
 				dur, has := dateDurs[category]
 				if !has {
 					dur = time.Duration(0)

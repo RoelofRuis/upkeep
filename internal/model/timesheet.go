@@ -124,12 +124,10 @@ func (s Timesheet) IsStarted() bool {
 	return s.LastStart.IsDefined()
 }
 
-func (s Timesheet) GetCategoryNames() []string {
+func (s Timesheet) GetCategoryNames(byGroup bool) []string {
 	names := make(map[string]bool)
 	for _, block := range s.Blocks {
-		if block.Category.GroupName() != "" {
-			names[block.Category.String()] = true
-		}
+		names[block.Category.GetName(byGroup)] = true
 	}
 
 	var res []string
