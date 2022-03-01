@@ -46,6 +46,12 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		sort.Strings(categoryNames)
 
 		var records [][]string
+
+		format := app.Params.GetNamed("f", "")
+		if format == "excel" {
+			records = append(records, []string{"sep=,"})
+		}
+
 		headers := []string{"DATE", "DAY"}
 		for _, name := range categoryNames {
 			headers = append(headers, name)
