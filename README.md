@@ -61,12 +61,24 @@ Run `upkeep help` to view the available commands.
 Most commands accept a date (range) parameter given as `d:<date>`.
 Here `<date>` can be one of the following:
 - Any date in the form of `YYYY-MM-DD` to select that specific date.
-- `d` or `day` to select a day.
-- `w` or `week` to select a week, monday to friday.
-- `W` or `Week` to select a week, monday to sunday.
-- `m` or `month` to select a month.
+- `d` or `day` to select a day (default). Without shifting, it selects the current day.
+- `w` or `week` to select a week. Without shifting, it selects the current week.
+- `W` or `Week` to select a week, Without shifting, it selects the current week.
+- `m` or `month` to select a month. Without shifting, it selects the current month.
 
 The letter/word inputs can be prefixed with (negative) numbers to shift their time range. For instance to select two weeks ago, use `d:-2w`.
+
+### Group parameter
+
+Categories for a block can be specified in two parts with a point separating the parts. In this case, the first part is treated as the group name. This allows for grouping block times in outputs/exports.
+
+```upkeep start group.task```
+
+If you want to view the grouped times, specify the group parameter `g:<group>`. Here `<group>` can be one of the following:
+- `g` to use groups
+- `c` to use the categories (default).
+
+```upkeep view cat g:g```
 
 ## Development
 
