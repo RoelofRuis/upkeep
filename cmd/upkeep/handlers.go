@@ -75,7 +75,7 @@ func HandleContinue(app *App) (string, error) {
 	return HandleStart(app)
 }
 
-var validCategory = regexp.MustCompile(`^[a-z0-9_]+(\.[a-z0-9_]+)?$`)
+var validCategory = regexp.MustCompile(`^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)?$`)
 
 func HandleSet(app *App) (string, error) {
 	if app.Params.Len() == 0 {
