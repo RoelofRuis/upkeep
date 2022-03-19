@@ -8,29 +8,29 @@ import (
 	"github.com/roelofruis/upkeep/internal/model"
 )
 
-func ViewDays(app *App) (string, error) {
+func ViewDays(req *Request) (string, error) {
 	printer := infra.TerminalPrinter{}
 
-	groupCategories := GroupCategories(app.Params)
+	groupCategories := GroupCategories(req.Params)
 
 	upToRecentDur := time.Duration(0)
 	totalDur := time.Duration(0)
 	upToRecentQuotum := model.NewDuration()
 	totalQuotum := model.NewDuration()
 
-	for _, daySheet := range app.Timesheets {
-		blocks := app.Upkeep.DiscountTimeBlocks(*daySheet, time.Now())
+	for _, daySheet := range req.Timesheets {
+		blocks := req.Upkeep.DiscountTimeBlocks(*daySheet, req.Clock.Now())
 		dayDur := blocks.TotalDuration()
 		totalDur += dayDur
 
-		dayQuotum := app.Upkeep.GetTimesheetQuotum(*daySheet)
+		dayQuotum := req.Upkeep.GetTimesheetQuotum(*daySheet)
 		totalQuotum = totalQuotum.Add(dayQuotum)
 
 		code := infra.Bold
 		if daySheet.Finalised {
 			code += infra.Green
 		}
-		if !daySheet.Date.After(time.Now()) {
+		if !daySheet.Date.After(req.Clock.Now()) {
 			upToRecentDur += dayDur
 			upToRecentQuotum = upToRecentQuotum.Add(dayQuotum)
 		} else {

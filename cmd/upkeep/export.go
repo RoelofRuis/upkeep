@@ -9,17 +9,17 @@ import (
 	"github.com/roelofruis/upkeep/internal/model"
 )
 
-func Export(io infra.FileIO) func(app *App) (string, error) {
-	return func(app *App) (string, error) {
-		groupCategories := GroupCategories(app.Params)
+func (a *App) Export() func(req *Request) (string, error) {
+	return func(req *Request) (string, error) {
+		groupCategories := GroupCategories(req.Params)
 
 		categoryTotals := make(map[string]time.Duration)
 		allDays := make(map[model.Date]map[string]time.Duration)
 
-		for _, sheet := range app.Timesheets {
+		for _, sheet := range req.Timesheets {
 			dateDurs := make(map[string]time.Duration)
 
-			blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
+			blocks := req.Upkeep.DiscountTimeBlocks(*sheet, req.Clock.Now())
 			for _, block := range blocks {
 				category := block.Block.Category.GetName(groupCategories)
 				dur, has := dateDurs[category]
@@ -47,7 +47,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 
 		var records [][]string
 
-		format := app.Params.GetNamed("f", "")
+		format := req.Params.GetNamed("f", "")
 		if format == "excel" {
 			records = append(records, []string{"sep=,"})
 		}
@@ -59,7 +59,7 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		headers = append(headers, "TOTALS")
 		records = append(records, headers)
 
-		for _, sheet := range app.Timesheets {
+		for _, sheet := range req.Timesheets {
 			record := []string{
 				sheet.Date.Format("2006-01-02"),
 				sheet.Date.Format("Monday"),
@@ -104,10 +104,11 @@ func Export(io infra.FileIO) func(app *App) (string, error) {
 		records = append(records, percentages)
 
 		// export records
-		if err := io.Export("export.csv", records); err != nil {
+		exportName := fmt.Sprintf("export_%s.csv", req.Clock.Now().Format("20060102_150405"))
+		if err := a.IO.Export(exportName, records); err != nil {
 			return "", err
 		}
 
-		return "Wrote export.csv", nil
+		return fmt.Sprintf("Wrote %s to current working directory", exportName), nil
 	}
 }

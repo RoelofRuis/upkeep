@@ -1,27 +1,25 @@
 package main
 
 import (
-	"strings"
-	"time"
-
 	"github.com/roelofruis/upkeep/internal/infra"
 	"github.com/roelofruis/upkeep/internal/model"
+	"strings"
 )
 
-func ViewSheets(app *App) (string, error) {
+func ViewSheets(req *Request) (string, error) {
 	printer := infra.TerminalPrinter{}
-	printer.PrintC(infra.BGGreen, "%s", strings.Join(app.Upkeep.SelectedCategories, " | ")).Newline()
+	printer.PrintC(infra.BGGreen, "%s", strings.Join(req.Upkeep.SelectedCategories, " | ")).Newline()
 
-	groupCategories := GroupCategories(app.Params)
+	groupCategories := GroupCategories(req.Params)
 
-	for _, timesheet := range app.Timesheets {
+	for _, timesheet := range req.Timesheets {
 		code := infra.Bold
 		if timesheet.Finalised {
 			code += infra.Green
 		}
 		printer.PrintC(code, "%s", timesheet.Date.Format("Monday 02 Jan 2006")).Newline()
 
-		blocks := app.Upkeep.DiscountTimeBlocks(*timesheet, time.Now())
+		blocks := req.Upkeep.DiscountTimeBlocks(*timesheet, req.Clock.Now())
 
 		for _, block := range blocks {
 			if block.Block.Id == -1 {
@@ -60,7 +58,7 @@ func ViewSheets(app *App) (string, error) {
 			printer.Newline()
 		}
 
-		quotum := app.Upkeep.GetTimesheetQuotum(*timesheet)
+		quotum := req.Upkeep.GetTimesheetQuotum(*timesheet)
 		totalDuration := blocks.TotalDuration()
 
 		if !quotum.IsDefined() {

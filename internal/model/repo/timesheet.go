@@ -8,7 +8,7 @@ import (
 )
 
 type TimesheetRepository struct {
-	FileIO infra.FileIO
+	IO infra.IO
 }
 
 type timesheetJson struct {
@@ -39,7 +39,7 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 		Finalised: false,
 	}
 
-	if err := r.FileIO.Read(filenameForDate(date), &input); err != nil {
+	if err := r.IO.Read(filenameForDate(date), &input); err != nil {
 		return model.Timesheet{}, err
 	}
 
@@ -100,7 +100,7 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 		Finalised: m.Finalised,
 	}
 
-	if err := r.FileIO.Write(filenameForDate(m.Date), output); err != nil {
+	if err := r.IO.Write(filenameForDate(m.Date), output); err != nil {
 		return err
 	}
 

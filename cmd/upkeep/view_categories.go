@@ -8,15 +8,15 @@ import (
 	"github.com/roelofruis/upkeep/internal/infra"
 )
 
-func ViewCategories(app *App) (string, error) {
+func ViewCategories(req *Request) (string, error) {
 	var categories []string
 	durations := make(map[string]time.Duration)
 	nameLength := 0
 
-	groupCategories := GroupCategories(app.Params)
+	groupCategories := GroupCategories(req.Params)
 
-	for _, sheet := range app.Timesheets {
-		blocks := app.Upkeep.DiscountTimeBlocks(*sheet, time.Now())
+	for _, sheet := range req.Timesheets {
+		blocks := req.Upkeep.DiscountTimeBlocks(*sheet, req.Clock.Now())
 		for _, block := range blocks {
 			category := block.Block.Category.GetName(groupCategories)
 			nameLength = infra.Max(len(category), nameLength)

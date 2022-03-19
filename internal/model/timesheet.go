@@ -131,7 +131,7 @@ func (s Timesheet) GetCategoryNames(byGroup bool) []string {
 	}
 
 	var res []string
-	for name, _ := range names {
+	for name := range names {
 		res = append(res, name)
 	}
 

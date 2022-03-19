@@ -8,7 +8,7 @@ import (
 )
 
 type UpkeepRepository struct {
-	FileIO infra.FileIO
+	IO infra.IO
 }
 
 type upkeepJson struct {
@@ -28,7 +28,7 @@ const VERSION = "1.0"
 func (r *UpkeepRepository) Get() (model.Upkeep, error) {
 	input := upkeepJson{}
 
-	if err := r.FileIO.Read(filename(), &input); err != nil {
+	if err := r.IO.Read(filename(), &input); err != nil {
 		return model.Upkeep{}, err
 	}
 
@@ -75,7 +75,7 @@ func (r *UpkeepRepository) Insert(m model.Upkeep) error {
 		Categories:         categories,
 	}
 
-	if err := r.FileIO.Write(filename(), output); err != nil {
+	if err := r.IO.Write(filename(), output); err != nil {
 		return err
 	}
 

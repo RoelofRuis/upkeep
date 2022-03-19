@@ -5,13 +5,13 @@ import (
 )
 
 func TestNewParams(t *testing.T) {
-	p := ParseArgs([]string{"upkeep", "view", "cat", "-dweek"})
+	p := ParseArgs([]string{"upkeep", "view", "cat", "d:w"})
 
 	if p.ProgName != "upkeep" {
 		t.Error("incorrect program name")
 	}
 
-	if p.Params.NamedParams["date"] != "week" {
+	if p.Params.NamedParams["d"] != "w" {
 		t.Error("incorrect duration range")
 	}
 
@@ -19,7 +19,7 @@ func TestNewParams(t *testing.T) {
 		t.Errorf("incorrect number of arguments")
 	}
 
-	if p.Path(2) != "view/cat" {
+	if p.Path(2) != "view cat" {
 		t.Errorf("incorrect path exptected 'view/cat'")
 	}
 

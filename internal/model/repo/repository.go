@@ -9,9 +9,9 @@ type Repository struct {
 	Timesheets TimesheetRepository
 }
 
-func New(fileIO infra.FileIO) Repository {
+func New(io infra.IO) Repository {
 	return Repository{
-		Upkeep:     UpkeepRepository{fileIO},
-		Timesheets: TimesheetRepository{fileIO},
+		Upkeep:     UpkeepRepository{io},
+		Timesheets: TimesheetRepository{io},
 	}
 }
