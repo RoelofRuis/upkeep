@@ -45,6 +45,7 @@ func main() {
 	router.Register("stop", infra.Description{Base: "Stop the active block and save it", Extra: "Only first day of selection"}, repository.Handle(HandleStop))
 	router.Register("abort", infra.Description{Base: "Abort the active block without saving", Extra: "Only first day of selection"}, repository.Handle(HandleAbort))
 	router.Register("switch", infra.Description{Base: "Start a new block and put active category on the stack", Extra: "Only first day of selection"}, repository.Handle(HandleSwitch))
+	router.Register("swap", infra.Description{Base: "Swap last and second last categories on the stack", Extra: "Only first day of selection"}, repository.Handle(HandleSwap))
 	router.Register("continue", infra.Description{Base: "Start new block and pop active category from stack", Extra: "Only first day of selection"}, repository.Handle(HandleContinue))
 	router.Register("set", infra.Description{Base: "Set the active category"}, repository.Handle(HandleSet))
 	router.Register("write", infra.Description{Base: "Write duration-only block", Extra: "Only first day of selection"}, repository.Handle(HandleWrite))

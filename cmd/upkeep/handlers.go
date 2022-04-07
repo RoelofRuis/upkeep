@@ -64,6 +64,13 @@ func HandleSwitch(app *App) (string, error) {
 	return HandleStart(app)
 }
 
+func HandleSwap(app *App) (string, error) {
+	upkeep := app.Upkeep.SwapCategories()
+	app.Upkeep = &upkeep
+
+	return ViewSheets(app)
+}
+
 func HandleContinue(app *App) (string, error) {
 	_, err := HandleStop(app)
 	if err != nil {
