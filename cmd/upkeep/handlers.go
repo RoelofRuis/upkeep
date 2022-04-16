@@ -115,6 +115,13 @@ func HandleSwitch(req *Request) (string, error) {
 	return HandleStart(req)
 }
 
+func HandleSwap(req *Request) (string, error) {
+	upkeep := req.Upkeep.SwapCategories()
+	req.Upkeep = &upkeep
+
+	return ViewSheets(req)
+}
+
 func HandleContinue(req *Request) (string, error) {
 	_, err := HandleStop(req)
 	if err != nil {

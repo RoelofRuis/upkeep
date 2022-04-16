@@ -24,6 +24,19 @@ func (s Upkeep) UnshiftSelectedCategory() Upkeep {
 	return s
 }
 
+func (s Upkeep) SwapCategories() Upkeep {
+	lastStack, lastCat, has := s.SelectedCategories.Pop()
+	if !has {
+		return s
+	}
+	stack, secondLastCat, has := lastStack.Pop()
+	if !has {
+		return s
+	}
+	s.SelectedCategories = stack.Push(lastCat).Push(secondLastCat)
+	return s
+}
+
 func (s *Upkeep) GetSelectedCategory() CategorySetting {
 	selected := s.SelectedCategories.Peek()
 	return s.CategorySettings.Get(selected)
