@@ -17,28 +17,37 @@ type IO interface {
 }
 
 type InMemoryIO struct {
-	Files   map[string]interface{}
+	Files   map[string][]byte
 	Exports map[string][][]string
 }
 
 func NewInMemoryIO() *InMemoryIO {
 	return &InMemoryIO{
-		Files:   make(map[string]interface{}),
+		Files:   make(map[string][]byte),
 		Exports: make(map[string][][]string),
 	}
 }
 
-func (io *InMemoryIO) Read(fname string, std interface{}) error {
+func (io *InMemoryIO) Read(fname string, dst interface{}) error {
 	data, has := io.Files[fname]
 	if !has {
 		return nil
 	}
-	std = data
+
+	if err := json.Unmarshal(data, dst); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (io *InMemoryIO) Write(fname string, src interface{}) error {
-	io.Files[fname] = src
+	data, err := json.Marshal(src)
+	if err != nil {
+		return err
+	}
+
+	io.Files[fname] = data
 	return nil
 }
 
