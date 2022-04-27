@@ -12,12 +12,13 @@ type TimesheetRepository struct {
 }
 
 type timesheetJson struct {
-	Date      model.Date     `json:"date"`
-	NextId    int            `json:"next_id"`
-	LastStart model.Moment   `json:"last_start"`
-	Blocks    []blockJson    `json:"blocks"`
-	Quotum    model.Duration `json:"quotum"`
-	Finalised bool           `json:"finalised"`
+	Date           model.Date     `json:"date"`
+	NextId         int            `json:"next_id"`
+	LastStart      model.Moment   `json:"last_start"`
+	Blocks         []blockJson    `json:"blocks"`
+	Quotum         model.Duration `json:"quotum"`
+	AdjustedQuotum bool           `json:"adjusted_quotum"`
+	Finalised      bool           `json:"finalised"`
 }
 
 type blockJson struct {
@@ -32,11 +33,12 @@ type blockJson struct {
 
 func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, error) {
 	input := timesheetJson{
-		NextId:    0,
-		LastStart: model.NewMoment(),
-		Blocks:    nil,
-		Quotum:    model.NewDuration(),
-		Finalised: false,
+		NextId:         0,
+		LastStart:      model.NewMoment(),
+		Blocks:         nil,
+		Quotum:         model.NewDuration(),
+		AdjustedQuotum: false,
+		Finalised:      false,
 	}
 
 	if err := r.IO.Read(filenameForDate(date), &input); err != nil {
@@ -46,6 +48,7 @@ func (r *TimesheetRepository) GetForDate(date model.Date) (model.Timesheet, erro
 	sheet := model.NewTimesheet(date)
 	sheet.NextId = input.NextId
 	sheet.Quotum = input.Quotum
+	sheet.AdjustedQuotum = input.AdjustedQuotum
 	sheet.LastStart = input.LastStart
 	sheet.Finalised = input.Finalised
 
@@ -92,12 +95,13 @@ func (r *TimesheetRepository) Insert(m model.Timesheet) error {
 	}
 
 	output := timesheetJson{
-		Date:      m.Date,
-		NextId:    m.NextId,
-		LastStart: m.LastStart,
-		Blocks:    blocks,
-		Quotum:    m.Quotum,
-		Finalised: m.Finalised,
+		Date:           m.Date,
+		NextId:         m.NextId,
+		LastStart:      m.LastStart,
+		Blocks:         blocks,
+		Quotum:         m.Quotum,
+		AdjustedQuotum: m.AdjustedQuotum,
+		Finalised:      m.Finalised,
 	}
 
 	if err := r.IO.Write(filenameForDate(m.Date), output); err != nil {

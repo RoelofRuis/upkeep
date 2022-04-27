@@ -5,22 +5,24 @@ import (
 )
 
 type Timesheet struct {
-	Date      Date
-	NextId    int
-	Blocks    []TimeBlock
-	LastStart Moment
-	Quotum    Duration
-	Finalised bool
+	Date           Date
+	NextId         int
+	Blocks         []TimeBlock
+	LastStart      Moment
+	Quotum         Duration
+	AdjustedQuotum bool
+	Finalised      bool
 }
 
 func NewTimesheet(date Date) Timesheet {
 	return Timesheet{
-		Date:      date,
-		NextId:    0,
-		Blocks:    []TimeBlock{},
-		LastStart: NewMoment(),
-		Quotum:    NewDuration(),
-		Finalised: false,
+		Date:           date,
+		NextId:         0,
+		Blocks:         []TimeBlock{},
+		LastStart:      NewMoment(),
+		Quotum:         NewDuration(),
+		AdjustedQuotum: false,
+		Finalised:      false,
 	}
 }
 
@@ -115,8 +117,20 @@ func (s Timesheet) Unfinalise() Timesheet {
 	return s
 }
 
-func (s Timesheet) SetQuotum(d Duration) Timesheet {
+func (s Timesheet) ClearQuotum() Timesheet {
+	s.AdjustedQuotum = true
+	s.Quotum = NewDuration()
+
+	return s
+}
+
+func (s Timesheet) SetQuotum(d Duration, isAdjusted bool) Timesheet {
+	if s.AdjustedQuotum && !isAdjusted {
+		return s
+	}
+
 	s.Quotum = d
+	s.AdjustedQuotum = isAdjusted
 	return s
 }
 

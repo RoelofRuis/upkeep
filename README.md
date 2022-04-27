@@ -52,6 +52,10 @@ Run `upkeep help` to view the available commands.
 
 ```upkeep conf quotum 1 6h```
 
+- Adjust (or remove with `none`) a (pre defined) quotum for a single day.
+
+```upkeep quotum 3h```
+
 - (Optional) If you want a specific category to only add to the day total for a certain maximum of time, set a category quotum.
 
 ```upkeep cat quotum break 30m```

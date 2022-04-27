@@ -75,7 +75,7 @@ func HandleStart(req *Request) (string, error) {
 	sheet := req.Timesheets[0].Start(now)
 
 	quotum := req.Upkeep.GetWeekdayQuotum(now.Weekday())
-	sheet = sheet.SetQuotum(quotum)
+	sheet = sheet.SetQuotum(quotum, false)
 
 	req.Timesheets[0] = &sheet
 
@@ -224,6 +224,30 @@ func HandleWrite(req *Request) (string, error) {
 	return ViewSheets(req)
 }
 
+func HandleQuotum(req *Request) (string, error) {
+	if req.Params.Len() < 1 {
+		return "", errors.New("invalid command, specify quotum duration")
+	}
+
+	var timesheet = *req.Timesheets[0]
+
+	param := req.Params.Get(0)
+	if param == "none" {
+		timesheet = timesheet.ClearQuotum()
+	} else {
+		d, err := time.ParseDuration(req.Params.Get(0))
+		if err != nil {
+			return "", err
+		}
+
+		timesheet = timesheet.SetQuotum(model.NewDuration().Set(d), true)
+	}
+
+	req.Timesheets[0] = &timesheet
+
+	return ViewSheets(req)
+}
+
 func HandleCategoryQuotum(req *Request) (string, error) {
 	if req.Params.Len() < 1 {
 		return "", errors.New("invalid command, specify category and optional quotum")
@@ -245,7 +269,7 @@ func HandleCategoryQuotum(req *Request) (string, error) {
 	return ViewSheets(req)
 }
 
-func HandleQuotum(req *Request) (string, error) {
+func HandleDayQuotum(req *Request) (string, error) {
 	if req.Params.Len() == 0 {
 		return "", errors.New("invalid command, specify weekday (0 = sunday) and optional quotum")
 	}

@@ -53,21 +53,27 @@ func ViewDays(req *Request) (string, error) {
 		printer.PrintC(infra.Green, "%s", strings.Join(daySheet.GetCategoryNames(groupCategories), " ")).Newline()
 	}
 
-	upToRecentPerc := (float64(upToRecentDur) / float64(upToRecentQuotum.Get())) * 100
+	if upToRecentQuotum.IsZero() {
+		printer.PrintC(infra.Bold, "                %s", infra.FormatDurationBracketed(upToRecentDur))
+	} else {
+		upToRecentPerc := (float64(upToRecentDur) / float64(upToRecentQuotum.Get())) * 100
 
-	printer.PrintC(infra.Bold, "                %s / %s (%0.1f%%)",
-		infra.FormatDurationBracketed(upToRecentDur),
-		infra.FormatDurationBracketed(upToRecentQuotum.Get()),
-		upToRecentPerc,
-	).Newline()
+		printer.PrintC(infra.Bold, "                %s / %s (%0.1f%%)",
+			infra.FormatDurationBracketed(upToRecentDur),
+			infra.FormatDurationBracketed(upToRecentQuotum.Get()),
+			upToRecentPerc,
+		).Newline()
+	}
 
-	totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
+	if !totalQuotum.IsZero() {
+		totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
 
-	printer.PrintC(infra.White+infra.Bold, "                %s / %s (%0.1f%%)",
-		infra.FormatDurationBracketed(totalDur),
-		infra.FormatDurationBracketed(totalQuotum.Get()),
-		totalPerc,
-	)
+		printer.PrintC(infra.White+infra.Bold, "                %s / %s (%0.1f%%)",
+			infra.FormatDurationBracketed(totalDur),
+			infra.FormatDurationBracketed(totalQuotum.Get()),
+			totalPerc,
+		)
+	}
 
 	return printer.String(), nil
 }
