@@ -26,10 +26,27 @@ func (d Duration) IsZero() bool {
 	return !d.IsDefined() || *d.d == 0
 }
 
+func (d Duration) AddDuration(dur time.Duration) Duration {
+	if d.IsDefined() {
+		return d.Add(NewDuration().Set(dur))
+	}
+	return NewDuration().Set(dur)
+}
+
 func (d Duration) Add(other Duration) Duration {
 	if d.IsDefined() {
 		if other.IsDefined() {
 			return NewDuration().Set(d.Get() + other.Get())
+		}
+		return d
+	}
+	return other
+}
+
+func (d Duration) Sub(other Duration) Duration {
+	if d.IsDefined() {
+		if other.IsDefined() {
+			return NewDuration().Set(d.Get() - other.Get())
 		}
 		return d
 	}

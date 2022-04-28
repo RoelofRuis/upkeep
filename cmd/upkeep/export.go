@@ -56,7 +56,8 @@ func (a *App) Export() func(req *Request) (string, error) {
 		for _, name := range categoryNames {
 			headers = append(headers, name)
 		}
-		headers = append(headers, "TOTALS")
+		quotaSum := model.NewDuration()
+		headers = append(headers, "TOTALS", "QUOTA")
 		records = append(records, headers)
 
 		for _, sheet := range req.Timesheets {
@@ -78,27 +79,44 @@ func (a *App) Export() func(req *Request) (string, error) {
 					record = append(record, infra.FormatDuration(dur))
 				}
 			}
+
+			quotaSum = quotaSum.Add(sheet.Quotum)
+
+			record = append(record, infra.FormatDuration(sumDur))
+			if sheet.Quotum.IsZero() && !sheet.AdjustedQuotum {
+				record = append(record, "")
+			} else {
+				record = append(record, infra.FormatDuration(sheet.Quotum.Get()))
+			}
+
 			if sumDur > 0 {
-				record = append(record, infra.FormatDuration(sumDur))
 				records = append(records, record)
 			}
 		}
 
 		totals := []string{"", "TOTALS"}
-		var sumDur = time.Duration(0)
+		var sumDur = model.NewDuration()
 
 		for _, name := range categoryNames {
 			dur, _ := categoryTotals[name]
-			sumDur += dur
+			sumDur = sumDur.AddDuration(dur)
 			totals = append(totals, infra.FormatDuration(dur))
 		}
-		totals = append(totals, infra.FormatDuration(sumDur))
+		totals = append(totals, infra.FormatDuration(sumDur.Get()))
+		totals = append(totals, infra.FormatDuration(quotaSum.Get()))
+
+		quotaDiff := sumDur.Sub(quotaSum).Get()
+		if quotaDiff < 0 {
+			totals = append(totals, fmt.Sprintf("%s short", infra.FormatDuration(-quotaDiff)))
+		} else {
+			totals = append(totals, fmt.Sprintf("%s extra", infra.FormatDuration(quotaDiff)))
+		}
 		records = append(records, totals)
 
 		percentages := []string{"", "PERCENTAGES"}
 		for _, name := range categoryNames {
 			dur, _ := categoryTotals[name]
-			perc := float64(dur) / float64(sumDur) * 100
+			perc := float64(dur) / float64(sumDur.Get()) * 100
 			percentages = append(percentages, fmt.Sprintf("%0.2f%%", perc))
 		}
 		records = append(records, percentages)
