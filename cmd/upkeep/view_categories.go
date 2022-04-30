@@ -31,6 +31,11 @@ func ViewCategories(req *Request) (string, error) {
 		}
 	}
 
+	totalDur := time.Duration(0)
+	for _, cat := range categories {
+		totalDur += durations[cat]
+	}
+
 	sort.Slice(categories, func(i, j int) bool {
 		return durations[categories[i]] > durations[categories[j]]
 	})
@@ -41,8 +46,12 @@ func ViewCategories(req *Request) (string, error) {
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.PrintC(infra.Green, format, cat).
 			PrintC(infra.Bold, " %s", infra.FormatDurationBracketed(durations[cat])).
+			Print(" %s",infra.FormatPercentage(durations[cat], totalDur)).
 			Newline()
 	}
+
+	printer.Repeat(" ", nameLength).
+		PrintC(infra.Bold, " %s", infra.FormatDurationBracketed(totalDur))
 
 	return printer.String(), nil
 }

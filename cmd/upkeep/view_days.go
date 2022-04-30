@@ -56,23 +56,21 @@ func ViewDays(req *Request) (string, error) {
 	if upToRecentQuotum.IsZero() {
 		printer.PrintC(infra.Bold, "                %s", infra.FormatDurationBracketed(upToRecentDur))
 	} else {
-		upToRecentPerc := (float64(upToRecentDur) / float64(upToRecentQuotum.Get())) * 100
-
-		printer.PrintC(infra.Bold, "                %s / %s (%0.1f%%)",
+		printer.PrintC(infra.Bold, "                %s / %s",
 			infra.FormatDurationBracketed(upToRecentDur),
 			infra.FormatDurationBracketed(upToRecentQuotum.Get()),
-			upToRecentPerc,
-		).Newline()
+		).
+			Print(" %s", infra.FormatPercentage(upToRecentDur, upToRecentQuotum.Get())).
+			Newline()
 	}
 
 	if !totalQuotum.IsZero() {
-		totalPerc := (float64(totalDur) / float64(totalQuotum.Get())) * 100
-
-		printer.PrintC(infra.White+infra.Bold, "                %s / %s (%0.1f%%)",
-			infra.FormatDurationBracketed(totalDur),
-			infra.FormatDurationBracketed(totalQuotum.Get()),
-			totalPerc,
-		)
+		printer.
+			PrintC(infra.White+infra.Bold, "                %s / %s",
+				infra.FormatDurationBracketed(totalDur),
+				infra.FormatDurationBracketed(totalQuotum.Get()),
+			).
+			Print(" %s", infra.FormatPercentage(totalDur, totalQuotum.Get()))
 	}
 
 	return printer.String(), nil

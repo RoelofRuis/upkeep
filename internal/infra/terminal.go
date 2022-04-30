@@ -34,6 +34,11 @@ func (t *TerminalPrinter) Print(s string, args ...interface{}) *TerminalPrinter 
 	return t
 }
 
+func (t *TerminalPrinter) Repeat(s string, n int) *TerminalPrinter {
+	t.addToBuffer(strings.Repeat(s, n))
+	return t
+}
+
 func (t *TerminalPrinter) Newline() *TerminalPrinter {
 	t.lines = append(t.lines, "")
 	return t
@@ -63,4 +68,11 @@ func FormatDuration(d time.Duration) string {
 	hours := int(d.Hours())
 	minutes := int(d.Minutes()) - (hours * 60)
 	return fmt.Sprintf("%d:%02d", hours, minutes)
+}
+
+func FormatPercentage(x time.Duration, y time.Duration) string {
+	if y == 0 {
+		return ""
+	}
+	return fmt.Sprintf("(%0.1f%%)", (float64(x) / float64(y)) * 100)
 }

@@ -66,11 +66,14 @@ func ViewSheets(req *Request) (string, error) {
 				PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(totalDuration)).
 				Newline()
 		} else {
-			perc := (float64(totalDuration) / float64(quotum.Get())) * 100
-
 			printer.Print("                   ").
-				PrintC(infra.Bold, "%s", infra.FormatDurationBracketed(totalDuration)).
-				Print(" / %s (%0.1f%%)", infra.FormatDurationBracketed(quotum.Get()), perc).
+				PrintC(
+					infra.Bold,
+					"%s / %s",
+					infra.FormatDurationBracketed(totalDuration),
+					infra.FormatDurationBracketed(quotum.Get()),
+				).
+				Print(" %s", infra.FormatPercentage(totalDuration, quotum.Get())).
 				Newline()
 		}
 	}
