@@ -28,8 +28,9 @@ func GroupCategories(params infra.Params) bool {
 //   Examples relative to an input date of today:
 //     d = today (length 1)
 //   -1d = yesterday (length 1)
-//    1w = next workweek starting monday (length 5)
-//     W = current workweek starting monday (length 7)
+//    1w = next workweek starting monday (length 7)
+//     w = current workweek starting monday (length 7)
+//    wr = rolling week: past seven days, ending today (length 7)
 //   -3m = three months ago starting first of month (length <number of days in that month>)
 func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, error) {
 	dateDef := params.GetNamed("d", "day")
@@ -58,12 +59,12 @@ func MakeDateRange(baseDate model.Date, params infra.Params) (model.Date, int, e
 	case "week":
 	case "w":
 		baseDate = baseDate.PreviousMonday().ShiftDay(shifts * 7)
-		numDays = 5
+		numDays = 7
 		break
 
-	case "Week":
-	case "W":
-		baseDate = baseDate.PreviousMonday().ShiftDay(shifts * 7)
+	case "weekrolling":
+	case "wr":
+		baseDate = baseDate.ShiftDay((shifts-1)*7 + 1)
 		numDays = 7
 		break
 

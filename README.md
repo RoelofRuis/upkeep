@@ -67,7 +67,7 @@ Here `<date>` can be one of the following:
 - Any date in the form of `YYYY-MM-DD` to select that specific date.
 - `d` or `day` to select a day (default). Without shifting, it selects the current day.
 - `w` or `week` to select a week. Without shifting, it selects the current week.
-- `W` or `Week` to select a week, Without shifting, it selects the current week.
+- `wr` or `weekrolling` to select a week by rolling window, ending on the current day.
 - `m` or `month` to select a month. Without shifting, it selects the current month.
 
 The letter/word inputs can be prefixed with (negative) numbers to shift their time range. For instance to select two weeks ago, use `d:-2w`.
