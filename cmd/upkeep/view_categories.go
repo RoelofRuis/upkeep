@@ -36,9 +36,20 @@ func ViewCategories(req *Request) (string, error) {
 		totalDur += durations[cat]
 	}
 
-	sort.Slice(categories, func(i, j int) bool {
-		return durations[categories[i]] > durations[categories[j]]
-	})
+	sortType := req.Params.GetNamed("sort", "%")
+	switch sortType {
+	case "%":
+		sort.Slice(categories, func(i, j int) bool {
+			return durations[categories[i]] > durations[categories[j]]
+		})
+		break
+
+	case "a":
+	default:
+		sort.Slice(categories, func(i, j int) bool {
+			return categories[i] < categories[j]
+		})
+	}
 
 	printer := infra.TerminalPrinter{}
 
@@ -46,7 +57,7 @@ func ViewCategories(req *Request) (string, error) {
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.PrintC(infra.Green, format, cat).
 			PrintC(infra.Bold, " %s", infra.FormatDurationBracketed(durations[cat])).
-			Print(" %s",infra.FormatPercentage(durations[cat], totalDur)).
+			Print(" %s", infra.FormatPercentage(durations[cat], totalDur)).
 			Newline()
 	}
 
