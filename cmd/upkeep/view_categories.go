@@ -38,16 +38,14 @@ func ViewCategories(req *Request) (string, error) {
 
 	sortType := req.Params.GetNamed("sort", "%")
 	switch sortType {
-	case "%":
-		sort.Slice(categories, func(i, j int) bool {
-			return durations[categories[i]] > durations[categories[j]]
-		})
-		break
-
 	case "a":
-	default:
 		sort.Slice(categories, func(i, j int) bool {
 			return categories[i] < categories[j]
+		})
+
+	default:
+		sort.Slice(categories, func(i, j int) bool {
+			return durations[categories[i]] > durations[categories[j]]
 		})
 	}
 
