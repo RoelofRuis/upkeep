@@ -39,7 +39,11 @@ func (a *App) Export() func(req *Request) (string, error) {
 		}
 
 		var categoryNames []string
-		for name := range categoryTotals {
+		for name, dur := range categoryTotals {
+			if dur == 0 {
+				continue
+			}
+
 			categoryNames = append(categoryNames, name)
 		}
 

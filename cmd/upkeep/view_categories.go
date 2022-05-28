@@ -52,6 +52,10 @@ func ViewCategories(req *Request) (string, error) {
 	printer := infra.TerminalPrinter{}
 
 	for _, cat := range categories {
+		if durations[cat] == 0 {
+			continue
+		}
+
 		format := fmt.Sprintf("%%-%ds", nameLength)
 		printer.PrintC(infra.Green, format, cat).
 			PrintC(infra.Bold, " %s", infra.FormatDurationBracketed(durations[cat])).
