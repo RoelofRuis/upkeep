@@ -84,7 +84,8 @@ func (a *App) Export() func(req *Request) (string, error) {
 				}
 			}
 
-			quotaSum = quotaSum.Add(sheet.Quotum)
+			sheetQuotum := req.Upkeep.GetTimesheetQuotum(*sheet)
+			quotaSum = quotaSum.Add(sheetQuotum)
 
 			record = append(record, infra.FormatDuration(sumDur))
 			if sheet.Quotum.IsZero() && !sheet.AdjustedQuotum {
