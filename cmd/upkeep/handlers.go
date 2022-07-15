@@ -10,14 +10,14 @@ import (
 	"github.com/roelofruis/upkeep/internal/model"
 )
 
-func (a *App) Handle(f func(request *Request) (string, error)) infra.Handler {
+func Handle(d *Dependencies, f func(request *Request) (string, error)) infra.Handler {
 	return func(params infra.Params) (string, error) {
-		upkeep, err := a.Repo.Upkeep.Get()
+		upkeep, err := d.Repo.Upkeep.Get()
 		if err != nil {
 			return "", err
 		}
 
-		date, numDays, err := MakeDateRange(model.NewDate(a.Clock.Now()), params)
+		date, numDays, err := MakeDateRange(model.NewDate(d.Clock.Now()), params)
 		if err != nil {
 			return "", err
 		}
@@ -26,7 +26,7 @@ func (a *App) Handle(f func(request *Request) (string, error)) infra.Handler {
 		refSheets := make([]*model.Timesheet, len(dates))
 		timesheets := make([]*model.Timesheet, len(dates))
 		for i, day := range dates {
-			sheet, err := a.Repo.Timesheets.GetForDate(day)
+			sheet, err := d.Repo.Timesheets.GetForDate(day)
 			if err != nil {
 				return "", err
 			}
@@ -35,7 +35,7 @@ func (a *App) Handle(f func(request *Request) (string, error)) infra.Handler {
 		}
 
 		req := &Request{
-			Clock:      a.Clock,
+			Clock:      d.Clock,
 			Params:     params,
 			Upkeep:     &upkeep,
 			Timesheets: timesheets,
@@ -47,13 +47,13 @@ func (a *App) Handle(f func(request *Request) (string, error)) infra.Handler {
 		}
 
 		if req.Upkeep != &upkeep {
-			if err := a.Repo.Upkeep.Insert(*req.Upkeep); err != nil {
+			if err := d.Repo.Upkeep.Insert(*req.Upkeep); err != nil {
 				return "", err
 			}
 		}
 		for i := 0; i < len(refSheets); i++ {
 			if req.Timesheets[i] != refSheets[i] {
-				if err := a.Repo.Timesheets.Insert(*req.Timesheets[i]); err != nil {
+				if err := d.Repo.Timesheets.Insert(*req.Timesheets[i]); err != nil {
 					return "", err
 				}
 			}

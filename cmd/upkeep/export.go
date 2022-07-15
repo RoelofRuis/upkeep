@@ -9,7 +9,7 @@ import (
 	"github.com/roelofruis/upkeep/internal/model"
 )
 
-func (a *App) Export() func(req *Request) (string, error) {
+func (a *Dependencies) Export() func(req *Request) (string, error) {
 	return func(req *Request) (string, error) {
 		groupCategories := GroupCategories(req.Params)
 
