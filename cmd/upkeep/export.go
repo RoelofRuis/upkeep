@@ -88,10 +88,10 @@ func (a *Dependencies) Export() func(req *Request) (string, error) {
 			quotaSum = quotaSum.Add(sheetQuotum)
 
 			record = append(record, infra.FormatDuration(sumDur))
-			if sheet.Quotum.IsZero() && !sheet.AdjustedQuotum {
+			if sheetQuotum.IsZero() && !sheet.AdjustedQuotum {
 				record = append(record, "")
 			} else {
-				record = append(record, infra.FormatDuration(sheet.Quotum.Get()))
+				record = append(record, infra.FormatDuration(sheetQuotum.Get()))
 			}
 
 			if sumDur > 0 {
